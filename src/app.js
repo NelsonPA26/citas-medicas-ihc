@@ -59,7 +59,6 @@ app.use((req, res, next) => {
 
 // Rutas
 app.use('/', authRoutes);
-app.use('/', authRoutes);
 app.use('/paciente', pacienteRoutes);
 app.use('/medico', medicoRoutes);
 app.use('/enfermera', enfermeraRoutes);

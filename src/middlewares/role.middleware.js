@@ -8,11 +8,8 @@ function allowRoles(...rolesPermitidos) {
     const rolUsuario = req.session.user.rol;
 
     if (!rolesPermitidos.includes(rolUsuario)) {
-      return res.status(403).send(`
-        <h1>Acceso denegado</h1>
-        <p>No tienes permisos para acceder a esta sección.</p>
-        <a href="/login">Volver</a>
-      `);
+      req.session.error = 'No tienes permisos para acceder a esta sección.';
+      return res.redirect('/login');
     }
 
     next();
