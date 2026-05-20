@@ -1,0 +1,109 @@
+<div class="module-card detalle-historial-card">
+  <div class="module-header">
+    <p>Revisa la información registrada durante tu atención.</p>
+  </div>
+
+  <section class="patient-summary">
+    <div>
+      <span>Fecha</span>
+      <strong><%= new Date(consulta.fecha).toLocaleDateString('es-PE') %></strong>
+    </div>
+
+    <div>
+      <span>Hora</span>
+      <strong><%= consulta.hora %></strong>
+    </div>
+
+    <div>
+      <span>Médico</span>
+      <strong>
+        Dr(a). <%= consulta.medico_nombres %> <%= consulta.medico_apellido_paterno %>
+      </strong>
+    </div>
+
+    <div>
+      <span>Especialidad</span>
+      <strong><%= consulta.especialidad %></strong>
+    </div>
+
+    <div class="full-row">
+      <span>Motivo de consulta</span>
+      <strong><%= consulta.motivo %></strong>
+    </div>
+  </section>
+
+  <section class="triaje-summary">
+    <h3>Triaje registrado</h3>
+
+    <% if (consulta.temperatura) { %>
+      <div class="triaje-summary-grid">
+        <div>
+          <span>Temperatura</span>
+          <strong><%= consulta.temperatura %> °C</strong>
+        </div>
+
+        <div>
+          <span>Presión arterial</span>
+          <strong><%= consulta.presion_arterial || 'No registrada' %></strong>
+        </div>
+
+        <div>
+          <span>Frecuencia cardiaca</span>
+          <strong><%= consulta.frecuencia_cardiaca || 'No registrada' %> lpm</strong>
+        </div>
+
+        <div>
+          <span>Saturación O₂</span>
+          <strong><%= consulta.saturacion || 'No registrada' %>%</strong>
+        </div>
+
+        <div class="full-row">
+          <span>Síntomas</span>
+          <strong><%= consulta.sintomas || 'No registrados' %></strong>
+        </div>
+
+        <div class="full-row">
+          <span>Observaciones de enfermería</span>
+          <strong><%= consulta.triaje_observaciones || 'Sin observaciones' %></strong>
+        </div>
+      </div>
+    <% } else { %>
+      <p class="text-muted">No hay información de triaje disponible.</p>
+    <% } %>
+  </section>
+
+  <section class="consulta-detail-section">
+    <h3>Consulta médica</h3>
+
+    <div class="consulta-detail-grid">
+      <div class="full-row">
+        <span>Diagnóstico</span>
+        <strong><%= consulta.diagnostico %></strong>
+      </div>
+
+      <div class="full-row">
+        <span>Tratamiento</span>
+        <strong><%= consulta.tratamiento %></strong>
+      </div>
+
+      <div class="full-row">
+        <span>Recomendaciones</span>
+        <strong><%= consulta.recomendaciones || 'Sin recomendaciones registradas' %></strong>
+      </div>
+
+      <div class="full-row">
+        <span>Observaciones</span>
+
+        <% if (consulta.privada === 1) { %>
+          <strong>Las observaciones de esta consulta son internas del personal médico.</strong>
+        <% } else { %>
+          <strong><%= consulta.observaciones || 'Sin observaciones registradas' %></strong>
+        <% } %>
+      </div>
+    </div>
+  </section>
+
+  <div class="form-actions">
+    <a href="/paciente/historial" class="btn-light">Volver</a>
+  </div>
+</div>

@@ -1,0 +1,335 @@
+<div class="module-card profile-card">
+  <div class="module-header">
+    <p>Consulta tus datos personales, actualiza tu información de contacto y cambia tu contraseña.</p>
+  </div>
+
+  <div class="profile-grid">
+    <section class="profile-section">
+      <h3>Datos personales</h3>
+
+      <div class="profile-info">
+        <div>
+          <span>Nombres</span>
+          <strong><%= profile.nombres %></strong>
+        </div>
+
+        <div>
+          <span>Apellidos</span>
+          <strong>
+            <%= profile.apellido_paterno %>
+            <%= profile.apellido_materno || '' %>
+          </strong>
+        </div>
+
+        <div>
+          <span>DNI</span>
+          <strong><%= profile.dni || 'No registrado' %></strong>
+        </div>
+
+        <div>
+          <span>Fecha de nacimiento</span>
+          <strong><%= profile.fecha_nacimiento || 'No registrada' %></strong>
+        </div>
+
+        <div>
+          <span>Sexo</span>
+          <strong><%= profile.sexo || 'No registrado' %></strong>
+        </div>
+
+        <div>
+          <span>Rol</span>
+          <strong class="capitalize"><%= profile.rol %></strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="profile-section">
+      <h3>Información editable</h3>
+      <p class="section-help">Puedes actualizar estos datos cuando sea necesario.</p>
+
+      <form action="/perfil/actualizar" method="POST" class="profile-form" id="profileForm">
+        <div id="profileMessage" class="step-message hidden"></div>
+
+        <div class="form-group">
+          <label for="correo">Correo electrónico</label>
+          <input 
+            type="email" 
+            id="correo" 
+            name="correo" 
+            value="<%= profile.correo || '' %>" 
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="telefono">Teléfono</label>
+          <input 
+            type="text" 
+            id="telefono" 
+            name="telefono" 
+            value="<%= profile.telefono || '' %>" 
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="fecha_nacimiento">Fecha de nacimiento</label>
+          <input 
+            type="date" 
+            id="fecha_nacimiento" 
+            name="fecha_nacimiento" 
+            value="<%= profile.fecha_nacimiento || '' %>" 
+            required
+          >
+        </div>
+
+        <div class="form-group">
+            <label for="sexo">Sexo</label>
+            <select id="sexo" name="sexo" required>
+                <option value="Masculino" <%= profile.sexo === 'Masculino' ? 'selected' : '' %>>Masculino</option>
+                <option value="Femenino" <%= profile.sexo === 'Femenino' ? 'selected' : '' %>>Femenino</option>
+                <option value="Otro" <%= profile.sexo === 'Otro' ? 'selected' : '' %>>Otro</option>
+                <option value="No especifica" <%= profile.sexo === 'No especifica' ? 'selected' : '' %>>No especifica</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+          <label for="direccion">Dirección</label>
+          <input 
+            type="text" 
+            id="direccion" 
+            name="direccion" 
+            value="<%= profile.direccion || '' %>"
+          >
+        </div>
+
+        <button type="submit" class="btn-dark">Guardar cambios</button>
+      </form>
+    </section>
+  </div>
+
+  <div class="profile-grid single-gap">
+    <section class="profile-section">
+      <h3>Datos según rol</h3>
+      <p class="section-help">Estos datos son administrados por el personal autorizado.</p>
+
+      <div class="profile-info">
+        <% if (profile.rol === 'paciente') { %>
+          <div>
+            <span>Código de estudiante</span>
+            <strong><%= extra && extra.codigo_estudiante ? extra.codigo_estudiante : 'No registrado' %></strong>
+          </div>
+
+          <div>
+            <span>Escuela</span>
+            <strong><%= extra && extra.escuela ? extra.escuela : 'No registrado' %></strong>
+          </div>
+
+          <div>
+            <span>Facultad</span>
+            <strong><%= extra && extra.facultad ? extra.facultad : 'No registrado' %></strong>
+          </div>
+
+          <div>
+            <span>Contexto universitario</span>
+            <strong><%= extra && extra.contexto_universitario ? extra.contexto_universitario : 'No registrado' %></strong>
+          </div>
+        <% } %>
+
+        <% if (profile.rol === 'medico') { %>
+          <div>
+            <span>Especialidad</span>
+            <strong><%= extra && extra.especialidad ? extra.especialidad : 'No registrado' %></strong>
+          </div>
+
+          <div>
+            <span>N.º de colegiatura</span>
+            <strong><%= extra && extra.numero_colegiatura ? extra.numero_colegiatura : 'No registrado' %></strong>
+          </div>
+
+          <div>
+            <span>Turno</span>
+            <strong><%= extra && extra.turno ? extra.turno : 'No registrado' %></strong>
+          </div>
+        <% } %>
+
+        <% if (profile.rol === 'enfermera') { %>
+          <div>
+            <span>Área</span>
+            <strong><%= extra && extra.area ? extra.area : 'No registrado' %></strong>
+          </div>
+
+          <div>
+            <span>Turno</span>
+            <strong><%= extra && extra.turno ? extra.turno : 'No registrado' %></strong>
+          </div>
+        <% } %>
+
+        <% if (profile.rol === 'administrativo') { %>
+          <div>
+            <span>Cargo</span>
+            <strong><%= extra && extra.cargo ? extra.cargo : 'No registrado' %></strong>
+          </div>
+
+          <div>
+            <span>Anexo</span>
+            <strong><%= extra && extra.anexo ? extra.anexo : 'No registrado' %></strong>
+          </div>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="profile-section">
+      <h3>Cambiar contraseña</h3>
+      <p class="section-help">Por seguridad, ingresa tu contraseña actual antes de crear una nueva.</p>
+
+      <form action="/perfil/cambiar-password" method="POST" class="profile-form" id="passwordForm">
+        <div id="passwordMessage" class="step-message hidden"></div>
+
+        <div class="form-group">
+          <label for="current_password">Contraseña actual</label>
+          <input 
+            type="password" 
+            id="current_password" 
+            name="current_password" 
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="new_password">Nueva contraseña</label>
+          <input 
+            type="password" 
+            id="new_password" 
+            name="new_password" 
+            required
+          >
+          <small class="form-help">Debe tener al menos 6 caracteres.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="confirm_password">Confirmar nueva contraseña</label>
+          <input 
+            type="password" 
+            id="confirm_password" 
+            name="confirm_password" 
+            required
+          >
+        </div>
+
+        <button type="submit" class="btn-dark">Cambiar contraseña</button>
+      </form>
+    </section>
+  </div>
+</div>
+
+<script>
+  const fechaNacimientoInput = document.getElementById('fecha_nacimiento');
+  const sexoInput = document.getElementById('sexo');
+
+  if (fechaNacimientoInput) {
+    fechaNacimientoInput.max = new Date().toISOString().split('T')[0];
+  }
+
+  function showFormMessage(container, message, field = null) {
+    container.textContent = message;
+    container.classList.remove('hidden');
+
+    document.querySelectorAll('.field-error').forEach(input => {
+      input.classList.remove('field-error');
+    });
+
+    if (field) {
+      field.classList.add('field-error');
+      field.focus();
+    }
+  }
+
+  function clearFormMessage(container) {
+    container.textContent = '';
+    container.classList.add('hidden');
+
+    document.querySelectorAll('.field-error').forEach(input => {
+      input.classList.remove('field-error');
+    });
+  }
+
+  const profileForm = document.getElementById('profileForm');
+  const profileMessage = document.getElementById('profileMessage');
+  const correoInput = document.getElementById('correo');
+  const telefonoInput = document.getElementById('telefono');
+
+  [correoInput, telefonoInput, fechaNacimientoInput, sexoInput].forEach(input => {
+    if (input) {
+      input.addEventListener('input', () => clearFormMessage(profileMessage));
+      input.addEventListener('change', () => clearFormMessage(profileMessage));
+    }
+  });
+
+  profileForm.addEventListener('submit', (event) => {
+    if (!correoInput.value.trim()) {
+      event.preventDefault();
+      showFormMessage(profileMessage, 'Ingresa tu correo electrónico.', correoInput);
+      return;
+    }
+
+    if (!telefonoInput.value.trim()) {
+      event.preventDefault();
+      showFormMessage(profileMessage, 'Ingresa tu número telefónico.', telefonoInput);
+      return;
+    }
+
+    if (!fechaNacimientoInput.value) {
+      event.preventDefault();
+      showFormMessage(profileMessage, 'Selecciona tu fecha de nacimiento.', fechaNacimientoInput);
+      return;
+    }
+
+    if (!sexoInput.value) {
+        event.preventDefault();
+        showFormMessage(profileMessage, 'Selecciona una opción en el campo sexo.', sexoInput);
+        return;
+    }
+
+    const fechaNacimiento = new Date(`${fechaNacimientoInput.value}T00:00:00`);
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    if (fechaNacimiento > hoy) {
+      event.preventDefault();
+      showFormMessage(profileMessage, 'La fecha de nacimiento no puede ser futura.', fechaNacimientoInput);
+      return;
+    }
+  });
+
+  const passwordForm = document.getElementById('passwordForm');
+  const passwordMessage = document.getElementById('passwordMessage');
+
+  const currentPassword = document.getElementById('current_password');
+  const newPassword = document.getElementById('new_password');
+  const confirmPassword = document.getElementById('confirm_password');
+
+  [currentPassword, newPassword, confirmPassword].forEach(input => {
+    input.addEventListener('input', () => clearFormMessage(passwordMessage));
+  });
+
+  passwordForm.addEventListener('submit', (event) => {
+    if (!currentPassword.value.trim()) {
+      event.preventDefault();
+      showFormMessage(passwordMessage, 'Ingresa tu contraseña actual.', currentPassword);
+      return;
+    }
+
+    if (newPassword.value.length < 6) {
+      event.preventDefault();
+      showFormMessage(passwordMessage, 'La nueva contraseña debe tener al menos 6 caracteres.', newPassword);
+      return;
+    }
+
+    if (newPassword.value !== confirmPassword.value) {
+      event.preventDefault();
+      showFormMessage(passwordMessage, 'La confirmación no coincide con la nueva contraseña.', confirmPassword);
+      return;
+    }
+  });
+</script>

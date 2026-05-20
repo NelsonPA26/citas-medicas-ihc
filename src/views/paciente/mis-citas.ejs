@@ -1,0 +1,163 @@
+<div class="module-card citas-card">
+  <div class="module-header">
+    <p>Consulta el estado de tus citas registradas.</p>
+  </div>
+
+
+  <form action="/paciente/mis-citas" method="GET" class="filter-card">
+    <div class="filter-grid">
+      <div class="form-group">
+        <label for="q">Buscar</label>
+        <input
+          type="text"
+          id="q"
+          name="q"
+          value="<%= filters.q || '' %>"
+          placeholder="Médico, especialidad o motivo"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="estado">Estado</label>
+        <select id="estado" name="estado">
+          <option value="">Todos</option>
+          <option value="pendiente" <%= filters.estado === 'pendiente' ? 'selected' : '' %>>Pendiente</option>
+          <option value="triaje_registrado" <%= filters.estado === 'triaje_registrado' ? 'selected' : '' %>>Triaje registrado</option>
+          <option value="completada" <%= filters.estado === 'completada' ? 'selected' : '' %>>Completada</option>
+          <option value="cancelada" <%= filters.estado === 'cancelada' ? 'selected' : '' %>>Cancelada</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="fecha">Fecha</label>
+        <input
+          type="date"
+          id="fecha"
+          name="fecha"
+          value="<%= filters.fecha || '' %>"
+        >
+      </div>
+    </div>
+
+    <div class="filter-actions">
+      <a href="/paciente/mis-citas" class="btn-light">Limpiar filtros</a>
+      <button type="submit" class="btn-dark">Filtrar</button>
+    </div>
+  </form>
+
+
+  <% if (citas.length === 0) { %>
+    <div class="empty-state">
+      <h3>No se encontraron citas</h3>
+      <p>No hay resultados con los filtros seleccionados.</p>
+
+      <div class="empty-actions">
+        <a href="/paciente/mis-citas" class="btn-light">Limpiar filtros</a>
+        <a href="/paciente/reservar-cita" class="btn-dark">Reservar cita</a>
+      </div>
+    </div>
+  <% } else { %>
+
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Médico</th>
+            <th>Especialidad</th>
+            <th>Motivo</th>
+            <th>Estado</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% citas.forEach(cita => { %>
+            <tr>
+              <td><%= new Date(cita.fecha).toLocaleDateString('es-PE') %></td>
+              <td><%= cita.hora %></td>
+              <td>
+                Dr(a). <%= cita.medico_nombres %> <%= cita.medico_apellido_paterno %>
+              </td>
+              <td><%= cita.especialidad %></td>
+              <td><%= cita.motivo %></td>
+              <td>
+                <span class="status-badge status-<%= cita.estado %>">
+                  <% if (cita.estado === 'pendiente') { %>
+                    Pendiente
+                  <% } else if (cita.estado === 'triaje_registrado') { %>
+                    Triaje registrado
+                  <% } else if (cita.estado === 'completada') { %>
+                    Completada
+                  <% } else if (cita.estado === 'cancelada') { %>
+                    Cancelada
+                  <% } %>
+                </span>
+              </td>
+              <td>
+                <% if (cita.estado === 'pendiente') { %>
+                  <button 
+                    type="button" 
+                    class="btn-cancel"
+                    data-cancel-url="/paciente/mis-citas/<%= cita.id_cita %>/cancelar"
+                    data-cita-info="<%= new Date(cita.fecha).toLocaleDateString('es-PE') %> a las <%= cita.hora %>"
+                  >
+                    Cancelar
+                  </button>
+                <% } else { %>
+                  <span class="text-muted">Sin acciones</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+  <% } %>
+</div>
+
+<div class="modal-overlay hidden" id="cancelModal">
+  <div class="confirm-modal">
+    <h3>Cancelar cita</h3>
+    <p id="cancelModalText">¿Estás seguro de cancelar esta cita?</p>
+
+    <div class="modal-actions">
+      <button type="button" class="btn-light" id="closeCancelModal">Volver</button>
+
+      <form method="POST" id="cancelForm">
+        <button type="submit" class="btn-danger">Sí, cancelar</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  const cancelButtons = document.querySelectorAll('.btn-cancel');
+  const cancelModal = document.getElementById('cancelModal');
+  const cancelForm = document.getElementById('cancelForm');
+  const closeCancelModal = document.getElementById('closeCancelModal');
+  const cancelModalText = document.getElementById('cancelModalText');
+
+  cancelButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const url = button.dataset.cancelUrl;
+      const info = button.dataset.citaInfo;
+
+      cancelForm.action = url;
+      cancelModalText.textContent = `¿Estás seguro de cancelar la cita programada para ${info}?`;
+      cancelModal.classList.remove('hidden');
+    });
+  });
+
+  closeCancelModal.addEventListener('click', () => {
+    cancelModal.classList.add('hidden');
+  });
+
+  cancelModal.addEventListener('click', (event) => {
+    if (event.target === cancelModal) {
+      cancelModal.classList.add('hidden');
+    }
+  });
+</script>

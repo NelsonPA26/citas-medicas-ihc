@@ -1,0 +1,146 @@
+<div class="module-card citas-card">
+  <div class="module-header">
+    <p>Consulta los triajes que has registrado en el sistema.</p>
+  </div>
+
+  <form action="/enfermera/triajes" method="GET" class="filter-card">
+    <div class="filter-grid">
+        <div class="form-group">
+        <label for="q">Buscar</label>
+        <input
+            type="text"
+            id="q"
+            name="q"
+            value="<%= filters.q || '' %>"
+            placeholder="Paciente, DNI, médico, síntomas o motivo"
+        >
+        </div>
+
+        <div class="form-group">
+        <label for="estado">Estado</label>
+        <select id="estado" name="estado">
+            <option value="">Todos</option>
+            <option value="triaje_registrado" <%= filters.estado === 'triaje_registrado' ? 'selected' : '' %>>Triaje registrado</option>
+            <option value="completada" <%= filters.estado === 'completada' ? 'selected' : '' %>>Completada</option>
+            <option value="cancelada" <%= filters.estado === 'cancelada' ? 'selected' : '' %>>Cancelada</option>
+        </select>
+        </div>
+
+        <div class="form-group">
+        <label for="fecha">Fecha de registro</label>
+        <input
+            type="date"
+            id="fecha"
+            name="fecha"
+            value="<%= filters.fecha || '' %>"
+        >
+        </div>
+    </div>
+
+    <div class="filter-actions">
+        <a href="/enfermera/triajes" class="btn-light">Limpiar filtros</a>
+        <button type="submit" class="btn-dark">Filtrar</button>
+    </div>
+    </form>
+
+  <% if (triajes.length === 0) { %>
+        <div class="empty-state">
+        <h3>No se encontraron triajes</h3>
+        <p>No hay resultados con los filtros seleccionados.</p>
+
+        <div class="empty-actions">
+            <a href="/enfermera/triajes" class="btn-light">Limpiar filtros</a>
+            <a href="/enfermera/triaje-pendiente" class="btn-dark">Ver pendientes</a>
+        </div>
+        </div>
+  <% } else { %>
+
+    <div class="triaje-list">
+      <% triajes.forEach(triaje => { %>
+        <article class="triaje-record-card">
+          <div class="triaje-record-header">
+            <div>
+              <h3>
+                <%= triaje.paciente_nombres %>
+                <%= triaje.paciente_apellido_paterno %>
+                <%= triaje.paciente_apellido_materno || '' %>
+              </h3>
+              <p>
+                DNI: <%= triaje.paciente_dni || 'No registrado' %>
+                ·
+                <%= new Date(triaje.fecha).toLocaleDateString('es-PE') %>
+                -
+                <%= triaje.hora %>
+              </p>
+            </div>
+
+            <% if (triaje.estado === 'triaje_registrado') { %>
+              <span class="status-badge status-triaje_registrado">Triaje registrado</span>
+            <% } else if (triaje.estado === 'completada') { %>
+              <span class="status-badge status-completada">Completada</span>
+            <% } else if (triaje.estado === 'cancelada') { %>
+              <span class="status-badge status-cancelada">Cancelada</span>
+            <% } else { %>
+              <span class="status-badge status-pendiente">Pendiente</span>
+            <% } %>
+          </div>
+
+          <div class="triaje-record-grid">
+            <div>
+              <span>Temperatura</span>
+              <strong><%= triaje.temperatura %> °C</strong>
+            </div>
+
+            <div>
+              <span>Presión arterial</span>
+              <strong><%= triaje.presion_arterial %></strong>
+            </div>
+
+            <div>
+              <span>Frecuencia cardiaca</span>
+              <strong><%= triaje.frecuencia_cardiaca %> lpm</strong>
+            </div>
+
+            <div>
+              <span>Saturación O₂</span>
+              <strong><%= triaje.saturacion %>%</strong>
+            </div>
+
+            <div>
+              <span>Médico asignado</span>
+              <strong>
+                Dr(a). <%= triaje.medico_nombres %> <%= triaje.medico_apellido_paterno %>
+              </strong>
+            </div>
+
+            <div>
+              <span>Especialidad</span>
+              <strong><%= triaje.especialidad %></strong>
+            </div>
+
+            <div class="full-row">
+              <span>Motivo de consulta</span>
+              <strong><%= triaje.motivo %></strong>
+            </div>
+
+            <div class="full-row">
+              <span>Síntomas</span>
+              <strong><%= triaje.sintomas %></strong>
+            </div>
+
+            <div class="full-row">
+              <span>Observaciones</span>
+              <strong><%= triaje.observaciones || 'Sin observaciones' %></strong>
+            </div>
+
+            <div class="full-row">
+              <span>Fecha de registro</span>
+              <strong><%= new Date(triaje.fecha_registro).toLocaleString('es-PE') %></strong>
+            </div>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+
+  <% } %>
+</div>

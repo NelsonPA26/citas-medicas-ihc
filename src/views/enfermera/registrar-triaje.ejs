@@ -1,0 +1,180 @@
+<div class="module-card triaje-card">
+  <div class="module-header">
+    <h2>Registrar triaje</h2>
+    <p>Registra los signos vitales y síntomas principales del paciente.</p>
+  </div>
+
+  <section class="patient-summary">
+    <div>
+      <span>Paciente</span>
+      <strong>
+        <%= cita.paciente_nombres %>
+        <%= cita.paciente_apellido_paterno %>
+        <%= cita.paciente_apellido_materno || '' %>
+      </strong>
+    </div>
+
+    <div>
+      <span>DNI</span>
+      <strong><%= cita.paciente_dni || 'No registrado' %></strong>
+    </div>
+
+    <div>
+      <span>Edad</span>
+      <strong><%= cita.paciente_edad !== null ? cita.paciente_edad + ' años' : 'No registrada' %></strong>
+    </div>
+
+    <div>
+      <span>Sexo</span>
+      <strong><%= cita.paciente_sexo || 'No registrado' %></strong>
+    </div>
+
+    <div>
+      <span>Fecha y hora</span>
+      <strong><%= new Date(cita.fecha).toLocaleDateString('es-PE') %> - <%= cita.hora %></strong>
+    </div>
+
+    <div>
+      <span>Especialidad</span>
+      <strong><%= cita.especialidad %></strong>
+    </div>
+
+    <div class="full-row">
+      <span>Motivo de consulta</span>
+      <strong><%= cita.motivo %></strong>
+    </div>
+  </section>
+
+  <form action="/enfermera/triaje/<%= cita.id_cita %>/registrar" method="POST" class="triaje-form" id="triajeForm">
+    <div id="triajeMessage" class="step-message hidden"></div>
+
+    <div class="triaje-grid">
+      <div class="form-group">
+        <label for="temperatura">Temperatura °C</label>
+        <input type="number" step="0.1" id="temperatura" name="temperatura" placeholder="Ejemplo: 36.8" required>
+      </div>
+
+      <div class="form-group">
+        <label for="presion_arterial">Presión arterial</label>
+        <input type="text" id="presion_arterial" name="presion_arterial" placeholder="Ejemplo: 120/80" required>
+      </div>
+
+      <div class="form-group">
+        <label for="frecuencia_cardiaca">Frecuencia cardiaca</label>
+        <input type="number" id="frecuencia_cardiaca" name="frecuencia_cardiaca" placeholder="Ejemplo: 75" required>
+      </div>
+
+      <div class="form-group">
+        <label for="saturacion">Saturación O₂ (%)</label>
+        <input type="number" id="saturacion" name="saturacion" placeholder="Ejemplo: 98" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="sintomas">Síntomas principales</label>
+      <textarea id="sintomas" name="sintomas" placeholder="Describe los síntomas referidos por el paciente." required></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="observaciones">Observaciones</label>
+      <textarea id="observaciones" name="observaciones" placeholder="Opcional: agrega observaciones relevantes."></textarea>
+    </div>
+
+    <div class="form-actions">
+      <a href="/enfermera/triaje-pendiente" class="btn-light">Cancelar</a>
+      <button type="submit" class="btn-dark">Guardar triaje</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  const triajeForm = document.getElementById('triajeForm');
+  const triajeMessage = document.getElementById('triajeMessage');
+
+  const temperaturaInput = document.getElementById('temperatura');
+  const presionInput = document.getElementById('presion_arterial');
+  const frecuenciaInput = document.getElementById('frecuencia_cardiaca');
+  const saturacionInput = document.getElementById('saturacion');
+  const sintomasInput = document.getElementById('sintomas');
+
+  function showTriajeMessage(message, field = null) {
+    triajeMessage.textContent = message;
+    triajeMessage.classList.remove('hidden');
+
+    document.querySelectorAll('.field-error').forEach(input => {
+      input.classList.remove('field-error');
+    });
+
+    if (field) {
+      field.classList.add('field-error');
+      field.focus();
+    }
+  }
+
+  function clearTriajeMessage() {
+    triajeMessage.textContent = '';
+    triajeMessage.classList.add('hidden');
+
+    document.querySelectorAll('.field-error').forEach(input => {
+      input.classList.remove('field-error');
+    });
+  }
+
+  [temperaturaInput, presionInput, frecuenciaInput, saturacionInput, sintomasInput].forEach(input => {
+    input.addEventListener('input', clearTriajeMessage);
+  });
+
+  triajeForm.addEventListener('submit', (event) => {
+    const temperatura = Number(temperaturaInput.value);
+    const frecuencia = Number(frecuenciaInput.value);
+    const saturacion = Number(saturacionInput.value);
+
+    if (!temperaturaInput.value) {
+      event.preventDefault();
+      showTriajeMessage('Ingresa la temperatura del paciente.', temperaturaInput);
+      return;
+    }
+
+    if (temperatura < 30 || temperatura > 45) {
+      event.preventDefault();
+      showTriajeMessage('La temperatura ingresada no parece válida.', temperaturaInput);
+      return;
+    }
+
+    if (!presionInput.value.trim()) {
+      event.preventDefault();
+      showTriajeMessage('Ingresa la presión arterial del paciente.', presionInput);
+      return;
+    }
+
+    if (!frecuenciaInput.value) {
+      event.preventDefault();
+      showTriajeMessage('Ingresa la frecuencia cardiaca.', frecuenciaInput);
+      return;
+    }
+
+    if (frecuencia < 30 || frecuencia > 220) {
+      event.preventDefault();
+      showTriajeMessage('La frecuencia cardiaca ingresada no parece válida.', frecuenciaInput);
+      return;
+    }
+
+    if (!saturacionInput.value) {
+      event.preventDefault();
+      showTriajeMessage('Ingresa la saturación de oxígeno.', saturacionInput);
+      return;
+    }
+
+    if (saturacion < 50 || saturacion > 100) {
+      event.preventDefault();
+      showTriajeMessage('La saturación debe estar entre 50 y 100.', saturacionInput);
+      return;
+    }
+
+    if (!sintomasInput.value.trim()) {
+      event.preventDefault();
+      showTriajeMessage('Describe los síntomas principales del paciente.', sintomasInput);
+      return;
+    }
+  });
+</script>

@@ -1,0 +1,67 @@
+<div class="module-card usuarios-card">
+  <div class="module-header module-header-row">
+    <div>
+      <p>Consulta los médicos registrados en el sistema.</p>
+    </div>
+
+    <a href="/admin/medicos/nuevo" class="btn-dark btn-header-action">
+      Registrar médico
+    </a>
+  </div>
+
+  <% if (medicos.length === 0) { %>
+    <div class="empty-state">
+      <h3>No hay médicos registrados</h3>
+      <p>Registra médicos para que los pacientes puedan reservar citas.</p>
+      <a href="/admin/medicos/nuevo" class="btn-dark">Registrar médico</a>
+    </div>
+  <% } else { %>
+
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Médico</th>
+            <th>DNI</th>
+            <th>Correo</th>
+            <th>Especialidad</th>
+            <th>Colegiatura</th>
+            <th>Turno</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% medicos.forEach(medico => { %>
+            <tr>
+              <td>
+                <strong>
+                  Dr(a). <%= medico.nombres %>
+                  <%= medico.apellido_paterno %>
+                  <%= medico.apellido_materno || '' %>
+                </strong>
+                <br>
+                <span class="text-muted">@<%= medico.username %></span>
+              </td>
+
+              <td><%= medico.dni || 'No registrado' %></td>
+              <td><%= medico.correo %></td>
+              <td><%= medico.especialidad %></td>
+              <td><%= medico.numero_colegiatura || 'No registrado' %></td>
+              <td class="capitalize"><%= medico.turno %></td>
+
+              <td>
+                <% if (medico.activo === 1) { %>
+                  <span class="status-badge status-completada">Activo</span>
+                <% } else { %>
+                  <span class="status-badge status-cancelada">Inactivo</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+  <% } %>
+</div>

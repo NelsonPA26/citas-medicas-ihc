@@ -1,0 +1,99 @@
+<div class="module-card historial-card">
+  <div class="module-header">
+    <p>Consulta tus atenciones médicas completadas.</p>
+  </div>
+
+  <form action="/paciente/historial" method="GET" class="filter-card">
+    <div class="filter-grid two-columns">
+      <div class="form-group">
+        <label for="q">Buscar</label>
+        <input
+          type="text"
+          id="q"
+          name="q"
+          value="<%= filters.q || '' %>"
+          placeholder="Médico, especialidad, motivo o diagnóstico"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="fecha">Fecha</label>
+        <input
+          type="date"
+          id="fecha"
+          name="fecha"
+          value="<%= filters.fecha || '' %>"
+        >
+      </div>
+    </div>
+
+    <div class="filter-actions">
+      <a href="/paciente/historial" class="btn-light">Limpiar filtros</a>
+      <button type="submit" class="btn-dark">Filtrar</button>
+    </div>
+  </form>
+
+
+  <% if (consultas.length === 0) { %>
+    <div class="empty-state">
+      <h3>No se encontraron consultas</h3>
+      <p>No hay resultados con los filtros seleccionados.</p>
+
+      <div class="empty-actions">
+        <a href="/paciente/historial" class="btn-light">Limpiar filtros</a>
+        <a href="/paciente/reservar-cita" class="btn-dark">Reservar cita</a>
+      </div>
+    </div>
+  <% } else { %>
+
+    <div class="history-list">
+      <% consultas.forEach(consulta => { %>
+        <article class="history-card">
+          <div class="history-card-header">
+            <div>
+              <h3>Consulta médica</h3>
+              <p>
+                <%= new Date(consulta.fecha).toLocaleDateString('es-PE') %>
+                ·
+                <%= consulta.hora %>
+              </p>
+            </div>
+
+            <span class="status-badge status-completada">Completada</span>
+          </div>
+
+          <div class="history-card-body">
+            <div>
+              <span>Médico</span>
+              <strong>
+                Dr(a). <%= consulta.medico_nombres %> <%= consulta.medico_apellido_paterno %>
+              </strong>
+            </div>
+
+            <div>
+              <span>Especialidad</span>
+              <strong><%= consulta.especialidad %></strong>
+            </div>
+
+            <div>
+              <span>Motivo</span>
+              <strong><%= consulta.motivo %></strong>
+            </div>
+
+            <div>
+              <span>Diagnóstico</span>
+              <strong><%= consulta.diagnostico %></strong>
+            </div>
+          </div>
+
+          <div class="history-card-actions">
+            <a href="/paciente/historial/<%= consulta.id_consulta %>" class="btn-table-primary">
+              Ver detalle
+            </a>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+
+  <% } %>
+</div>

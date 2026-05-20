@@ -1,0 +1,150 @@
+<div class="module-card detalle-historial-card">
+  <div class="module-header">
+    <p>Revisa antecedentes y consultas médicas previas del paciente.</p>
+  </div>
+
+  <section class="patient-summary">
+    <div>
+      <span>Paciente</span>
+      <strong>
+        <%= paciente.nombres %>
+        <%= paciente.apellido_paterno %>
+        <%= paciente.apellido_materno || '' %>
+      </strong>
+    </div>
+
+    <div>
+      <span>DNI</span>
+      <strong><%= paciente.dni || 'No registrado' %></strong>
+    </div>
+
+    <div>
+      <span>Edad</span>
+      <strong><%= paciente.edad !== null ? paciente.edad + ' años' : 'No registrada' %></strong>
+    </div>
+
+    <div>
+      <span>Sexo</span>
+      <strong><%= paciente.sexo || 'No registrado' %></strong>
+    </div>
+
+    <div>
+      <span>Correo</span>
+      <strong><%= paciente.correo || 'No registrado' %></strong>
+    </div>
+
+    <div>
+      <span>Teléfono</span>
+      <strong><%= paciente.telefono || 'No registrado' %></strong>
+    </div>
+  </section>
+
+  <section class="consulta-detail-section">
+    <h3>Antecedentes del paciente</h3>
+
+    <div class="consulta-detail-grid">
+      <div class="full-row">
+        <span>Alergias</span>
+        <strong><%= paciente.alergias || 'No registradas' %></strong>
+      </div>
+
+      <div class="full-row">
+        <span>Enfermedades previas</span>
+        <strong><%= paciente.enfermedades_previas || 'No registradas' %></strong>
+      </div>
+
+      <div class="full-row">
+        <span>Medicación actual</span>
+        <strong><%= paciente.medicacion_actual || 'No registrada' %></strong>
+      </div>
+
+      <div class="full-row">
+        <span>Cirugías</span>
+        <strong><%= paciente.cirugias || 'No registradas' %></strong>
+      </div>
+
+      <div class="full-row">
+        <span>Antecedentes familiares</span>
+        <strong><%= paciente.antecedentes_familiares || 'No registrados' %></strong>
+      </div>
+
+      <div class="full-row">
+        <span>Observaciones</span>
+        <strong><%= paciente.antecedentes_observaciones || 'Sin observaciones' %></strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="consulta-detail-section">
+    <h3>Consultas completadas</h3>
+
+    <% if (consultas.length === 0) { %>
+      <p class="text-muted">Este paciente aún no tiene consultas completadas contigo.</p>
+    <% } else { %>
+      <div class="history-list">
+        <% consultas.forEach(consulta => { %>
+          <article class="history-card">
+            <div class="history-card-header">
+              <div>
+                <h3>Consulta médica</h3>
+                <p>
+                  <%= new Date(consulta.fecha).toLocaleDateString('es-PE') %>
+                  ·
+                  <%= consulta.hora %>
+                </p>
+              </div>
+
+              <span class="status-badge status-completada">Completada</span>
+            </div>
+
+            <div class="consulta-detail-grid">
+              <div class="full-row">
+                <span>Motivo</span>
+                <strong><%= consulta.motivo %></strong>
+              </div>
+
+              <div class="full-row">
+                <span>Triaje</span>
+                <strong>
+                  Temp: <%= consulta.temperatura || 'N/R' %> °C ·
+                  PA: <%= consulta.presion_arterial || 'N/R' %> ·
+                  FC: <%= consulta.frecuencia_cardiaca || 'N/R' %> lpm ·
+                  Sat: <%= consulta.saturacion || 'N/R' %>%
+                </strong>
+              </div>
+
+              <div class="full-row">
+                <span>Síntomas</span>
+                <strong><%= consulta.sintomas || 'No registrados' %></strong>
+              </div>
+
+              <div class="full-row">
+                <span>Diagnóstico</span>
+                <strong><%= consulta.diagnostico %></strong>
+              </div>
+
+              <div class="full-row">
+                <span>Tratamiento</span>
+                <strong><%= consulta.tratamiento %></strong>
+              </div>
+
+              <div class="full-row">
+                <span>Recomendaciones</span>
+                <strong><%= consulta.recomendaciones || 'Sin recomendaciones' %></strong>
+              </div>
+
+              <div class="full-row">
+                <span>Observaciones médicas</span>
+                <strong><%= consulta.observaciones || 'Sin observaciones' %></strong>
+              </div>
+            </div>
+          </article>
+        <% }) %>
+      </div>
+    <% } %>
+  </section>
+
+  <div class="form-actions">
+    <a href="/medico/pacientes" class="btn-light">Volver</a>
+  </div>
+</div>

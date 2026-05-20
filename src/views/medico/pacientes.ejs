@@ -1,0 +1,107 @@
+<div class="module-card pacientes-card">
+  <div class="module-header">
+    <p>Consulta los pacientes que han tenido citas registradas contigo.</p>
+  </div>
+
+  <form action="/medico/pacientes" method="GET" class="filter-card">
+    <div class="filter-grid two-columns">
+        <div class="form-group">
+        <label for="q">Buscar</label>
+        <input
+            type="text"
+            id="q"
+            name="q"
+            value="<%= filters.q || '' %>"
+            placeholder="Nombre, DNI, correo o teléfono"
+        >
+        </div>
+
+        <div class="form-group">
+        <label for="sexo">Sexo</label>
+        <select id="sexo" name="sexo">
+            <option value="">Todos</option>
+            <option value="Masculino" <%= filters.sexo === 'Masculino' ? 'selected' : '' %>>Masculino</option>
+            <option value="Femenino" <%= filters.sexo === 'Femenino' ? 'selected' : '' %>>Femenino</option>
+            <option value="Otro" <%= filters.sexo === 'Otro' ? 'selected' : '' %>>Otro</option>
+            <option value="No especifica" <%= filters.sexo === 'No especifica' ? 'selected' : '' %>>No especifica</option>
+        </select>
+        </div>
+    </div>
+
+    <div class="filter-actions">
+        <a href="/medico/pacientes" class="btn-light">Limpiar filtros</a>
+        <button type="submit" class="btn-dark">Filtrar</button>
+    </div>
+    </form>
+
+  <% if (pacientes.length === 0) { %>
+        <div class="empty-state">
+        <h3>No se encontraron pacientes</h3>
+        <p>No hay resultados con los filtros seleccionados.</p>
+
+        <div class="empty-actions">
+            <a href="/medico/pacientes" class="btn-light">Limpiar filtros</a>
+            <a href="/medico/citas" class="btn-dark">Ver citas del día</a>
+        </div>
+        </div>
+  <% } else { %>
+
+    <div class="patient-list">
+      <% pacientes.forEach(paciente => { %>
+        <article class="patient-card">
+          <div class="patient-card-header">
+            <div>
+              <h3>
+                <%= paciente.nombres %>
+                <%= paciente.apellido_paterno %>
+                <%= paciente.apellido_materno || '' %>
+              </h3>
+              <p>
+                DNI: <%= paciente.dni || 'No registrado' %>
+                ·
+                <%= paciente.edad !== null ? paciente.edad + ' años' : 'Edad no registrada' %>
+                ·
+                <%= paciente.sexo || 'Sexo no registrado' %>
+              </p>
+            </div>
+
+            <span class="status-badge status-completada">
+              <%= paciente.consultas_completadas || 0 %> consultas
+            </span>
+          </div>
+
+          <div class="patient-card-grid">
+            <div>
+              <span>Correo</span>
+              <strong><%= paciente.correo || 'No registrado' %></strong>
+            </div>
+
+            <div>
+              <span>Teléfono</span>
+              <strong><%= paciente.telefono || 'No registrado' %></strong>
+            </div>
+
+            <div>
+              <span>Total de citas</span>
+              <strong><%= paciente.total_citas || 0 %></strong>
+            </div>
+
+            <div>
+              <span>Última atención</span>
+              <strong>
+                <%= paciente.ultima_atencion ? new Date(paciente.ultima_atencion).toLocaleDateString('es-PE') : 'Sin atención completada' %>
+              </strong>
+            </div>
+          </div>
+
+          <div class="history-card-actions">
+            <a href="/medico/pacientes/<%= paciente.id_paciente %>/historial" class="btn-table-primary">
+              Ver historial
+            </a>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+
+  <% } %>
+</div>

@@ -1,0 +1,58 @@
+<div class="module-card citas-card">
+  <div class="module-header">
+    <p>Atiende las citas que ya cuentan con triaje registrado.</p>
+  </div>
+
+  <% if (citas.length === 0) { %>
+    <div class="empty-state">
+      <h3>No tienes citas listas para atención</h3>
+      <p>Cuando enfermería registre el triaje de una cita asignada, aparecerá aquí.</p>
+    </div>
+  <% } else { %>
+
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Paciente</th>
+            <th>DNI</th>
+            <th>Motivo</th>
+            <th>Estado</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% citas.forEach(cita => { %>
+            <tr>
+              <td><%= new Date(cita.fecha).toLocaleDateString('es-PE') %></td>
+              <td><%= cita.hora %></td>
+              <td>
+                <%= cita.paciente_nombres %>
+                <%= cita.paciente_apellido_paterno %>
+                <%= cita.paciente_apellido_materno || '' %>
+              </td>
+              <td><%= cita.paciente_dni || 'No registrado' %></td>
+              <td><%= cita.motivo %></td>
+              <td>
+                <% if (cita.borrador === 1) { %>
+                  <span class="status-badge status-borrador">Borrador</span>
+                <% } else { %>
+                  <span class="status-badge status-triaje_registrado">Con triaje</span>
+                <% } %>
+              </td>
+              <td>
+                <a href="/medico/citas/<%= cita.id_cita %>/atender" class="btn-table-primary">
+                  <%= cita.borrador === 1 ? 'Continuar' : 'Atender' %>
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+  <% } %>
+</div>

@@ -1,0 +1,189 @@
+<div class="module-card admin-form-card">
+  <div class="module-header">
+    <p>Completa la información del profesional médico que tendrá acceso al sistema.</p>
+  </div>
+
+    <% if (typeof formError !== 'undefined' && formError) { %>
+    <div class="step-message"><%= formError %></div>
+    <% } %>
+
+  <form action="/admin/medicos/nuevo" method="POST" class="admin-form" id="medicoForm">
+    <div id="medicoMessage" class="step-message hidden"></div>
+
+    <section class="form-section">
+      <h3>Datos personales</h3>
+
+      <div class="admin-form-grid">
+        <div class="form-group">
+          <label for="nombres">Nombres</label>
+          <input type="text" id="nombres" name="nombres" value="<%= old.nombres || '' %>" required>
+        </div>
+
+        <div class="form-group">
+          <label for="apellido_paterno">Apellido paterno</label>
+          <input type="text" id="apellido_paterno" name="apellido_paterno" value="<%= old.apellido_paterno || '' %>" required>
+        </div>
+
+        <div class="form-group">
+          <label for="apellido_materno">Apellido materno</label>
+          <input type="text" id="apellido_materno" name="apellido_materno" value="<%= old.apellido_materno || '' %>">
+        </div>
+
+        <div class="form-group">
+          <label for="dni">DNI</label>
+          <input type="text" id="dni" name="dni" maxlength="8" value="<%= old.dni || '' %>" required>
+        </div>
+
+        <div class="form-group">
+          <label for="fecha_nacimiento">Fecha de nacimiento</label>
+          <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="<%= old.fecha_nacimiento || '' %>" required>
+        </div>
+
+        <div class="form-group">
+          <label for="sexo">Sexo</label>
+          <select id="sexo" name="sexo" required>
+            <option value="">Seleccione</option>
+            <option value="Masculino" <%= old.sexo === 'Masculino' ? 'selected' : '' %>>Masculino</option>
+            <option value="Femenino" <%= old.sexo === 'Femenino' ? 'selected' : '' %>>Femenino</option>
+            <option value="Otro" <%= old.sexo === 'Otro' ? 'selected' : '' %>>Otro</option>
+            <option value="No especifica" <%= old.sexo === 'No especifica' ? 'selected' : '' %>>No especifica</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h3>Contacto</h3>
+
+      <div class="admin-form-grid">
+        <div class="form-group">
+          <label for="correo">Correo electrónico</label>
+          <input type="email" id="correo" name="correo" value="<%= old.correo || '' %>" required>
+          <small class="form-help">Este correo será usado como usuario de acceso.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="telefono">Teléfono</label>
+          <input type="text" id="telefono" name="telefono" value="<%= old.telefono || '' %>" required>
+        </div>
+
+        <div class="form-group full-column">
+          <label for="direccion">Dirección</label>
+          <input type="text" id="direccion" name="direccion" value="<%= old.direccion || '' %>">
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h3>Datos profesionales</h3>
+
+      <div class="admin-form-grid">
+        <div class="form-group">
+          <label for="especialidad">Especialidad</label>
+          <input type="text" id="especialidad" name="especialidad" value="<%= old.especialidad || '' %>" required>
+        </div>
+
+        <div class="form-group">
+          <label for="numero_colegiatura">Número de colegiatura</label>
+          <input type="text" id="numero_colegiatura" name="numero_colegiatura" value="<%= old.numero_colegiatura || '' %>" required>
+        </div>
+
+        <div class="form-group">
+          <label for="turno">Turno</label>
+          <select id="turno" name="turno" required>
+            <option value="">Seleccione</option>
+            <option value="mañana" <%= old.turno === 'mañana' ? 'selected' : '' %>>Mañana</option>
+            <option value="tarde" <%= old.turno === 'tarde' ? 'selected' : '' %>>Tarde</option>
+            <option value="completo" <%= old.turno === 'completo' ? 'selected' : '' %>>Completo</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <div class="notice-box">
+      El médico será creado con contraseña temporal <strong>123456</strong> y deberá cambiarla desde su perfil.
+    </div>
+
+    <div class="form-actions">
+      <a href="/admin/medicos" class="btn-light">Cancelar</a>
+      <button type="submit" class="btn-dark">Registrar médico</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  const medicoForm = document.getElementById('medicoForm');
+  const medicoMessage = document.getElementById('medicoMessage');
+
+  const requiredFields = [
+    document.getElementById('nombres'),
+    document.getElementById('apellido_paterno'),
+    document.getElementById('dni'),
+    document.getElementById('fecha_nacimiento'),
+    document.getElementById('sexo'),
+    document.getElementById('correo'),
+    document.getElementById('telefono'),
+    document.getElementById('especialidad'),
+    document.getElementById('numero_colegiatura'),
+    document.getElementById('turno')
+  ];
+
+  const fechaNacimiento = document.getElementById('fecha_nacimiento');
+  fechaNacimiento.max = new Date().toISOString().split('T')[0];
+
+  function showMedicoMessage(message, field = null) {
+    medicoMessage.textContent = message;
+    medicoMessage.classList.remove('hidden');
+
+    document.querySelectorAll('.field-error').forEach(input => {
+      input.classList.remove('field-error');
+    });
+
+    if (field) {
+      field.classList.add('field-error');
+      field.focus();
+    }
+  }
+
+  function clearMedicoMessage() {
+    medicoMessage.textContent = '';
+    medicoMessage.classList.add('hidden');
+
+    document.querySelectorAll('.field-error').forEach(input => {
+      input.classList.remove('field-error');
+    });
+  }
+
+  requiredFields.forEach(field => {
+    field.addEventListener('input', clearMedicoMessage);
+    field.addEventListener('change', clearMedicoMessage);
+  });
+
+  medicoForm.addEventListener('submit', (event) => {
+    for (const field of requiredFields) {
+      if (!field.value.trim()) {
+        event.preventDefault();
+        showMedicoMessage('Completa todos los campos obligatorios.', field);
+        return;
+      }
+    }
+
+    const dni = document.getElementById('dni');
+
+    if (dni.value.length !== 8) {
+      event.preventDefault();
+      showMedicoMessage('El DNI debe tener 8 dígitos.', dni);
+      return;
+    }
+
+    const fecha = new Date(`${fechaNacimiento.value}T00:00:00`);
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    if (fecha > hoy) {
+      event.preventDefault();
+      showMedicoMessage('La fecha de nacimiento no puede ser futura.', fechaNacimiento);
+      return;
+    }
+  });
+</script>

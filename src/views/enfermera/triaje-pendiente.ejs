@@ -1,0 +1,54 @@
+<div class="module-card citas-card">
+  <div class="module-header">
+    <p>Registra los signos vitales de los pacientes antes de su atención médica.</p>
+  </div>
+
+  <% if (citas.length === 0) { %>
+    <div class="empty-state">
+      <h3>No hay citas pendientes de triaje</h3>
+      <p>Cuando existan citas pendientes, aparecerán en esta sección.</p>
+    </div>
+  <% } else { %>
+
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Paciente</th>
+            <th>DNI</th>
+            <th>Médico</th>
+            <th>Motivo</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% citas.forEach(cita => { %>
+            <tr>
+              <td><%= new Date(cita.fecha).toLocaleDateString('es-PE') %></td>
+              <td><%= cita.hora %></td>
+              <td>
+                <%= cita.paciente_nombres %>
+                <%= cita.paciente_apellido_paterno %>
+                <%= cita.paciente_apellido_materno || '' %>
+              </td>
+              <td><%= cita.paciente_dni || 'No registrado' %></td>
+              <td>
+                Dr(a). <%= cita.medico_nombres %> <%= cita.medico_apellido_paterno %>
+              </td>
+              <td><%= cita.motivo %></td>
+              <td>
+                <a href="/enfermera/triaje/<%= cita.id_cita %>/registrar" class="btn-table-primary">
+                  Registrar triaje
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+  <% } %>
+</div>

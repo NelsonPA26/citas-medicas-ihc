@@ -1,0 +1,306 @@
+<div class="module-card">
+  <div class="module-header">
+    <p>Completa los pasos para reservar una atención médica.</p>
+  </div>
+
+  <% if (error) { %>
+    <div class="alert alert-error"><%= error %></div>
+  <% } %>
+
+  <% if (success) { %>
+    <div class="alert alert-success"><%= success %></div>
+  <% } %>
+
+  <div class="step-indicator">
+    <span class="step active" data-step-indicator="1">1</span>
+    <span class="step" data-step-indicator="2">2</span>
+    <span class="step" data-step-indicator="3">3</span>
+  </div>
+
+  <form action="/paciente/reservar-cita" method="POST" class="appointment-form" id="appointmentForm">
+
+    <div id="stepMessage" class="step-message hidden"></div>
+
+    <section class="appointment-step active" data-step="1">
+      <div class="form-group">
+        <label for="especialidad">Seleccionar especialidad</label>
+        <select id="especialidad" name="especialidad" required>
+          <option value="">Seleccione una especialidad</option>
+          <% especialidades.forEach(especialidad => { %>
+            <option value="<%= especialidad %>"><%= especialidad %></option>
+          <% }) %>
+        </select>
+        <small class="form-help">Primero elige la especialidad que necesitas.</small>
+      </div>
+
+      <div class="form-group">
+        <label for="id_medico">Seleccionar médico</label>
+        <select id="id_medico" name="id_medico" required disabled>
+          <option value="">Seleccione un médico</option>
+          <% medicos.forEach(medico => { %>
+            <option 
+              value="<%= medico.id_medico %>"
+              data-especialidad="<%= medico.especialidad %>"
+            >
+              Dr(a). <%= medico.nombres %> <%= medico.apellido_paterno %> - <%= medico.especialidad %>
+            </option>
+          <% }) %>
+        </select>
+        <small class="form-help">Solo se mostrarán médicos de la especialidad seleccionada.</small>
+      </div>
+
+      <div class="form-actions">
+        <a href="/paciente/dashboard" class="btn-light">Cancelar</a>
+        <button type="button" class="btn-dark" id="nextStep1">Siguiente</button>
+      </div>
+    </section>
+
+    <section class="appointment-step" data-step="2">
+      <div class="form-group">
+        <label for="fecha">Seleccionar fecha</label>
+        <input type="date" id="fecha" name="fecha" required>
+        <small class="form-help">Solo se permiten fechas de lunes a viernes.</small>
+      </div>
+
+      <div class="form-group">
+        <label for="hora">Seleccionar hora disponible</label>
+        <select id="hora" name="hora" required disabled>
+          <option value="">Primero selecciona médico y fecha</option>
+        </select>
+        <small class="form-help">El sistema muestra solo las horas libres.</small>
+      </div>
+
+      <div class="form-group">
+        <label for="motivo">Motivo de consulta</label>
+        <textarea 
+          id="motivo" 
+          name="motivo" 
+          placeholder="Ejemplo: dolor de cabeza, control general, malestar, etc."
+          required
+        ></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-light" id="backStep2">Atrás</button>
+        <button type="button" class="btn-dark" id="nextStep2">Siguiente</button>
+      </div>
+    </section>
+
+    <section class="appointment-step" data-step="3">
+        <div class="summary-box">
+        <h3>Resumen de la cita</h3>
+
+        <div class="summary-row">
+            <span>Especialidad:</span>
+            <strong id="summaryEspecialidad">-</strong>
+        </div>
+
+        <div class="summary-row">
+            <span>Médico:</span>
+            <strong id="summaryMedico">-</strong>
+            </div>
+
+            <div class="summary-row">
+            <span>Fecha:</span>
+            <strong id="summaryFecha">-</strong>
+            </div>
+
+            <div class="summary-row">
+            <span>Hora:</span>
+            <strong id="summaryHora">-</strong>
+            </div>
+
+            <div class="summary-row">
+            <span>Motivo:</span>
+            <strong id="summaryMotivo">-</strong>
+            </div>
+        </div>
+
+        <div class="notice-box">
+            Revisa cuidadosamente los datos antes de confirmar la cita.
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn-light" id="backStep3">Atrás</button>
+            <button type="submit" class="btn-dark">Confirmar cita</button>
+        </div>
+        </section>
+
+    </form>
+</div>
+
+<script>
+    const especialidadSelect = document.getElementById('especialidad');
+    const medicoSelect = document.getElementById('id_medico');
+    const fechaInput = document.getElementById('fecha');
+    const horaSelect = document.getElementById('hora');
+    const motivoInput = document.getElementById('motivo');
+
+    const steps = document.querySelectorAll('.appointment-step');
+    const indicators = document.querySelectorAll('[data-step-indicator]');
+
+    const nextStep1 = document.getElementById('nextStep1');
+    const nextStep2 = document.getElementById('nextStep2');
+    const backStep2 = document.getElementById('backStep2');
+    const backStep3 = document.getElementById('backStep3');
+
+    const summaryEspecialidad = document.getElementById('summaryEspecialidad');
+    const summaryMedico = document.getElementById('summaryMedico');
+    const summaryFecha = document.getElementById('summaryFecha');
+    const summaryHora = document.getElementById('summaryHora');
+    const summaryMotivo = document.getElementById('summaryMotivo');
+
+    [especialidadSelect, medicoSelect, fechaInput, horaSelect, motivoInput].forEach(input => {
+    input.addEventListener('input', clearInlineMessage);
+    input.addEventListener('change', clearInlineMessage);
+    });
+
+    const hoy = new Date().toISOString().split('T')[0];
+    fechaInput.min = hoy;
+
+    function showStep(stepNumber) {
+        clearInlineMessage();
+
+        steps.forEach(step => {
+            step.classList.toggle('active', step.dataset.step === String(stepNumber));
+        });
+
+        indicators.forEach(indicator => {
+            indicator.classList.toggle('active', indicator.dataset.stepIndicator === String(stepNumber));
+        });
+    }
+
+    const stepMessage = document.getElementById('stepMessage');
+
+    function showInlineMessage(message, field = null) {
+    stepMessage.textContent = message;
+    stepMessage.classList.remove('hidden');
+
+    document.querySelectorAll('.field-error').forEach(input => {
+        input.classList.remove('field-error');
+    });
+
+    if (field) {
+        field.classList.add('field-error');
+        field.focus();
+    }
+    }
+
+    function clearInlineMessage() {
+    stepMessage.textContent = '';
+    stepMessage.classList.add('hidden');
+
+    document.querySelectorAll('.field-error').forEach(input => {
+        input.classList.remove('field-error');
+    });
+    }
+
+    especialidadSelect.addEventListener('change', () => {
+        const especialidad = especialidadSelect.value;
+
+        medicoSelect.value = '';
+        medicoSelect.disabled = !especialidad;
+
+        Array.from(medicoSelect.options).forEach(option => {
+        if (!option.value) return;
+
+        option.hidden = option.dataset.especialidad !== especialidad;
+        });
+
+        horaSelect.innerHTML = '<option value="">Primero selecciona médico y fecha</option>';
+        horaSelect.disabled = true;
+    });
+
+    async function cargarHorasDisponibles() {
+        const idMedico = medicoSelect.value;
+        const fecha = fechaInput.value;
+
+        if (!idMedico || !fecha) return;
+
+        horaSelect.disabled = true;
+        horaSelect.innerHTML = '<option value="">Cargando horas disponibles...</option>';
+
+        try {
+        const response = await fetch(`/paciente/horas-disponibles?id_medico=${idMedico}&fecha=${fecha}`);
+        const data = await response.json();
+
+        if (!data.ok) {
+            horaSelect.innerHTML = `<option value="">${data.mensaje}</option>`;
+            return;
+        }
+
+        if (data.horas.length === 0) {
+            horaSelect.innerHTML = '<option value="">No hay horas disponibles</option>';
+            return;
+        }
+
+        horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+
+        data.horas.forEach(hora => {
+            const option = document.createElement('option');
+            option.value = hora;
+            option.textContent = hora.substring(0, 5);
+            horaSelect.appendChild(option);
+        });
+
+        horaSelect.disabled = false;
+        } catch (error) {
+        horaSelect.innerHTML = '<option value="">Error al cargar horas</option>';
+        }
+    }
+
+    medicoSelect.addEventListener('change', cargarHorasDisponibles);
+    fechaInput.addEventListener('change', cargarHorasDisponibles);
+
+    nextStep1.addEventListener('click', () => {
+        if (!especialidadSelect.value) {
+        showInlineMessage('Selecciona una especialidad para continuar.', especialidadSelect);
+        return;
+        }
+
+        if (!medicoSelect.value) {
+        showInlineMessage('Selecciona un médico disponible para continuar.', medicoSelect);
+        return;
+        }
+
+        showStep(2);
+    });
+
+    nextStep2.addEventListener('click', () => {
+        if (!fechaInput.value) {
+        showInlineMessage('Selecciona una fecha para la cita.', fechaInput);
+        return;
+        }
+
+        const fechaSeleccionada = new Date(`${fechaInput.value}T00:00:00`);
+        const dia = fechaSeleccionada.getDay();
+
+        if (dia === 0 || dia === 6) {
+        showInlineMessage('Solo puedes reservar citas de lunes a viernes.', fechaInput);
+        return;
+        }
+
+        if (!horaSelect.value) {
+        showInlineMessage('Selecciona una hora disponible para la cita.', horaSelect);
+        return;
+        }
+
+        if (!motivoInput.value.trim()) {
+        showInlineMessage('Ingresa el motivo de la consulta.', motivoInput);
+        return;
+        }
+
+        const medicoTexto = medicoSelect.options[medicoSelect.selectedIndex].textContent.trim();
+
+        summaryEspecialidad.textContent = especialidadSelect.value;
+        summaryMedico.textContent = medicoTexto;
+        summaryFecha.textContent = fechaInput.value;
+        summaryHora.textContent = horaSelect.value.substring(0, 5);
+        summaryMotivo.textContent = motivoInput.value;
+
+        showStep(3);
+    });
+
+    backStep2.addEventListener('click', () => showStep(1));
+    backStep3.addEventListener('click', () => showStep(2));
+    </script>

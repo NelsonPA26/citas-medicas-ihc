@@ -1,0 +1,65 @@
+<div class="module-card usuarios-card">
+  <div class="module-header module-header-row">
+    <div>
+      <p>Consulta el personal de enfermería registrado en el sistema.</p>
+    </div>
+
+    <a href="/admin/enfermeras/nuevo" class="btn-dark btn-header-action">
+      Registrar enfermera
+    </a>
+  </div>
+
+  <% if (enfermeras.length === 0) { %>
+    <div class="empty-state">
+      <h3>No hay enfermeras registradas</h3>
+      <p>Registra personal de enfermería para el proceso de triaje.</p>
+      <a href="/admin/enfermeras/nuevo" class="btn-dark">Registrar enfermera</a>
+    </div>
+  <% } else { %>
+
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Enfermera</th>
+            <th>DNI</th>
+            <th>Correo</th>
+            <th>Área</th>
+            <th>Turno</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% enfermeras.forEach(enfermera => { %>
+            <tr>
+              <td>
+                <strong>
+                  <%= enfermera.nombres %>
+                  <%= enfermera.apellido_paterno %>
+                  <%= enfermera.apellido_materno || '' %>
+                </strong>
+                <br>
+                <span class="text-muted">@<%= enfermera.username %></span>
+              </td>
+
+              <td><%= enfermera.dni || 'No registrado' %></td>
+              <td><%= enfermera.correo %></td>
+              <td><%= enfermera.area || 'No registrada' %></td>
+              <td class="capitalize"><%= enfermera.turno %></td>
+
+              <td>
+                <% if (enfermera.activo === 1) { %>
+                  <span class="status-badge status-completada">Activo</span>
+                <% } else { %>
+                  <span class="status-badge status-cancelada">Inactivo</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+  <% } %>
+</div>

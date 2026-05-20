@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title || 'Sistema de Citas Médicas' %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="dashboard-body">
+
+  <%
+    const icons = {
+      inicio: '<svg class="menu-svg" viewBox="0 0 24 24" fill="none"><path d="M3 10.5L12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V10.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+
+      reservar: '<svg class="menu-svg" viewBox="0 0 24 24" fill="none"><path d="M7 3v4M17 3v4M4 9h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 13v5M9.5 15.5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+
+      citas: '<svg class="menu-svg" viewBox="0 0 24 24" fill="none"><path d="M8 3v4M16 3v4M4 9h16M6 5h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 13h8M8 17h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+
+      historial: '<svg class="menu-svg" viewBox="0 0 24 24" fill="none"><path d="M8 6h10M8 10h10M8 14h6M5 4h14a1 1 0 0 1 1 1v16l-4-2-4 2-4-2-4 2V5a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+
+      perfil: '<svg class="menu-svg" viewBox="0 0 24 24" fill="none"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+
+      usuarios: '<svg class="menu-svg" viewBox="0 0 24 24" fill="none"><path d="M16 11a4 4 0 1 0-8 0M3 21a7 7 0 0 1 14 0M18 8a3 3 0 0 1 0 6M19 17a5 5 0 0 1 2 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+
+      medico: '<svg class="menu-svg" viewBox="0 0 24 24" fill="none"><path d="M12 3v18M5 10h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 4h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="2"/></svg>',
+
+      triaje: '<svg class="menu-svg" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-4.5 7-11a7 7 0 1 0-14 0c0 6.5 7 11 7 11z" stroke="currentColor" stroke-width="2"/><path d="M12 7v6M9 10h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+    };
+  %>
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2>Bienestar UNT</h2>
+      <p><%= user ? user.rol : '' %></p>
+    </div>
+
+    <nav class="sidebar-nav">
+
+      <% if (user && user.rol === 'paciente') { %>
+        <a href="/paciente/dashboard" class="<%= currentPath === '/paciente/dashboard' ? 'active' : '' %>">
+            <%- icons.inicio %>
+            <span>Inicio</span>
+        </a>
+
+        <a href="/paciente/reservar-cita" class="<%= currentPath === '/paciente/reservar-cita' ? 'active' : '' %>">
+            <%- icons.reservar %>
+            <span>Reservar cita</span>
+        </a>
+
+        <a href="/paciente/mis-citas" class="<%= currentPath === '/paciente/mis-citas' ? 'active' : '' %>">
+            <%- icons.citas %>
+            <span>Mis citas</span>
+        </a>
+
+        <a href="/paciente/historial" class="<%= currentPath.startsWith('/paciente/historial') ? 'active' : '' %>">
+            <%- icons.historial %>
+            <span>Historial</span>
+        </a>
+
+        <a href="/perfil" class="<%= currentPath === '/perfil' ? 'active' : '' %>">
+            <%- icons.perfil %>
+            <span>Mi perfil</span>
+        </a>
+      <% } %>
+
+      <% if (user && user.rol === 'medico') { %>
+        <a href="/medico/dashboard" class="<%= currentPath === '/medico/dashboard' ? 'active' : '' %>">
+          <%- icons.inicio %>
+          <span>Inicio</span>
+        </a>
+
+        <a href="/medico/citas" class="<%= currentPath.startsWith('/medico/citas') ? 'active' : '' %>">
+            <%- icons.citas %>
+            <span>Citas del día</span>
+        </a>
+
+        <a href="/medico/pacientes" class="<%= currentPath.startsWith('/medico/pacientes') ? 'active' : '' %>">
+          <%- icons.usuarios %>
+          <span>Pacientes</span>
+        </a>
+
+        <a href="/perfil" class="<%= currentPath === '/perfil' ? 'active' : '' %>">
+          <%- icons.perfil %>
+          <span>Mi perfil</span>
+        </a>
+      <% } %>
+
+      <% if (user && user.rol === 'enfermera') { %>
+        <a href="/enfermera/dashboard" class="<%= currentPath === '/enfermera/dashboard' ? 'active' : '' %>">
+          <%- icons.inicio %>
+          <span>Inicio</span>
+        </a>
+
+        <a href="/enfermera/triaje-pendiente" class="<%= currentPath === '/enfermera/triaje-pendiente' ? 'active' : '' %>">
+            <%- icons.triaje %>
+            <span>Triaje pendiente</span>
+        </a>
+
+        <a href="/enfermera/triajes" class="<%= currentPath.startsWith('/enfermera/triajes') ? 'active' : '' %>">
+          <%- icons.citas %>
+          <span>Triajes realizados</span>
+        </a>
+
+        <a href="/perfil" class="<%= currentPath === '/perfil' ? 'active' : '' %>">
+          <%- icons.perfil %>
+          <span>Mi perfil</span>
+        </a>
+      <% } %>
+
+      <% if (user && user.rol === 'administrativo') { %>
+        <a href="/admin/dashboard" class="<%= currentPath === '/admin/dashboard' ? 'active' : '' %>">
+          <%- icons.inicio %>
+          <span>Inicio</span>
+        </a>
+
+        <a href="/admin/usuarios" class="<%= currentPath.startsWith('/admin/usuarios') ? 'active' : '' %>">
+          <%- icons.usuarios %>
+          <span>Usuarios</span>
+        </a>
+
+        <a href="/admin/medicos" class="<%= currentPath.startsWith('/admin/medicos') ? 'active' : '' %>">
+          <%- icons.medico %>
+          <span>Médicos</span>
+        </a>
+
+        <a href="/admin/enfermeras" class="<%= currentPath.startsWith('/admin/enfermeras') ? 'active' : '' %>">
+          <%- icons.triaje %>
+          <span>Enfermeras</span>
+        </a>
+
+        <a href="/admin/citas" class="<%= currentPath.startsWith('/admin/citas') ? 'active' : '' %>">
+          <%- icons.citas %>
+          <span>Citas</span>
+        </a>
+
+        <a href="/perfil" class="<%= currentPath === '/perfil' ? 'active' : '' %>">
+          <%- icons.perfil %>
+          <span>Mi perfil</span>
+        </a>
+      <% } %>
+
+    </nav>
+
+    <form action="/logout" method="POST" class="logout-form">
+      <button type="submit">Cerrar sesión</button>
+    </form>
+  </aside>
+
+  <main class="dashboard-main">
+    <header class="dashboard-topbar">
+      <div>
+        <h1><%= title %></h1>
+
+        <% if (
+          currentPath === '/paciente/dashboard' ||
+          currentPath === '/medico/dashboard' ||
+          currentPath === '/enfermera/dashboard' ||
+          currentPath === '/admin/dashboard'
+        ) { %>
+          <p>Hola, <%= user ? user.nombres : 'Usuario' %></p>
+        <% } %>
+      </div>
+    </header>
+
+    <section class="dashboard-content">
+      <% if (error) { %>
+        <div class="alert alert-error dashboard-alert"><%= error %></div>
+      <% } %>
+
+      <% if (success) { %>
+        <div class="alert alert-success dashboard-alert auto-dismiss"><%= success %></div>
+      <% } %>
+
+      <%- body %>
+    </section>
+  </main>
+
+  <script>
+    const autoDismissAlerts = document.querySelectorAll('.auto-dismiss');
+
+    autoDismissAlerts.forEach(alert => {
+      setTimeout(() => {
+        alert.classList.add('fade-out');
+
+        setTimeout(() => {
+          alert.remove();
+        }, 400);
+      }, 3500);
+    });
+  </script>
+
+</body>
+</html>

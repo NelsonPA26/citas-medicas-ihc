@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title || 'Bienestar UNT' %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="auth-body">
+
+  <main class="auth-page">
+    <section class="auth-hero">
+      <div class="auth-overlay"></div>
+      <h1>BIENESTAR UNIVERSIDAD NACIONAL DE TRUJILLO</h1>
+    </section>
+
+    <img src="/img/logo-unt.png" alt="Logo Universidad Nacional de Trujillo" class="login-logo-unt">
+
+    <section class="auth-content">
+      <%- body %>
+    </section>
+  </main>
+
+</body>
+</html>

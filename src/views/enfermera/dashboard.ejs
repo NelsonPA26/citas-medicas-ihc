@@ -1,0 +1,22 @@
+<div class="dashboard-grid">
+  <div class="stat-card highlight-card">
+    <h3>Triajes pendientes</h3>
+    <p class="stat-number"><%= stats.triajes_pendientes || 0 %></p>
+    <a href="/enfermera/triaje-pendiente" class="card-link">Ver pendientes</a>
+  </div>
+
+  <div class="stat-card">
+    <h3>Triajes realizados</h3>
+    <p class="stat-number"><%= stats.triajes_realizados || 0 %></p>
+  </div>
+
+  <div class="stat-card">
+    <h3>Triajes de hoy</h3>
+    <p class="stat-number"><%= stats.triajes_hoy || 0 %></p>
+  </div>
+
+  <div class="stat-card">
+    <h3>Citas con triaje</h3>
+    <p class="stat-number"><%= stats.citas_con_triaje || 0 %></p>
+  </div>
+</div>

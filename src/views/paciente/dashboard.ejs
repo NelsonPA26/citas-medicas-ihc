@@ -1,0 +1,36 @@
+<div class="dashboard-grid">
+  <div class="stat-card highlight-card">
+    <h3>Próxima cita</h3>
+
+    <% if (proximaCita) { %>
+      <p>
+        <strong><%= new Date(proximaCita.fecha).toLocaleDateString('es-PE') %> - <%= proximaCita.hora %></strong>
+      </p>
+      <p>
+        Dr(a). <%= proximaCita.medico_nombres %> <%= proximaCita.medico_apellido_paterno %>
+      </p>
+      <p><%= proximaCita.especialidad %></p>
+      <span class="status-badge status-<%= proximaCita.estado %>">
+        <%= proximaCita.estado === 'pendiente' ? 'Pendiente' : 'Triaje registrado' %>
+      </span>
+    <% } else { %>
+      <p>No tienes citas próximas registradas.</p>
+      <a href="/paciente/reservar-cita" class="card-link">Reservar cita</a>
+    <% } %>
+  </div>
+
+  <div class="stat-card">
+    <h3>Citas pendientes</h3>
+    <p class="stat-number"><%= stats.pendientes || 0 %></p>
+  </div>
+
+  <div class="stat-card">
+    <h3>Consultas completadas</h3>
+    <p class="stat-number"><%= stats.completadas || 0 %></p>
+  </div>
+
+  <div class="stat-card">
+    <h3>Citas canceladas</h3>
+    <p class="stat-number"><%= stats.canceladas || 0 %></p>
+  </div>
+</div>

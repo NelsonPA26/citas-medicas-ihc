@@ -1,0 +1,197 @@
+<div class="module-card usuarios-card">
+  <div class="module-header module-header-row">
+    <div>
+      <p>Administra el acceso de los usuarios registrados en el sistema.</p>
+    </div>
+  </div>
+
+  <form action="/admin/usuarios" method="GET" class="filter-card">
+    <div class="filter-grid">
+        <div class="form-group">
+        <label for="q">Buscar</label>
+        <input
+            type="text"
+            id="q"
+            name="q"
+            value="<%= filters.q || '' %>"
+            placeholder="Nombre, DNI, correo o usuario"
+        >
+        </div>
+
+        <div class="form-group">
+        <label for="rol">Rol</label>
+        <select id="rol" name="rol">
+            <option value="">Todos</option>
+            <option value="paciente" <%= filters.rol === 'paciente' ? 'selected' : '' %>>Paciente</option>
+            <option value="medico" <%= filters.rol === 'medico' ? 'selected' : '' %>>Médico</option>
+            <option value="enfermera" <%= filters.rol === 'enfermera' ? 'selected' : '' %>>Enfermera</option>
+            <option value="administrativo" <%= filters.rol === 'administrativo' ? 'selected' : '' %>>Administrativo</option>
+        </select>
+        </div>
+
+        <div class="form-group">
+        <label for="estado">Estado</label>
+        <select id="estado" name="estado">
+            <option value="">Todos</option>
+            <option value="activo" <%= filters.estado === 'activo' ? 'selected' : '' %>>Activo</option>
+            <option value="inactivo" <%= filters.estado === 'inactivo' ? 'selected' : '' %>>Inactivo</option>
+        </select>
+        </div>
+    </div>
+
+    <div class="filter-actions">
+        <a href="/admin/usuarios" class="btn-light">Limpiar filtros</a>
+        <button type="submit" class="btn-dark">Filtrar</button>
+    </div>
+    </form>
+
+  <% if (usuarios.length === 0) { %>
+    <div class="empty-state">
+        <h3>No se encontraron usuarios</h3>
+        <p>No hay resultados con los filtros seleccionados.</p>
+        <a href="/admin/usuarios" class="btn-dark">Limpiar filtros</a>
+    </div>
+  <% } else { %>
+
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>DNI</th>
+            <th>Correo</th>
+            <th>Teléfono</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% usuarios.forEach(usuario => { %>
+            <tr>
+              <td>
+                <strong>
+                  <%= usuario.nombres %>
+                  <%= usuario.apellido_paterno %>
+                  <%= usuario.apellido_materno || '' %>
+                </strong>
+                <br>
+                <span class="text-muted">@<%= usuario.username %></span>
+              </td>
+
+              <td><%= usuario.dni || 'No registrado' %></td>
+              <td><%= usuario.correo %></td>
+              <td><%= usuario.telefono || 'No registrado' %></td>
+
+              <td>
+                <span class="role-badge role-<%= usuario.rol %>">
+                  <%= usuario.rol %>
+                </span>
+              </td>
+
+              <td>
+                <% if (usuario.activo === 1) { %>
+                  <span class="status-badge status-completada">Activo</span>
+                <% } else { %>
+                  <span class="status-badge status-cancelada">Inactivo</span>
+                <% } %>
+              </td>
+
+              <td>
+                <% if (usuario.id_usuario === user.id_usuario) { %>
+                  <span class="text-muted">Cuenta actual</span>
+                <% } else if (usuario.activo === 1) { %>
+                  <button
+                    type="button"
+                    class="btn-cancel js-user-status"
+                    data-action="desactivar"
+                    data-url="/admin/usuarios/<%= usuario.id_usuario %>/estado"
+                    data-user="<%= usuario.nombres %> <%= usuario.apellido_paterno %>"
+                  >
+                    Desactivar
+                  </button>
+                <% } else { %>
+                  <button
+                    type="button"
+                    class="btn-activate js-user-status"
+                    data-action="activar"
+                    data-url="/admin/usuarios/<%= usuario.id_usuario %>/estado"
+                    data-user="<%= usuario.nombres %> <%= usuario.apellido_paterno %>"
+                  >
+                    Activar
+                  </button>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+  <% } %>
+</div>
+
+<div class="modal-overlay hidden" id="userStatusModal">
+  <div class="confirm-modal">
+    <h3 id="userStatusTitle">Confirmar acción</h3>
+    <p id="userStatusText">¿Estás seguro de realizar esta acción?</p>
+
+    <div class="modal-actions">
+      <button type="button" class="btn-light" id="closeUserStatusModal">Volver</button>
+
+      <form method="POST" id="userStatusForm">
+        <input type="hidden" name="accion" id="userStatusAction">
+        <button type="submit" class="btn-danger" id="userStatusConfirmButton">
+          Confirmar
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  const userStatusButtons = document.querySelectorAll('.js-user-status');
+  const userStatusModal = document.getElementById('userStatusModal');
+  const userStatusForm = document.getElementById('userStatusForm');
+  const userStatusAction = document.getElementById('userStatusAction');
+  const userStatusText = document.getElementById('userStatusText');
+  const userStatusTitle = document.getElementById('userStatusTitle');
+  const userStatusConfirmButton = document.getElementById('userStatusConfirmButton');
+  const closeUserStatusModal = document.getElementById('closeUserStatusModal');
+
+  userStatusButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const action = button.dataset.action;
+      const url = button.dataset.url;
+      const userName = button.dataset.user;
+
+      userStatusForm.action = url;
+      userStatusAction.value = action;
+
+      if (action === 'desactivar') {
+        userStatusTitle.textContent = 'Desactivar usuario';
+        userStatusText.textContent = `¿Estás seguro de desactivar la cuenta de ${userName}? Esta persona no podrá iniciar sesión.`;
+        userStatusConfirmButton.textContent = 'Sí, desactivar';
+        userStatusConfirmButton.className = 'btn-danger';
+      } else {
+        userStatusTitle.textContent = 'Activar usuario';
+        userStatusText.textContent = `¿Deseas activar nuevamente la cuenta de ${userName}?`;
+        userStatusConfirmButton.textContent = 'Sí, activar';
+        userStatusConfirmButton.className = 'btn-success-action';
+      }
+
+      userStatusModal.classList.remove('hidden');
+    });
+  });
+
+  closeUserStatusModal.addEventListener('click', () => {
+    userStatusModal.classList.add('hidden');
+  });
+
+  userStatusModal.addEventListener('click', (event) => {
+    if (event.target === userStatusModal) {
+      userStatusModal.classList.add('hidden');
+    }
+  });
+</script>
