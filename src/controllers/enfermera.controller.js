@@ -14,6 +14,47 @@ async function obtenerEnfermeraPorPersona(idPersona) {
   return rows[0] || null;
 }
 
+const SINTOMAS_TRIAJE = [
+  'Fiebre',
+  'Malestar general',
+  'Cansancio',
+  'Dolor muscular',
+  'Tos',
+  'Dolor de garganta',
+  'Congestión nasal',
+  'Dificultad respiratoria',
+  'Dolor abdominal',
+  'Náuseas',
+  'Vómitos',
+  'Diarrea',
+  'Dolor de cabeza',
+  'Mareos',
+  'Ansiedad',
+  'Otro'
+];
+
+function normalizarSintomasTriaje(sintomas, sintomasOtro = '') {
+  if (!sintomas) return '';
+
+  const seleccionados = Array.isArray(sintomas) ? sintomas : [sintomas];
+  const validos = seleccionados
+    .filter(sintoma => SINTOMAS_TRIAJE.includes(sintoma) && sintoma !== 'Otro')
+    .slice(0, 10);
+
+  if (seleccionados.includes('Otro')) {
+    const detalle = (sintomasOtro || '').trim().replace(/,/g, ';');
+    if (/^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,;:()/-]{5,120}$/.test(detalle)) {
+      validos.push(`Otro: ${detalle}`);
+    }
+  }
+
+  return validos.join(', ');
+}
+
+function presionValida(value) {
+  return /^\d{2,3}\/\d{2,3}$/.test(String(value || '').trim());
+}
+
 exports.dashboard = async (req, res) => {
   try {
     const enfermera = await obtenerEnfermeraPorPersona(req.session.user.id_persona);
@@ -27,11 +68,30 @@ exports.dashboard = async (req, res) => {
       `
       SELECT
         (SELECT COUNT(*) FROM cita WHERE estado = 'pendiente') AS triajes_pendientes,
-        (SELECT COUNT(*) FROM triaje WHERE id_enfermera = ?) AS triajes_realizados,
-        (SELECT COUNT(*) FROM triaje WHERE id_enfermera = ? AND DATE(fecha_registro) = CURDATE()) AS triajes_hoy,
-        (SELECT COUNT(*) FROM cita WHERE estado = 'triaje_registrado') AS citas_con_triaje
+        (
+          SELECT COUNT(*)
+          FROM triaje t
+          INNER JOIN cita c ON t.id_cita = c.id_cita
+          WHERE t.id_enfermera = ?
+            AND c.estado IN ('triaje_registrado', 'en_consulta')
+        ) AS triajes_realizados,
+        (
+          SELECT COUNT(*)
+          FROM triaje t
+          INNER JOIN cita c ON t.id_cita = c.id_cita
+          WHERE t.id_enfermera = ?
+            AND c.estado IN ('triaje_registrado', 'en_consulta')
+            AND DATE(t.fecha_registro) = CURDATE()
+        ) AS triajes_hoy,
+        (
+          SELECT COUNT(*)
+          FROM triaje t
+          INNER JOIN cita c ON t.id_cita = c.id_cita
+          WHERE t.id_enfermera = ?
+            AND c.estado = 'triaje_registrado'
+        ) AS citas_con_triaje
       `,
-      [enfermera.id_enfermera, enfermera.id_enfermera]
+      [enfermera.id_enfermera, enfermera.id_enfermera, enfermera.id_enfermera]
     );
 
     res.render('enfermera/dashboard', {
@@ -55,6 +115,7 @@ exports.triajePendiente = async (req, res) => {
         c.fecha,
         TIME_FORMAT(c.hora, '%H:%i') AS hora,
         c.motivo,
+        c.sintomas AS sintomas_paciente,
         c.estado,
 
         pac.id_paciente,
@@ -67,12 +128,20 @@ exports.triajePendiente = async (req, res) => {
         med.id_medico,
         med.especialidad,
         per_medico.nombres AS medico_nombres,
-        per_medico.apellido_paterno AS medico_apellido_paterno
+        per_medico.apellido_paterno AS medico_apellido_paterno,
+
+        ant.alergias,
+        ant.enfermedades_previas,
+        ant.medicacion_actual,
+        ant.cirugias,
+        ant.antecedentes_familiares,
+        ant.observaciones AS antecedentes_observaciones
       FROM cita c
       INNER JOIN paciente pac ON c.id_paciente = pac.id_paciente
       INNER JOIN persona per_paciente ON pac.id_persona = per_paciente.id_persona
       INNER JOIN medico med ON c.id_medico = med.id_medico
       INNER JOIN persona per_medico ON med.id_persona = per_medico.id_persona
+      LEFT JOIN antecedente ant ON pac.id_paciente = ant.id_paciente
       LEFT JOIN triaje t ON c.id_cita = t.id_cita
       WHERE c.estado = 'pendiente'
       AND t.id_triaje IS NULL
@@ -103,6 +172,7 @@ exports.showRegistrarTriaje = async (req, res) => {
         c.fecha,
         TIME_FORMAT(c.hora, '%H:%i') AS hora,
         c.motivo,
+        c.sintomas AS sintomas_paciente,
         c.estado,
 
         per_paciente.nombres AS paciente_nombres,
@@ -114,12 +184,20 @@ exports.showRegistrarTriaje = async (req, res) => {
 
         med.especialidad,
         per_medico.nombres AS medico_nombres,
-        per_medico.apellido_paterno AS medico_apellido_paterno
+        per_medico.apellido_paterno AS medico_apellido_paterno,
+
+        ant.alergias,
+        ant.enfermedades_previas,
+        ant.medicacion_actual,
+        ant.cirugias,
+        ant.antecedentes_familiares,
+        ant.observaciones AS antecedentes_observaciones
       FROM cita c
       INNER JOIN paciente pac ON c.id_paciente = pac.id_paciente
       INNER JOIN persona per_paciente ON pac.id_persona = per_paciente.id_persona
       INNER JOIN medico med ON c.id_medico = med.id_medico
       INNER JOIN persona per_medico ON med.id_persona = per_medico.id_persona
+      LEFT JOIN antecedente ant ON pac.id_paciente = ant.id_paciente
       LEFT JOIN triaje t ON c.id_cita = t.id_cita
       WHERE c.id_cita = ?
       AND c.estado = 'pendiente'
@@ -137,7 +215,11 @@ exports.showRegistrarTriaje = async (req, res) => {
     res.render('enfermera/registrar-triaje', {
       title: 'Registrar triaje',
       layout: 'layouts/dashboard',
-      cita: rows[0]
+      cita: rows[0],
+      triaje: {},
+      modoEdicion: false,
+      sintomasTriaje: SINTOMAS_TRIAJE,
+      actionUrl: `/enfermera/triaje/${id_cita}/registrar`
     });
   } catch (error) {
     console.error(error);
@@ -158,10 +240,12 @@ exports.storeRegistrarTriaje = async (req, res) => {
       frecuencia_cardiaca,
       saturacion,
       sintomas,
+      sintomas_otro,
       observaciones
     } = req.body;
+    const sintomasNormalizados = normalizarSintomasTriaje(sintomas, sintomas_otro);
 
-    if (!temperatura || !presion_arterial || !frecuencia_cardiaca || !saturacion || !sintomas) {
+    if (!temperatura || !presion_arterial || !frecuencia_cardiaca || !saturacion || !sintomasNormalizados) {
       req.session.error = 'Completa los campos obligatorios del triaje.';
       return res.redirect(`/enfermera/triaje/${id_cita}/registrar`);
     }
@@ -177,6 +261,11 @@ exports.storeRegistrarTriaje = async (req, res) => {
 
     if (fc < 30 || fc > 220) {
       req.session.error = 'La frecuencia cardiaca ingresada no parece válida.';
+      return res.redirect(`/enfermera/triaje/${id_cita}/registrar`);
+    }
+
+    if (!presionValida(presion_arterial)) {
+      req.session.error = 'La presión arterial debe tener formato 120/80.';
       return res.redirect(`/enfermera/triaje/${id_cita}/registrar`);
     }
 
@@ -253,7 +342,7 @@ exports.storeRegistrarTriaje = async (req, res) => {
         presion_arterial,
         frecuencia_cardiaca,
         saturacion,
-        sintomas,
+        sintomasNormalizados,
         observaciones || null
       ]
     );
@@ -287,6 +376,250 @@ exports.storeRegistrarTriaje = async (req, res) => {
   }
 };
 
+exports.showEditarTriaje = async (req, res) => {
+  try {
+    const { id_cita } = req.params;
+    const enfermera = await obtenerEnfermeraPorPersona(req.session.user.id_persona);
+
+    if (!enfermera) {
+      req.session.error = 'No se encontro el perfil de enfermeria.';
+      return res.redirect('/enfermera/dashboard');
+    }
+
+    const [rows] = await db.query(
+      `
+      SELECT
+        c.id_cita,
+        c.fecha,
+        TIME_FORMAT(c.hora, '%H:%i') AS hora,
+        c.motivo,
+        c.sintomas AS sintomas_paciente,
+        c.estado,
+
+        per_paciente.nombres AS paciente_nombres,
+        per_paciente.apellido_paterno AS paciente_apellido_paterno,
+        per_paciente.apellido_materno AS paciente_apellido_materno,
+        per_paciente.dni AS paciente_dni,
+        TIMESTAMPDIFF(YEAR, per_paciente.fecha_nacimiento, CURDATE()) AS paciente_edad,
+        per_paciente.sexo AS paciente_sexo,
+
+        med.especialidad,
+        per_medico.nombres AS medico_nombres,
+        per_medico.apellido_paterno AS medico_apellido_paterno,
+        per_medico.apellido_materno AS medico_apellido_materno,
+
+        ant.alergias,
+        ant.enfermedades_previas,
+        ant.medicacion_actual,
+        ant.cirugias,
+        ant.antecedentes_familiares,
+        ant.observaciones AS antecedentes_observaciones,
+
+        t.id_triaje,
+        t.temperatura,
+        t.presion_arterial,
+        t.frecuencia_cardiaca,
+        t.saturacion,
+        t.sintomas,
+        t.observaciones
+      FROM cita c
+      INNER JOIN paciente pac ON c.id_paciente = pac.id_paciente
+      INNER JOIN persona per_paciente ON pac.id_persona = per_paciente.id_persona
+      INNER JOIN medico med ON c.id_medico = med.id_medico
+      INNER JOIN persona per_medico ON med.id_persona = per_medico.id_persona
+      LEFT JOIN antecedente ant ON pac.id_paciente = ant.id_paciente
+      INNER JOIN triaje t ON c.id_cita = t.id_cita
+      WHERE c.id_cita = ?
+      AND t.id_enfermera = ?
+      AND c.estado = 'triaje_registrado'
+      LIMIT 1
+      `,
+      [id_cita, enfermera.id_enfermera]
+    );
+
+    if (rows.length === 0) {
+      req.session.error = 'Solo puedes editar triajes que aun no pasaron a consulta medica.';
+      return res.redirect('/enfermera/triajes');
+    }
+
+    res.render('enfermera/registrar-triaje', {
+      title: 'Editar triaje',
+      layout: 'layouts/dashboard',
+      cita: rows[0],
+      triaje: rows[0],
+      modoEdicion: true,
+      sintomasTriaje: SINTOMAS_TRIAJE,
+      actionUrl: `/enfermera/triajes/${id_cita}/editar`
+    });
+  } catch (error) {
+    console.error(error);
+    req.session.error = 'No se pudo cargar el triaje seleccionado.';
+    return res.redirect('/enfermera/triajes');
+  }
+};
+
+exports.showDetalleTriaje = async (req, res) => {
+  try {
+    const { id_cita } = req.params;
+    const backUrl = req.query.returnTo === 'historial'
+      ? '/enfermera/historial-triajes'
+      : '/enfermera/triajes';
+    const enfermera = await obtenerEnfermeraPorPersona(req.session.user.id_persona);
+
+    if (!enfermera) {
+      req.session.error = 'No se encontro el perfil de enfermeria.';
+      return res.redirect('/enfermera/dashboard');
+    }
+
+    const [rows] = await db.query(
+      `
+      SELECT
+        c.id_cita,
+        c.fecha,
+        TIME_FORMAT(c.hora, '%H:%i') AS hora,
+        c.motivo,
+        c.sintomas AS sintomas_paciente,
+        c.estado,
+
+        per_paciente.nombres AS paciente_nombres,
+        per_paciente.apellido_paterno AS paciente_apellido_paterno,
+        per_paciente.apellido_materno AS paciente_apellido_materno,
+        per_paciente.dni AS paciente_dni,
+        TIMESTAMPDIFF(YEAR, per_paciente.fecha_nacimiento, CURDATE()) AS paciente_edad,
+        per_paciente.sexo AS paciente_sexo,
+
+        med.especialidad,
+        per_medico.nombres AS medico_nombres,
+        per_medico.apellido_paterno AS medico_apellido_paterno,
+        per_medico.apellido_materno AS medico_apellido_materno,
+
+        ant.alergias,
+        ant.enfermedades_previas,
+        ant.medicacion_actual,
+        ant.cirugias,
+        ant.antecedentes_familiares,
+        ant.observaciones AS antecedentes_observaciones,
+
+        t.id_triaje,
+        t.temperatura,
+        t.presion_arterial,
+        t.frecuencia_cardiaca,
+        t.saturacion,
+        t.sintomas,
+        t.observaciones
+      FROM cita c
+      INNER JOIN paciente pac ON c.id_paciente = pac.id_paciente
+      INNER JOIN persona per_paciente ON pac.id_persona = per_paciente.id_persona
+      INNER JOIN medico med ON c.id_medico = med.id_medico
+      INNER JOIN persona per_medico ON med.id_persona = per_medico.id_persona
+      LEFT JOIN antecedente ant ON pac.id_paciente = ant.id_paciente
+      INNER JOIN triaje t ON c.id_cita = t.id_cita
+      WHERE c.id_cita = ?
+      AND t.id_enfermera = ?
+      LIMIT 1
+      `,
+      [id_cita, enfermera.id_enfermera]
+    );
+
+    if (rows.length === 0) {
+      req.session.error = 'No se encontro el triaje seleccionado.';
+      return res.redirect('/enfermera/triajes');
+    }
+
+    return res.render('enfermera/registrar-triaje', {
+      title: 'Detalle de triaje',
+      layout: 'layouts/dashboard',
+      cita: rows[0],
+      triaje: rows[0],
+      modoEdicion: false,
+      modoDetalle: true,
+      sintomasTriaje: SINTOMAS_TRIAJE,
+      actionUrl: '#',
+      backUrl
+    });
+  } catch (error) {
+    console.error(error);
+    req.session.error = 'No se pudo cargar el detalle del triaje.';
+    return res.redirect('/enfermera/triajes');
+  }
+};
+
+exports.updateTriaje = async (req, res) => {
+  try {
+    const { id_cita } = req.params;
+    const {
+      temperatura,
+      presion_arterial,
+      frecuencia_cardiaca,
+      saturacion,
+      sintomas,
+      sintomas_otro,
+      observaciones
+    } = req.body;
+    const sintomasNormalizados = normalizarSintomasTriaje(sintomas, sintomas_otro);
+
+    if (!temperatura || !presion_arterial || !frecuencia_cardiaca || !saturacion || !sintomasNormalizados) {
+      req.session.error = 'Completa los campos obligatorios del triaje.';
+      return res.redirect(`/enfermera/triajes/${id_cita}/editar`);
+    }
+
+    const temp = Number(temperatura);
+    const fc = Number(frecuencia_cardiaca);
+    const sat = Number(saturacion);
+
+    if (temp < 30 || temp > 45 || fc < 30 || fc > 220 || sat < 50 || sat > 100 || !presionValida(presion_arterial)) {
+      req.session.error = 'Revisa los rangos ingresados en los signos vitales.';
+      return res.redirect(`/enfermera/triajes/${id_cita}/editar`);
+    }
+
+    const enfermera = await obtenerEnfermeraPorPersona(req.session.user.id_persona);
+
+    if (!enfermera) {
+      req.session.error = 'No se encontro el perfil de enfermeria.';
+      return res.redirect('/enfermera/dashboard');
+    }
+
+    const [result] = await db.query(
+      `
+      UPDATE triaje t
+      INNER JOIN cita c ON t.id_cita = c.id_cita
+      SET
+        t.temperatura = ?,
+        t.presion_arterial = ?,
+        t.frecuencia_cardiaca = ?,
+        t.saturacion = ?,
+        t.sintomas = ?,
+        t.observaciones = ?
+      WHERE t.id_cita = ?
+      AND t.id_enfermera = ?
+      AND c.estado = 'triaje_registrado'
+      `,
+      [
+        temperatura,
+        presion_arterial,
+        frecuencia_cardiaca,
+        saturacion,
+        sintomasNormalizados,
+        observaciones || null,
+        id_cita,
+        enfermera.id_enfermera
+      ]
+    );
+
+    if (result.affectedRows === 0) {
+      req.session.error = 'No se pudo editar: la cita ya paso a consulta medica o no te pertenece.';
+      return res.redirect('/enfermera/triajes');
+    }
+
+    req.session.success = 'Triaje actualizado correctamente.';
+    return res.redirect('/enfermera/triajes');
+  } catch (error) {
+    console.error(error);
+    req.session.error = 'No se pudo actualizar el triaje.';
+    return res.redirect(`/enfermera/triajes/${req.params.id_cita}/editar`);
+  }
+};
+
 exports.triajesRealizados = async (req, res) => {
   try {
     const enfermera = await obtenerEnfermeraPorPersona(req.session.user.id_persona);
@@ -296,9 +629,130 @@ exports.triajesRealizados = async (req, res) => {
       return res.redirect('/enfermera/dashboard');
     }
 
-    const { q, fecha, estado } = req.query;
+    const { q, desde, hasta, estado } = req.query;
 
     const conditions = ['t.id_enfermera = ?'];
+    const params = [enfermera.id_enfermera];
+    const estadosPermitidos = ['triaje_registrado', 'en_consulta'];
+
+    if (q && q.trim() !== '') {
+      conditions.push(`
+        (
+          per_paciente.nombres LIKE ?
+          OR per_paciente.apellido_paterno LIKE ?
+          OR per_paciente.apellido_materno LIKE ?
+          OR per_paciente.dni LIKE ?
+          OR per_medico.nombres LIKE ?
+          OR per_medico.apellido_paterno LIKE ?
+          OR c.motivo LIKE ?
+          OR t.sintomas LIKE ?
+        )
+      `);
+
+      const search = `%${q.trim()}%`;
+      params.push(search, search, search, search, search, search, search, search);
+    }
+
+    if (desde && desde !== '') {
+      conditions.push('DATE(t.fecha_registro) >= ?');
+      params.push(desde);
+    }
+
+    if (hasta && hasta !== '') {
+      conditions.push('DATE(t.fecha_registro) <= ?');
+      params.push(hasta);
+    }
+
+    if (estado && estadosPermitidos.includes(estado)) {
+      conditions.push('c.estado = ?');
+      params.push(estado);
+    } else {
+      conditions.push("c.estado IN ('triaje_registrado', 'en_consulta')");
+    }
+
+    const [triajes] = await db.query(
+      `
+      SELECT
+        t.id_triaje,
+        t.temperatura,
+        t.presion_arterial,
+        t.frecuencia_cardiaca,
+        t.saturacion,
+        t.sintomas,
+        t.observaciones,
+        t.fecha_registro,
+
+        c.id_cita,
+        c.fecha,
+        TIME_FORMAT(c.hora, '%H:%i') AS hora,
+        c.motivo,
+        c.sintomas AS sintomas_paciente,
+        c.estado,
+
+        per_paciente.nombres AS paciente_nombres,
+        per_paciente.apellido_paterno AS paciente_apellido_paterno,
+        per_paciente.apellido_materno AS paciente_apellido_materno,
+        per_paciente.dni AS paciente_dni,
+        per_paciente.sexo AS paciente_sexo,
+        TIMESTAMPDIFF(YEAR, per_paciente.fecha_nacimiento, CURDATE()) AS paciente_edad,
+
+        med.especialidad,
+        per_medico.nombres AS medico_nombres,
+        per_medico.apellido_paterno AS medico_apellido_paterno,
+
+        per_enfermera.nombres AS enfermera_nombres,
+        per_enfermera.apellido_paterno AS enfermera_apellido_paterno,
+
+        ant.alergias,
+        ant.enfermedades_previas,
+        ant.medicacion_actual,
+        ant.cirugias,
+        ant.antecedentes_familiares,
+        ant.observaciones AS antecedentes_observaciones
+      FROM triaje t
+      INNER JOIN cita c ON t.id_cita = c.id_cita
+      INNER JOIN paciente pac ON c.id_paciente = pac.id_paciente
+      INNER JOIN persona per_paciente ON pac.id_persona = per_paciente.id_persona
+      INNER JOIN medico med ON c.id_medico = med.id_medico
+      INNER JOIN persona per_medico ON med.id_persona = per_medico.id_persona
+      INNER JOIN enfermera enf ON t.id_enfermera = enf.id_enfermera
+      INNER JOIN persona per_enfermera ON enf.id_persona = per_enfermera.id_persona
+      LEFT JOIN antecedente ant ON pac.id_paciente = ant.id_paciente
+      WHERE ${conditions.join(' AND ')}
+      ORDER BY t.fecha_registro DESC
+      `,
+      params
+    );
+
+    res.render('enfermera/triajes', {
+      title: 'Triajes activos',
+      layout: 'layouts/dashboard',
+      triajes,
+      filters: {
+        q: q || '',
+        desde: desde || '',
+        hasta: hasta || '',
+        estado: estado || ''
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    req.session.error = 'No se pudieron cargar los triajes activos.';
+    return res.redirect('/enfermera/dashboard');
+  }
+};
+
+exports.historialTriajes = async (req, res) => {
+  try {
+    const enfermera = await obtenerEnfermeraPorPersona(req.session.user.id_persona);
+
+    if (!enfermera) {
+      req.session.error = 'No se encontro el perfil de enfermeria.';
+      return res.redirect('/enfermera/dashboard');
+    }
+
+    const { q, desde, hasta } = req.query;
+    const conditions = ['t.id_enfermera = ?', "c.estado IN ('completada', 'cancelada')"];
     const params = [enfermera.id_enfermera];
 
     if (q && q.trim() !== '') {
@@ -319,39 +773,29 @@ exports.triajesRealizados = async (req, res) => {
       params.push(search, search, search, search, search, search, search, search);
     }
 
-    if (fecha && fecha !== '') {
-      conditions.push('DATE(t.fecha_registro) = ?');
-      params.push(fecha);
+    if (desde && desde !== '') {
+      conditions.push('DATE(t.fecha_registro) >= ?');
+      params.push(desde);
     }
 
-    if (estado && estado !== '') {
-      conditions.push('c.estado = ?');
-      params.push(estado);
+    if (hasta && hasta !== '') {
+      conditions.push('DATE(t.fecha_registro) <= ?');
+      params.push(hasta);
     }
 
     const [triajes] = await db.query(
       `
       SELECT
         t.id_triaje,
-        t.temperatura,
-        t.presion_arterial,
-        t.frecuencia_cardiaca,
-        t.saturacion,
-        t.sintomas,
-        t.observaciones,
         t.fecha_registro,
-
         c.id_cita,
         c.fecha,
         TIME_FORMAT(c.hora, '%H:%i') AS hora,
-        c.motivo,
         c.estado,
-
         per_paciente.nombres AS paciente_nombres,
         per_paciente.apellido_paterno AS paciente_apellido_paterno,
         per_paciente.apellido_materno AS paciente_apellido_materno,
         per_paciente.dni AS paciente_dni,
-
         med.especialidad,
         per_medico.nombres AS medico_nombres,
         per_medico.apellido_paterno AS medico_apellido_paterno
@@ -362,24 +806,27 @@ exports.triajesRealizados = async (req, res) => {
       INNER JOIN medico med ON c.id_medico = med.id_medico
       INNER JOIN persona per_medico ON med.id_persona = per_medico.id_persona
       WHERE ${conditions.join(' AND ')}
-      ORDER BY t.fecha_registro DESC
+      ORDER BY
+        CASE WHEN c.estado = 'cancelada' THEN 1 ELSE 0 END ASC,
+        c.fecha DESC,
+        c.hora DESC
       `,
       params
     );
 
-    res.render('enfermera/triajes', {
-      title: 'Triajes realizados',
+    return res.render('enfermera/historial-triajes', {
+      title: 'Historial de triajes',
       layout: 'layouts/dashboard',
       triajes,
       filters: {
         q: q || '',
-        fecha: fecha || '',
-        estado: estado || ''
+        desde: desde || '',
+        hasta: hasta || ''
       }
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudieron cargar los triajes realizados.';
+    req.session.error = 'No se pudo cargar el historial de triajes.';
     return res.redirect('/enfermera/dashboard');
   }
 };

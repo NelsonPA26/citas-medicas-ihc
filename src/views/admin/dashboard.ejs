@@ -6,6 +6,12 @@
   </div>
 
   <div class="stat-card">
+    <h3>Citas registradas</h3>
+    <p class="stat-number"><%= stats.citas || 0 %></p>
+    <a href="/admin/citas" class="card-link">Ver citas</a>
+  </div>
+
+  <div class="stat-card">
     <h3>Médicos</h3>
     <p class="stat-number"><%= stats.medicos || 0 %></p>
     <a href="/admin/medicos" class="card-link">Ver médicos</a>
@@ -15,12 +21,6 @@
     <h3>Enfermeras</h3>
     <p class="stat-number"><%= stats.enfermeras || 0 %></p>
     <a href="/admin/enfermeras" class="card-link">Ver enfermeras</a>
-  </div>
-
-  <div class="stat-card">
-    <h3>Citas registradas</h3>
-    <p class="stat-number"><%= stats.citas || 0 %></p>
-    <a href="/admin/citas" class="card-link">Ver citas</a>
   </div>
 
   <div class="stat-card">

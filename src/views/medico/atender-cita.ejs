@@ -3,161 +3,148 @@
     <p>Revisa el triaje y registra la consulta del paciente.</p>
   </div>
 
-  <section class="patient-summary">
-    <div>
-      <span>Paciente</span>
-      <strong>
-        <%= cita.paciente_nombres %>
-        <%= cita.paciente_apellido_paterno %>
-        <%= cita.paciente_apellido_materno || '' %>
-      </strong>
-    </div>
+  <div class="notice-box">
+    Los selectores de diagnóstico y tratamiento son plantillas frecuentes editables. No reemplazan la evaluación médica ni generan una decisión automática.
+  </div>
 
-    <div>
-      <span>DNI</span>
-      <strong><%= cita.paciente_dni || 'No registrado' %></strong>
-    </div>
+  <div class="clinical-overview">
+    <section class="patient-summary clinical-panel">
+      <h3>Resumen del paciente</h3>
+      <div><span>Paciente</span><strong><%= cita.paciente_nombres %> <%= cita.paciente_apellido_paterno %> <%= cita.paciente_apellido_materno || '' %></strong></div>
+      <div><span>DNI</span><strong><%= cita.paciente_dni || 'No registrado' %></strong></div>
+      <div><span>Edad</span><strong><%= cita.paciente_edad !== null ? cita.paciente_edad + ' años' : 'No registrada' %></strong></div>
+      <div><span>Sexo</span><strong><%= cita.paciente_sexo || 'No registrado' %></strong></div>
+      <div><span>Fecha y hora</span><strong><%= new Date(cita.fecha).toLocaleDateString('es-PE') %> - <%= cita.hora %></strong></div>
+      <div class="full-row"><span>Motivo de consulta</span><strong><%= cita.motivo %></strong></div>
+      <div class="full-row"><span>Síntomas iniciales declarados por el paciente</span><strong><%= cita.sintomas_paciente || 'No declarados por el paciente' %></strong></div>
+    </section>
 
-    <div>
-      <span>Edad</span>
-      <strong><%= cita.paciente_edad !== null ? cita.paciente_edad + ' años' : 'No registrada' %></strong>
-    </div>
-
-    <div>
-      <span>Sexo</span>
-      <strong><%= cita.paciente_sexo || 'No registrado' %></strong>
-    </div>
-
-    <div>
-      <span>Fecha y hora</span>
-      <strong><%= new Date(cita.fecha).toLocaleDateString('es-PE') %> - <%= cita.hora %></strong>
-    </div>
-
-    <div class="full-row">
-      <span>Motivo de consulta</span>
-      <strong><%= cita.motivo %></strong>
-    </div>
-  </section>
+    <section class="triaje-summary clinical-panel">
+      <h3>Antecedentes médicos referidos por el paciente</h3>
+      <div class="triaje-summary-grid compact-clinical-grid">
+        <div><span>Alergias</span><strong><%= cita.alergias || 'No registradas' %></strong></div>
+        <div><span>Enfermedades previas</span><strong><%= cita.enfermedades_previas || 'No registradas' %></strong></div>
+        <div><span>Medicación actual</span><strong><%= cita.medicacion_actual || 'No registrada' %></strong></div>
+        <div><span>Cirugías</span><strong><%= cita.cirugias || 'No registradas' %></strong></div>
+        <div class="full-row"><span>Antecedentes familiares</span><strong><%= cita.antecedentes_familiares || 'No registrados' %></strong></div>
+        <div class="full-row"><span>Observaciones</span><strong><%= cita.antecedentes_observaciones || 'Sin observaciones' %></strong></div>
+      </div>
+    </section>
+  </div>
 
   <section class="triaje-summary">
     <h3>Triaje registrado</h3>
-
     <div class="triaje-summary-grid">
-      <div>
-        <span>Temperatura</span>
-        <strong><%= cita.temperatura %> °C</strong>
-      </div>
-
-      <div>
-        <span>Presión arterial</span>
-        <strong><%= cita.presion_arterial %></strong>
-      </div>
-
-      <div>
-        <span>Frecuencia cardiaca</span>
-        <strong><%= cita.frecuencia_cardiaca %> lpm</strong>
-      </div>
-
-      <div>
-        <span>Saturación O₂</span>
-        <strong><%= cita.saturacion %>%</strong>
-      </div>
-
-      <div class="full-row">
-        <span>Síntomas</span>
-        <strong><%= cita.sintomas %></strong>
-      </div>
-
-      <div class="full-row">
-        <span>Observaciones de enfermería</span>
-        <strong><%= cita.triaje_observaciones || 'Sin observaciones' %></strong>
-      </div>
+      <div><span>Temperatura</span><strong><%= cita.temperatura %> °C</strong></div>
+      <div><span>Presión arterial</span><strong><%= cita.presion_arterial %></strong></div>
+      <div><span>Frecuencia cardiaca</span><strong><%= cita.frecuencia_cardiaca %> lpm</strong></div>
+      <div><span>Saturación O₂</span><strong><%= cita.saturacion %>%</strong></div>
+      <div class="full-row"><span>Síntomas verificados por enfermería (principal para atención)</span><strong><%= cita.sintomas %></strong></div>
+      <div class="full-row"><span>Observaciones de enfermería</span><strong><%= cita.triaje_observaciones || 'Sin observaciones' %></strong></div>
     </div>
   </section>
 
-  <form action="/medico/citas/<%= cita.id_cita %>/atender" method="POST" class="consulta-form" id="consultaForm">
+  <form action="/medico/citas/<%= cita.id_cita %>/atender" method="POST" class="consulta-form js-role-validated-form" id="consultaForm" novalidate>
     <input type="hidden" name="accion" id="accionInput" value="">
     <div id="consultaMessage" class="step-message hidden"></div>
 
-    <div class="form-group">
-      <label for="diagnostico">Diagnóstico</label>
-      <textarea 
-        id="diagnostico" 
-        name="diagnostico" 
-        placeholder="Registra el diagnóstico del paciente."
-        required
-      ><%= cita.diagnostico || '' %></textarea>
-    </div>
+    <div class="consulta-form-grid">
+      <div class="form-group">
+        <label for="diagnostico_frecuente">Diagnóstico frecuente</label>
+        <select id="diagnostico_frecuente" class="clinical-helper-select" data-target="diagnostico">
+          <option value="">Seleccionar diagnóstico frecuente</option>
+          <option value="Cefalea tensional">Cefalea tensional</option>
+          <option value="Ansiedad en evaluación">Ansiedad en evaluación</option>
+          <option value="Estrés académico">Estrés académico</option>
+          <option value="Infección respiratoria alta">Infección respiratoria alta</option>
+          <option value="Faringitis aguda">Faringitis aguda</option>
+          <option value="Rinitis alérgica">Rinitis alérgica</option>
+          <option value="Gastritis / dispepsia">Gastritis / dispepsia</option>
+          <option value="Dolor abdominal en evaluación">Dolor abdominal en evaluación</option>
+          <option value="Gastroenteritis aguda">Gastroenteritis aguda</option>
+          <option value="Lumbalgia mecánica">Lumbalgia mecánica</option>
+          <option value="Malestar general en evaluación">Malestar general en evaluación</option>
+          <option value="Fiebre en evaluación">Fiebre en evaluación</option>
+          <option value="Hipertensión arterial en evaluación">Hipertensión arterial en evaluación</option>
+          <option value="Dermatitis en evaluación">Dermatitis en evaluación</option>
+          <option value="Infección urinaria probable">Infección urinaria probable</option>
+          <option value="__otro__">Otro / Especificar manualmente</option>
+        </select>
 
-    <div class="form-group">
-      <label for="tratamiento">Tratamiento</label>
-      <textarea 
-        id="tratamiento" 
-        name="tratamiento" 
-        placeholder="Indica el tratamiento o indicaciones médicas."
-        required
-      ><%= cita.tratamiento || '' %></textarea>
-    </div>
+        <label for="diagnostico">Diagnóstico / impresión diagnóstica registrada por el médico</label>
+        <textarea id="diagnostico" name="diagnostico" placeholder="Registra el diagnóstico o impresión diagnóstica según la evaluación médica." minlength="5" maxlength="255" data-validate="clinical-text" data-min="5"><%= cita.diagnostico || '' %></textarea>
+        <span class="field-message" data-for="diagnostico"></span>
+      </div>
 
-    <div class="form-group">
-      <label for="recomendaciones">Recomendaciones</label>
-      <textarea 
-        id="recomendaciones" 
-        name="recomendaciones" 
-        placeholder="Opcional: recomendaciones para el paciente."
-      ><%= cita.recomendaciones || '' %></textarea>
-    </div>
+      <div class="form-group">
+        <label for="tratamiento_frecuente">Tratamiento frecuente</label>
+        <select id="tratamiento_frecuente" class="clinical-helper-select" data-target="tratamiento">
+          <option value="">Seleccionar tratamiento frecuente</option>
+          <option value="Tratamiento sintomático según evaluación médica.">Tratamiento sintomático</option>
+          <option value="Reposo relativo, hidratación oral y control de evolución.">Reposo e hidratación</option>
+          <option value="Control de signos de alarma y reevaluación si presenta empeoramiento.">Control de signos de alarma</option>
+          <option value="Medicación según evaluación médica, antecedentes y alergias referidas.">Medicación según evaluación médica</option>
+          <option value="Lavado nasal, hidratación y seguimiento si empeoran los síntomas respiratorios.">Manejo respiratorio inicial</option>
+          <option value="Dieta blanda, hidratación y reevaluación si persiste dolor abdominal.">Manejo digestivo inicial</option>
+          <option value="Control de presión arterial y seguimiento médico.">Control de presión arterial</option>
+          <option value="Solicitud de exámenes auxiliares según criterio médico.">Solicitud de exámenes auxiliares</option>
+          <option value="Derivación a especialidad correspondiente según evaluación.">Derivación a especialista</option>
+          <option value="__otro__">Otro / Especificar manualmente</option>
+        </select>
 
-    <div class="form-group">
-      <label for="observaciones">Observaciones internas</label>
-      <textarea 
-        id="observaciones" 
-        name="observaciones" 
-        placeholder="Opcional: observaciones adicionales."
-      ><%= cita.consulta_observaciones || '' %></textarea>
-    </div>
+        <label for="tratamiento">Tratamiento indicado por el médico</label>
+        <textarea id="tratamiento" name="tratamiento" placeholder="Indica el tratamiento médico personalizado." minlength="5" maxlength="800" data-validate="clinical-text" data-min="5"><%= cita.tratamiento || '' %></textarea>
+        <span class="field-message" data-for="tratamiento"></span>
+      </div>
 
-    <label class="checkbox-line">
-      <input 
-        type="checkbox" 
-        name="privada" 
-        value="1"
-        <%= cita.privada === 1 ? 'checked' : '' %>
-      >
-      <span>Marcar observaciones como privadas para el paciente</span>
-    </label>
+      <div class="form-group">
+        <label for="recomendaciones">Recomendaciones para el paciente</label>
+        <textarea id="recomendaciones" name="recomendaciones" placeholder="Opcional: escribe recomendaciones personalizadas para el paciente." maxlength="800" data-validate="clinical-text" data-min="5"><%= cita.recomendaciones || '' %></textarea>
+        <span class="field-message" data-for="recomendaciones"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="observaciones">Observaciones internas</label>
+        <textarea id="observaciones" name="observaciones" placeholder="Opcional: observaciones adicionales para uso interno." maxlength="800" data-validate="clinical-text" data-min="5"><%= cita.consulta_observaciones || '' %></textarea>
+        <span class="field-message" data-for="observaciones"></span>
+
+        <label class="checkbox-line">
+          <input type="checkbox" name="privada" value="1" <%= cita.privada === 1 ? 'checked' : '' %>>
+          <span>Ocultar estas observaciones al paciente</span>
+        </label>
+      </div>
+    </div>
 
     <div class="notice-box">
-      Puedes guardar como borrador para continuar después. Si confirmas la consulta, la cita pasará a estado completada.
+      Puedes guardar la consulta en progreso sin completar todos los campos. Para confirmar, el diagnóstico y el tratamiento son obligatorios.
     </div>
 
     <div class="form-actions">
       <a href="/medico/citas" class="btn-light">Cancelar</a>
-
-    <button type="button" class="btn-secondary-action" id="saveDraftButton">
-        Guardar borrador
-    </button>
-
-    <button type="button" class="btn-dark" id="openConfirmModal">
-        Confirmar consulta
-    </button>
+      <button type="button" class="btn-secondary-action" id="saveDraftButton">Guardar en progreso</button>
+      <button type="button" class="btn-dark" id="openConfirmModal">Confirmar consulta</button>
     </div>
   </form>
-    <div class="modal-overlay hidden" id="confirmConsultaModal">
-    <div class="confirm-modal">
-        <h3>Confirmar consulta</h3>
-        <p>
-        ¿Estás seguro de confirmar esta consulta? Después de confirmar, la cita pasará a estado
-        <strong>completada</strong>.
-        </p>
 
-        <div class="modal-actions">
-        <button type="button" class="btn-light" id="closeConfirmModal">Volver</button>
-        <button type="button" class="btn-dark" id="confirmConsultaButton">Sí, confirmar</button>
-        </div>
+  <div class="modal-overlay hidden" id="confirmConsultaModal">
+    <div class="confirm-modal">
+      <h3>Confirmar consulta</h3>
+      <p>Antes de completar la atención, verifica que el diagnóstico y el tratamiento correspondan a la evaluación médica realizada.</p>
+
+      <label class="checkbox-line">
+        <input type="checkbox" id="medicalResponsibilityCheck">
+        <span>Confirmo que revisé antecedentes, síntomas iniciales, triaje y que el registro final corresponde a mi criterio médico.</span>
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-light" id="closeConfirmModal">Cancelar</button>
+        <button type="button" class="btn-dark" id="confirmConsultaButton" disabled>Sí, confirmar</button>
+      </div>
     </div>
-    </div>
+  </div>
 </div>
+
+<script src="/js/role-validations.js"></script>
 
 <script>
   const consultaForm = document.getElementById('consultaForm');
@@ -165,6 +152,10 @@
 
   const diagnosticoInput = document.getElementById('diagnostico');
   const tratamientoInput = document.getElementById('tratamiento');
+  const recomendacionesInput = document.getElementById('recomendaciones');
+  const observacionesInput = document.getElementById('observaciones');
+
+  const helperSelects = document.querySelectorAll('.clinical-helper-select');
 
   const accionInput = document.getElementById('accionInput');
   const saveDraftButton = document.getElementById('saveDraftButton');
@@ -173,6 +164,7 @@
   const confirmConsultaModal = document.getElementById('confirmConsultaModal');
   const closeConfirmModal = document.getElementById('closeConfirmModal');
   const confirmConsultaButton = document.getElementById('confirmConsultaButton');
+  const medicalResponsibilityCheck = document.getElementById('medicalResponsibilityCheck');
 
   function showConsultaMessage(message, field = null) {
     consultaMessage.textContent = message;
@@ -197,60 +189,139 @@
     });
   }
 
-  function validateConsultaForm() {
-    if (!diagnosticoInput.value.trim()) {
-      showConsultaMessage('Ingresa el diagnóstico del paciente.', diagnosticoInput);
-      return false;
-    }
+  function validateFilledClinicalFields() {
+    const fields = [
+      diagnosticoInput,
+      tratamientoInput,
+      recomendacionesInput,
+      observacionesInput
+    ];
 
-    if (!tratamientoInput.value.trim()) {
-      showConsultaMessage('Ingresa el tratamiento o indicaciones médicas.', tratamientoInput);
-      return false;
+    for (const field of fields) {
+      if (field.value.trim() && !window.RoleValidation.validateField(field)) {
+        return false;
+      }
     }
 
     return true;
   }
 
-  [diagnosticoInput, tratamientoInput].forEach(input => {
+  function validateRequiredForConfirmation() {
+    if (!diagnosticoInput.value.trim()) {
+      showConsultaMessage('Para confirmar la consulta, registra el diagnóstico o impresión diagnóstica.', diagnosticoInput);
+      return false;
+    }
+
+    if (!window.RoleValidation.validateField(diagnosticoInput)) {
+      return false;
+    }
+
+    if (!tratamientoInput.value.trim()) {
+      showConsultaMessage('Para confirmar la consulta, registra el tratamiento indicado.', tratamientoInput);
+      return false;
+    }
+
+    if (!window.RoleValidation.validateField(tratamientoInput)) {
+      return false;
+    }
+
+    return validateFilledClinicalFields();
+  }
+
+  function fillClinicalTextFromSelect(select) {
+    const target = document.getElementById(select.dataset.target);
+
+    if (!target || !select.value) return;
+
+    if (select.value === '__otro__') {
+      select.value = '';
+      showConsultaMessage('Escribe manualmente la información clínica en el campo correspondiente.', target);
+      return;
+    }
+
+    const selectedText = select.value;
+    const currentText = target.value.trim();
+
+    if (currentText && currentText !== selectedText) {
+      select.value = '';
+      showConsultaMessage(
+        'Este campo ya tiene información escrita. Borra o edita el contenido manualmente antes de usar otra plantilla.',
+        target
+      );
+      return;
+    }
+
+    target.value = selectedText;
+    target.dispatchEvent(new Event('input', { bubbles: true }));
+    select.value = '';
+    clearConsultaMessage();
+  }
+
+  helperSelects.forEach(select => {
+    select.addEventListener('change', () => fillClinicalTextFromSelect(select));
+  });
+
+  [
+    diagnosticoInput,
+    tratamientoInput,
+    recomendacionesInput,
+    observacionesInput
+  ].forEach(input => {
     input.addEventListener('input', clearConsultaMessage);
   });
 
   saveDraftButton.addEventListener('click', () => {
-    if (!validateConsultaForm()) return;
+    if (!validateFilledClinicalFields()) return;
 
     accionInput.value = 'borrador';
     consultaForm.submit();
   });
 
   openConfirmModal.addEventListener('click', () => {
-    if (!validateConsultaForm()) return;
+    if (!validateRequiredForConfirmation()) return;
 
+    medicalResponsibilityCheck.checked = false;
+    confirmConsultaButton.disabled = true;
     confirmConsultaModal.classList.remove('hidden');
+  });
+
+  medicalResponsibilityCheck.addEventListener('change', () => {
+    confirmConsultaButton.disabled = !medicalResponsibilityCheck.checked;
   });
 
   closeConfirmModal.addEventListener('click', () => {
     confirmConsultaModal.classList.add('hidden');
   });
 
-  confirmConsultaModal.addEventListener('click', (event) => {
+  confirmConsultaModal.addEventListener('click', event => {
     if (event.target === confirmConsultaModal) {
       confirmConsultaModal.classList.add('hidden');
     }
   });
 
   confirmConsultaButton.addEventListener('click', () => {
+    if (!medicalResponsibilityCheck.checked) {
+      showConsultaMessage('Confirma que revisaste la información clínica antes de completar la consulta.');
+      return;
+    }
+
     accionInput.value = 'confirmar';
     consultaForm.submit();
   });
 
-  consultaForm.addEventListener('submit', (event) => {
+  consultaForm.addEventListener('submit', event => {
     if (!accionInput.value) {
       event.preventDefault();
-      showConsultaMessage('Selecciona si deseas guardar borrador o confirmar la consulta.');
+      showConsultaMessage('Selecciona si deseas guardar en progreso o confirmar la consulta.');
       return;
     }
 
-    if (!validateConsultaForm()) {
+    if (accionInput.value === 'borrador' && !validateFilledClinicalFields()) {
+      event.preventDefault();
+      return;
+    }
+
+    if (accionInput.value === 'confirmar' && !validateRequiredForConfirmation()) {
       event.preventDefault();
     }
   });

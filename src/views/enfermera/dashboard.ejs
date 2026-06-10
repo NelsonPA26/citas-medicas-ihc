@@ -1,4 +1,5 @@
 <div class="dashboard-grid">
+  <% const hoy = new Date().toISOString().slice(0, 10); %>
   <div class="stat-card highlight-card">
     <h3>Triajes pendientes</h3>
     <p class="stat-number"><%= stats.triajes_pendientes || 0 %></p>
@@ -6,17 +7,20 @@
   </div>
 
   <div class="stat-card">
-    <h3>Triajes realizados</h3>
+    <h3>Triajes activos</h3>
     <p class="stat-number"><%= stats.triajes_realizados || 0 %></p>
+    <a href="/enfermera/triajes" class="card-link">Ver activos</a>
   </div>
 
   <div class="stat-card">
-    <h3>Triajes de hoy</h3>
+    <h3>Activos de hoy</h3>
     <p class="stat-number"><%= stats.triajes_hoy || 0 %></p>
+    <a href="/enfermera/triajes?desde=<%= hoy %>&hasta=<%= hoy %>" class="card-link">Ver hoy</a>
   </div>
 
   <div class="stat-card">
-    <h3>Citas con triaje</h3>
+    <h3>En espera medica</h3>
     <p class="stat-number"><%= stats.citas_con_triaje || 0 %></p>
+    <a href="/enfermera/triajes?estado=triaje_registrado" class="card-link">Ver enviados</a>
   </div>
 </div>

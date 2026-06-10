@@ -1,57 +1,55 @@
 <div class="module-card citas-card">
   <div class="module-header">
-    <p>Supervisa el estado de las citas médicas registradas en el sistema.</p>
+    <p>Supervisa el estado de las citas medicas registradas en el sistema.</p>
   </div>
 
-  <form action="/admin/citas" method="GET" class="filter-card">
+  <form action="/admin/citas" method="GET" class="filter-card js-role-validated-form" novalidate>
     <div class="filter-grid">
-        <div class="form-group">
+      <div class="form-group">
         <label for="q">Buscar</label>
-        <input
-            type="text"
-            id="q"
-            name="q"
-            value="<%= filters.q || '' %>"
-            placeholder="Paciente, DNI, médico o motivo"
-        >
-        </div>
+       <input
+        type="text"
+        id="q"
+        name="q"
+        value="<%= filters.q || '' %>"
+        placeholder="Paciente, DNI, médico o motivo"
+        maxlength="120"
+        data-validate="search"
+      >
+      <span class="field-message" data-for="q"></span>
+      </div>
 
-        <div class="form-group">
+      <div class="form-group">
         <label for="estado">Estado</label>
         <select id="estado" name="estado">
-            <option value="">Todos</option>
-            <option value="pendiente" <%= filters.estado === 'pendiente' ? 'selected' : '' %>>Pendiente</option>
-            <option value="triaje_registrado" <%= filters.estado === 'triaje_registrado' ? 'selected' : '' %>>Triaje registrado</option>
-            <option value="completada" <%= filters.estado === 'completada' ? 'selected' : '' %>>Completada</option>
-            <option value="cancelada" <%= filters.estado === 'cancelada' ? 'selected' : '' %>>Cancelada</option>
+          <option value="">Todos</option>
+          <option value="pendiente" <%= filters.estado === 'pendiente' ? 'selected' : '' %>>Pendiente</option>
+          <option value="triaje_registrado" <%= filters.estado === 'triaje_registrado' ? 'selected' : '' %>>Triaje registrado</option>
+          <option value="en_consulta" <%= filters.estado === 'en_consulta' ? 'selected' : '' %>>En consulta</option>
+          <option value="completada" <%= filters.estado === 'completada' ? 'selected' : '' %>>Completada</option>
+          <option value="cancelada" <%= filters.estado === 'cancelada' ? 'selected' : '' %>>Cancelada</option>
         </select>
-        </div>
+      </div>
 
-        <div class="form-group">
+      <div class="form-group">
         <label for="fecha">Fecha</label>
-        <input
-            type="date"
-            id="fecha"
-            name="fecha"
-            value="<%= filters.fecha || '' %>"
-        >
-        </div>
+        <input type="date" id="fecha" name="fecha" value="<%= filters.fecha || '' %>">
+      </div>
     </div>
 
     <div class="filter-actions">
-        <a href="/admin/citas" class="btn-light">Limpiar filtros</a>
-        <button type="submit" class="btn-dark">Filtrar</button>
+      <a href="/admin/citas" class="btn-light">Limpiar filtros</a>
+      <button type="submit" class="btn-dark">Filtrar</button>
     </div>
-    </form>
+  </form>
 
   <% if (citas.length === 0) { %>
     <div class="empty-state">
-    <h3>No se encontraron citas</h3>
-    <p>No hay resultados con los filtros seleccionados.</p>
-    <a href="/admin/citas" class="btn-dark">Limpiar filtros</a>
+      <h3>No se encontraron citas</h3>
+      <p>No hay resultados con los filtros seleccionados.</p>
+      <a href="/admin/citas" class="btn-dark">Limpiar filtros</a>
     </div>
   <% } else { %>
-
     <div class="table-responsive">
       <table class="data-table">
         <thead>
@@ -59,63 +57,53 @@
             <th>Fecha</th>
             <th>Hora</th>
             <th>Paciente</th>
-            <th>Médico</th>
+            <th>Medico</th>
             <th>Especialidad</th>
             <th>Motivo</th>
             <th>Estado</th>
-            <th>Flujo</th>
+            <th>Acciones</th>
           </tr>
         </thead>
-
         <tbody>
           <% citas.forEach(cita => { %>
             <tr>
               <td><%= new Date(cita.fecha).toLocaleDateString('es-PE') %></td>
               <td><%= cita.hora %></td>
-
               <td>
-                <strong>
-                  <%= cita.paciente_nombres %>
-                  <%= cita.paciente_apellido_paterno %>
-                  <%= cita.paciente_apellido_materno || '' %>
-                </strong>
+                <strong><%= cita.paciente_nombres %> <%= cita.paciente_apellido_paterno %> <%= cita.paciente_apellido_materno || '' %></strong>
                 <br>
                 <span class="text-muted">DNI: <%= cita.paciente_dni || 'No registrado' %></span>
               </td>
-
-              <td>
-                Dr(a). <%= cita.medico_nombres %>
-                <%= cita.medico_apellido_paterno %>
-                <%= cita.medico_apellido_materno || '' %>
-              </td>
-
+              <td>Dr(a). <%= cita.medico_nombres %> <%= cita.medico_apellido_paterno %> <%= cita.medico_apellido_materno || '' %></td>
               <td><%= cita.especialidad %></td>
-              <td><%= cita.motivo %></td>
-
+              <td><strong><%= cita.motivo %></strong></td>
               <td>
                 <% if (cita.estado === 'pendiente') { %>
                   <span class="status-badge status-pendiente">Pendiente</span>
                 <% } else if (cita.estado === 'triaje_registrado') { %>
                   <span class="status-badge status-triaje_registrado">Triaje registrado</span>
+                <% } else if (cita.estado === 'en_consulta') { %>
+                  <span class="status-badge status-en_consulta">En consulta</span>
                 <% } else if (cita.estado === 'completada') { %>
                   <span class="status-badge status-completada">Completada</span>
                 <% } else if (cita.estado === 'cancelada') { %>
                   <span class="status-badge status-cancelada">Cancelada</span>
                 <% } %>
               </td>
-
               <td>
-                <div class="flow-status">
-                  <span class="<%= cita.estado !== 'cancelada' ? 'flow-done' : 'flow-muted' %>">Cita</span>
+                <div class="table-actions">
+                  <a href="/admin/citas/<%= cita.id_cita %>/detalle" class="btn-table-primary">Ver detalles</a>
 
-                  <span class="<%= cita.id_triaje ? 'flow-done' : 'flow-muted' %>">Triaje</span>
-
-                  <% if (cita.id_consulta && cita.borrador === 1) { %>
-                    <span class="flow-warning">Borrador</span>
-                  <% } else if (cita.id_consulta && cita.borrador === 0) { %>
-                    <span class="flow-done">Consulta</span>
-                  <% } else { %>
-                    <span class="flow-muted">Consulta</span>
+                  <% if (cita.estado === 'pendiente' || cita.estado === 'triaje_registrado') { %>
+                    <form
+                      action="/admin/citas/<%= cita.id_cita %>/cancelar"
+                      method="POST"
+                      data-confirm-title="Cancelar cita"
+                      data-confirm="La cita será marcada como cancelada. Esta acción no eliminará el registro del sistema."
+                      data-confirm-button="Cancelar cita"
+                    >
+                      <button type="submit" class="btn-cancel btn-table-action">Cancelar</button>
+                    </form>
                   <% } %>
                 </div>
               </td>
@@ -124,6 +112,6 @@
         </tbody>
       </table>
     </div>
-
   <% } %>
 </div>
+<script src="/js/role-validations.js"></script>

@@ -29,7 +29,9 @@ async function getProfileByUser(user) {
       u.id_usuario,
       u.username,
       u.rol,
-      u.activo
+      u.activo,
+      u.debe_cambiar_password,
+      DATE_FORMAT(u.fecha_creacion, '%Y-%m-%d') AS fecha_creacion
     FROM usuario u
     INNER JOIN persona p ON u.id_persona = p.id_persona
     WHERE u.id_usuario = ?
@@ -162,8 +164,18 @@ exports.updateProfile = async (req, res) => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
-    if (fechaNacimiento > hoy) {
-      req.session.error = 'La fecha de nacimiento no puede ser futura.';
+    if (Number.isNaN(fechaNacimiento.getTime()) || fechaNacimiento >= hoy) {
+      req.session.error = 'La fecha de nacimiento debe ser anterior a la fecha actual.';
+      return res.redirect('/perfil');
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+      req.session.error = 'Ingresa un correo electrónico válido.';
+      return res.redirect('/perfil');
+    }
+
+    if (!/^\d{9}$/.test(telefono)) {
+      req.session.error = 'El teléfono debe tener exactamente 9 dígitos.';
       return res.redirect('/perfil');
     }
 
@@ -229,8 +241,14 @@ exports.changePassword = async (req, res) => {
       return res.redirect('/perfil');
     }
 
-    if (new_password.length < 6) {
-      req.session.error = 'La nueva contraseña debe tener al menos 6 caracteres.';
+    if (
+      new_password.length < 8 ||
+      !/[A-Z]/.test(new_password) ||
+      !/[a-z]/.test(new_password) ||
+      !/\d/.test(new_password) ||
+      !/[^A-Za-z0-9]/.test(new_password)
+    ) {
+      req.session.error = 'La nueva contraseña debe tener mínimo 8 caracteres, mayúscula, minúscula, número y símbolo.';
       return res.redirect('/perfil');
     }
 

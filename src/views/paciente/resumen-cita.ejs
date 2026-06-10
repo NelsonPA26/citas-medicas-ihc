@@ -1,0 +1,123 @@
+<%
+  const estadoTexto = {
+    pendiente: 'Pendiente',
+    triaje_registrado: 'Triaje registrado',
+    en_consulta: 'En consulta',
+    cancelada: 'Cancelada'
+  };
+%>
+
+<div class="module-card resumen-cita-card">
+  <div class="module-header">
+    <p>Revisa la informacion principal de esta cita.</p>
+  </div>
+
+  <div class="clinical-overview patient-history-overview">
+    <section class="patient-summary clinical-panel">
+      <h3>Datos de la cita</h3>
+
+      <div>
+        <span>Fecha</span>
+        <strong><%= new Date(cita.fecha).toLocaleDateString('es-PE') %></strong>
+      </div>
+
+      <div>
+        <span>Hora</span>
+        <strong><%= cita.hora %></strong>
+      </div>
+
+      <div>
+        <span>Estado</span>
+        <strong><span class="status-badge status-<%= cita.estado %>"><%= estadoTexto[cita.estado] || cita.estado %></span></strong>
+      </div>
+
+      <div>
+        <span>Medico</span>
+        <strong>Dr(a). <%= cita.medico_nombres %> <%= cita.medico_apellido_paterno %> <%= cita.medico_apellido_materno || '' %></strong>
+      </div>
+
+      <div>
+        <span>Especialidad</span>
+        <strong><%= cita.especialidad %></strong>
+      </div>
+
+      <div>
+        <span>Registro</span>
+        <strong><%= cita.fecha_creacion ? new Date(cita.fecha_creacion).toLocaleString('es-PE') : 'No registrado' %></strong>
+      </div>
+
+      <div class="full-row">
+        <span>Motivo de consulta</span>
+        <strong><%= cita.motivo %></strong>
+      </div>
+
+      <% if (cita.sintomas_paciente) { %>
+        <div class="full-row">
+          <span>Sintomas declarados</span>
+          <strong><%= cita.sintomas_paciente %></strong>
+        </div>
+      <% } %>
+    </section>
+
+    <% if (cita.id_triaje) { %>
+      <section class="triaje-summary clinical-panel">
+        <h3>Triaje registrado</h3>
+
+        <div class="triaje-summary-grid compact-clinical-grid">
+          <% if (cita.temperatura) { %>
+            <div>
+              <span>Temperatura</span>
+              <strong><%= cita.temperatura %> C</strong>
+            </div>
+          <% } %>
+
+          <% if (cita.presion_arterial) { %>
+            <div>
+              <span>Presion arterial</span>
+              <strong><%= cita.presion_arterial %></strong>
+            </div>
+          <% } %>
+
+          <% if (cita.frecuencia_cardiaca) { %>
+            <div>
+              <span>Frecuencia cardiaca</span>
+              <strong><%= cita.frecuencia_cardiaca %> lpm</strong>
+            </div>
+          <% } %>
+
+          <% if (cita.saturacion) { %>
+            <div>
+              <span>Saturacion O2</span>
+              <strong><%= cita.saturacion %>%</strong>
+            </div>
+          <% } %>
+
+          <% if (cita.sintomas_triaje) { %>
+            <div class="full-row">
+              <span>Sintomas verificados</span>
+              <strong><%= cita.sintomas_triaje %></strong>
+            </div>
+          <% } %>
+
+          <% if (cita.triaje_observaciones) { %>
+            <div class="full-row">
+              <span>Observaciones de enfermeria</span>
+              <strong><%= cita.triaje_observaciones %></strong>
+            </div>
+          <% } %>
+
+          <% if (cita.triaje_fecha_registro) { %>
+            <div class="full-row">
+              <span>Fecha de triaje</span>
+              <strong><%= new Date(cita.triaje_fecha_registro).toLocaleString('es-PE') %></strong>
+            </div>
+          <% } %>
+        </div>
+      </section>
+    <% } %>
+  </div>
+
+  <div class="form-actions">
+    <a href="/paciente/mis-citas" class="btn-light">Volver</a>
+  </div>
+</div>

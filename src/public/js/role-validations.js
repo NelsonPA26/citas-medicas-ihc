@@ -1,0 +1,203 @@
+window.RoleValidation = (() => {
+  const TEXT_PATTERN = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,;:()\/\-\n]+$/;
+  const SEARCH_PATTERN = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,;:()\/-]+$/;
+  const ADDRESS_PATTERN = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,#;:()\/-]+$/;
+
+  function normalizeSpaces(value) {
+    return value.replace(/\s{2,}/g, ' ');
+  }
+
+  function keepOneDecimal(value) {
+    const clean = value.replace(/[^0-9.]/g, '');
+    const parts = clean.split('.');
+    return parts.length > 1 ? `${parts[0]}.${parts.slice(1).join('')}` : clean;
+  }
+
+  function keepOneAt(value) {
+    const clean = value.replace(/\s/g, '');
+    const [local = '', ...domains] = clean.split('@');
+    return domains.length ? `${local}@${domains.join('').replace(/@/g, '')}` : local;
+  }
+
+  function sanitize(field) {
+    const type = field.dataset.validate;
+
+    if (type === 'search') {
+      field.value = normalizeSpaces(field.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,;:()\/-]/g, ''));
+    }
+
+    if (type === 'clinical-text') {
+      field.value = normalizeSpaces(field.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,;:()\/\-\n]/g, ''));
+    }
+
+    if (type === 'digits') {
+      field.value = field.value.replace(/\D/g, '');
+    }
+
+    if (type === 'decimal') {
+      field.value = keepOneDecimal(field.value);
+    }
+
+    if (type === 'blood-pressure') {
+      field.value = field.value.replace(/[^0-9/]/g, '').replace(/\/{2,}/g, '/');
+      const parts = field.value.split('/');
+      if (parts.length > 2) field.value = `${parts[0]}/${parts.slice(1).join('')}`;
+    }
+
+    if (type === 'email') {
+      field.value = keepOneAt(field.value);
+    }
+
+    if (type === 'address') {
+      field.value = normalizeSpaces(field.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,#;:()\/-]/g, ''));
+    }
+  }
+
+  function rangeMessage(field, value) {
+    const min = field.min === '' ? null : Number(field.min);
+    const max = field.max === '' ? null : Number(field.max);
+
+    if (min !== null && value < min) return `El valor minimo permitido es ${min}.`;
+    if (max !== null && value > max) return `El valor maximo permitido es ${max}.`;
+    return '';
+  }
+
+  function messageFor(field) {
+    const type = field.dataset.validate;
+    const value = field.value.trim();
+
+    if (field.required && !value) return 'Este campo es obligatorio.';
+    if (!field.required && !value) return '';
+
+    if (type === 'search' && !SEARCH_PATTERN.test(value)) {
+      return 'Usa solo letras, numeros, espacios y puntuacion basica.';
+    }
+
+    if (type === 'clinical-text') {
+      const min = Number(field.dataset.min || field.minLength || 5);
+      if (value.length < min) return `Ingresa al menos ${min} caracteres.`;
+      if (!TEXT_PATTERN.test(value)) return 'Usa solo texto, numeros y puntuacion basica.';
+    }
+
+    if (type === 'digits') {
+      const min = field.minLength || field.dataset.minLength;
+      const max = field.maxLength > 0 ? field.maxLength : field.dataset.maxLength;
+      const exact = field.dataset.exactLength;
+      if (!/^\d+$/.test(value)) return 'Solo se permiten numeros.';
+      if (exact && value.length !== Number(exact)) return `Debe tener exactamente ${exact} digitos.`;
+      if (min && value.length < Number(min)) return `Debe tener al menos ${min} digitos.`;
+      if (max && value.length > Number(max)) return `Debe tener como maximo ${max} digitos.`;
+      const numericMessage = rangeMessage(field, Number(value));
+      if (numericMessage) return numericMessage;
+    }
+
+    if (type === 'decimal') {
+      if (!/^\d+(\.\d{1,2})?$/.test(value)) return 'Ingresa un numero valido.';
+      const numericMessage = rangeMessage(field, Number(value));
+      if (numericMessage) return numericMessage;
+    }
+
+    if (type === 'blood-pressure') {
+      const match = value.match(/^(\d{2,3})\/(\d{2,3})$/);
+      if (!match) return 'Usa el formato 120/80.';
+      const systolic = Number(match[1]);
+      const diastolic = Number(match[2]);
+      if (systolic < 70 || systolic > 250 || diastolic < 40 || diastolic > 150) {
+        return 'La presion arterial ingresada no parece valida.';
+      }
+    }
+
+    if (type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      return 'Ingresa un correo valido con un solo @.';
+    }
+
+    if (type === 'date') {
+      const date = new Date(`${value}T00:00:00`);
+      if (Number.isNaN(date.getTime())) return 'Selecciona una fecha valida.';
+    }
+
+    if (type === 'date-not-future') {
+      const date = new Date(`${value}T00:00:00`);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (Number.isNaN(date.getTime())) return 'Selecciona una fecha valida.';
+      if (date >= today) return 'La fecha debe ser anterior a la fecha actual.';
+    }
+
+    if (type === 'address' && !ADDRESS_PATTERN.test(value)) {
+      return 'Usa letras, numeros y puntuacion basica para la direccion.';
+    }
+
+    if (type === 'password' && field.minLength > 0 && value.length < field.minLength) {
+      return `Debe tener al menos ${field.minLength} caracteres.`;
+    }
+
+    if (type === 'strong-password') {
+      if (value.length < 8) return 'Debe tener al menos 8 caracteres.';
+      if (!/[A-Z]/.test(value)) return 'Debe incluir al menos una mayuscula.';
+      if (!/[a-z]/.test(value)) return 'Debe incluir al menos una minuscula.';
+      if (!/\d/.test(value)) return 'Debe incluir al menos un numero.';
+      if (!/[^A-Za-z0-9]/.test(value)) return 'Debe incluir al menos un simbolo.';
+    }
+
+    if (type === 'password-confirm') {
+      const source = document.getElementById(field.dataset.match || '');
+      if (source && value !== source.value) return 'La confirmacion no coincide.';
+    }
+
+    if (field.validity.typeMismatch) return 'El formato ingresado no es valido.';
+    if (field.validity.tooLong) return 'El texto es demasiado largo.';
+
+    return '';
+  }
+
+  function messageElement(form, field) {
+    return form.querySelector(`.field-message[data-for="${field.id}"]`);
+  }
+
+  function validateField(field) {
+    const form = field.form;
+    if (!form || field.type === 'hidden') return true;
+
+    sanitize(field);
+    const message = messageFor(field);
+    const target = messageElement(form, field);
+
+    field.classList.toggle('field-error', Boolean(message));
+    field.setAttribute('aria-invalid', message ? 'true' : 'false');
+
+    if (target) {
+      target.textContent = message;
+      target.classList.toggle('is-visible', Boolean(message));
+    }
+
+    return !message;
+  }
+
+  function validateForm(form) {
+    const fields = Array.from(form.querySelectorAll('input, select, textarea'));
+    const invalid = fields.find(field => !validateField(field));
+
+    if (invalid) {
+      invalid.focus();
+      return false;
+    }
+
+    return true;
+  }
+
+  document.querySelectorAll('.js-role-validated-form').forEach(form => {
+    const fields = Array.from(form.querySelectorAll('input, select, textarea'));
+
+    fields.forEach(field => {
+      field.addEventListener('input', () => validateField(field));
+      field.addEventListener('change', () => validateField(field));
+    });
+
+    form.addEventListener('submit', event => {
+      if (!validateForm(form)) event.preventDefault();
+    });
+  });
+
+  return { validateField, validateForm };
+})();

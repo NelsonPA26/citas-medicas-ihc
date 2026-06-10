@@ -35,10 +35,38 @@ router.post(
 );
 
 router.get(
+  '/triajes/:id_cita/detalle',
+  isAuthenticated,
+  allowRoles('enfermera'),
+  enfermeraController.showDetalleTriaje
+);
+
+router.get(
+  '/triajes/:id_cita/editar',
+  isAuthenticated,
+  allowRoles('enfermera'),
+  enfermeraController.showEditarTriaje
+);
+
+router.post(
+  '/triajes/:id_cita/editar',
+  isAuthenticated,
+  allowRoles('enfermera'),
+  enfermeraController.updateTriaje
+);
+
+router.get(
   '/triajes',
   isAuthenticated,
   allowRoles('enfermera'),
   enfermeraController.triajesRealizados
+);
+
+router.get(
+  '/historial-triajes',
+  isAuthenticated,
+  allowRoles('enfermera'),
+  enfermeraController.historialTriajes
 );
 
 module.exports = router;

@@ -8,7 +8,25 @@
       Registrar médico
     </a>
   </div>
+    <form action="/admin/medicos" method="GET" class="filter-card">
+    <div class="filter-grid two-columns">
+      <div class="form-group">
+        <label for="q">Buscar</label>
+        <input
+          type="text"
+          id="q"
+          name="q"
+          value="<%= filters?.q || '' %>"
+          placeholder="Nombre, DNI, correo o colegiatura"
+        >
+      </div>
+    </div>
 
+    <div class="filter-actions">
+      <a href="/admin/medicos" class="btn-light">Limpiar filtros</a>
+      <button type="submit" class="btn-dark">Filtrar</button>
+    </div>
+  </form>
   <% if (medicos.length === 0) { %>
     <div class="empty-state">
       <h3>No hay médicos registrados</h3>
@@ -28,6 +46,7 @@
             <th>Colegiatura</th>
             <th>Turno</th>
             <th>Estado</th>
+            <th>Acciones</th>
           </tr>
         </thead>
 
@@ -52,10 +71,46 @@
 
               <td>
                 <% if (medico.activo === 1) { %>
-                  <span class="status-badge status-completada">Activo</span>
+                  <span class="status-badge status-activo">Activo</span>
                 <% } else { %>
-                  <span class="status-badge status-cancelada">Inactivo</span>
+                  <span class="status-badge status-inactivo">Inactivo</span>
                 <% } %>
+              </td>
+
+              <td>
+                <div class="table-actions">
+                  <a
+                    class="btn-light btn-table-action"
+                    href="/admin/medicos/<%= medico.id_medico %>/editar"
+                  >
+                    Editar
+                  </a>
+
+                  <form
+                    action="/admin/medicos/<%= medico.id_medico %>/estado"
+                    method="POST"
+                    data-confirm-title="<%= medico.activo === 1 ? 'Desactivar medico' : 'Activar medico' %>"
+                    data-confirm="<%= medico.activo === 1 ? 'El medico no podra acceder ni atender nuevas citas mientras este desactivado.' : 'El medico recuperara el acceso operativo al sistema.' %>"
+                    data-confirm-button="<%= medico.activo === 1 ? 'Desactivar' : 'Activar' %>"
+                  >
+                    <input type="hidden" name="accion" value="<%= medico.activo === 1 ? 'desactivar' : 'activar' %>">
+                    <button type="submit" class="<%= medico.activo === 1 ? 'btn-cancel' : 'btn-activate' %> btn-table-action">
+                      <%= medico.activo === 1 ? 'Desactivar' : 'Activar' %>
+                    </button>
+                  </form>
+
+                                    <% if (Number(medico.registros_asociados || 0) === 0) { %>
+                    <form
+                      action="/admin/medicos/<%= medico.id_medico %>/eliminar"
+                      method="POST"
+                      data-confirm-title="Eliminar ficha profesional"
+                      data-confirm="Este médico no tiene citas asociadas. Se eliminará su ficha y su cuenta de acceso."
+                      data-confirm-button="Eliminar"
+                    >
+                      <button type="submit" class="btn-danger btn-table-action">Eliminar</button>
+                    </form>
+                  <% } %>
+                </div>
               </td>
             </tr>
           <% }) %>

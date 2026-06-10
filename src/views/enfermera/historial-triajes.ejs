@@ -1,7 +1,5 @@
 <%
-  const estadoAtencion = {
-    triaje_registrado: 'En espera medica',
-    en_consulta: 'En consulta',
+  const estadoHistorial = {
     completada: 'Completada',
     cancelada: 'Cancelada'
   };
@@ -9,13 +7,10 @@
 
 <div class="module-card citas-card">
   <div class="module-header">
-    <p>Consulta los triajes activos registrados por ti antes de que pasen al historial.</p>
+    <p>Consulta los triajes cerrados por atenciones completadas o citas canceladas.</p>
   </div>
 
-  <form action="/enfermera/triajes" method="GET" class="filter-card js-role-validated-form" novalidate>
-    <% if (filters.estado) { %>
-      <input type="hidden" name="estado" value="<%= filters.estado %>">
-    <% } %>
+  <form action="/enfermera/historial-triajes" method="GET" class="filter-card js-role-validated-form" novalidate>
     <div class="filter-grid">
       <div class="form-group">
         <label for="q">Buscar</label>
@@ -45,18 +40,17 @@
     </div>
 
     <div class="filter-actions">
-      <a href="/enfermera/triajes" class="btn-light">Limpiar filtros</a>
+      <a href="/enfermera/historial-triajes" class="btn-light">Limpiar filtros</a>
       <button type="submit" class="btn-dark">Filtrar</button>
     </div>
   </form>
 
   <% if (triajes.length === 0) { %>
     <div class="empty-state">
-      <h3>No se encontraron triajes</h3>
-      <p>No hay resultados con los filtros seleccionados.</p>
+      <h3>No hay triajes en historial</h3>
+      <p>Los triajes apareceran aqui cuando la cita se complete o se cancele despues de registrar triaje.</p>
       <div class="empty-actions">
-        <a href="/enfermera/triajes" class="btn-light">Limpiar filtros</a>
-        <a href="/enfermera/triaje-pendiente" class="btn-dark">Ver pendientes</a>
+        <a href="/enfermera/triajes" class="btn-dark">Ver triajes activos</a>
       </div>
     </div>
   <% } else { %>
@@ -68,10 +62,9 @@
             <th>Hora</th>
             <th>Paciente</th>
             <th>DNI</th>
-            <th>Especialidad</th>
             <th>Medico</th>
-            <th>Signos vitales</th>
-            <th>Estado de atencion</th>
+            <th>Especialidad</th>
+            <th>Estado</th>
             <th>Accion</th>
           </tr>
         </thead>
@@ -82,17 +75,11 @@
               <td><%= triaje.hora %></td>
               <td><strong><%= triaje.paciente_nombres %> <%= triaje.paciente_apellido_paterno %> <%= triaje.paciente_apellido_materno || '' %></strong></td>
               <td><%= triaje.paciente_dni || 'No registrado' %></td>
-              <td><%= triaje.especialidad %></td>
               <td>Dr(a). <%= triaje.medico_nombres %> <%= triaje.medico_apellido_paterno %></td>
-              <td>T <%= triaje.temperatura %>, PA <%= triaje.presion_arterial %>, FC <%= triaje.frecuencia_cardiaca %>, O2 <%= triaje.saturacion %>%</td>
-              <td><span class="status-badge status-<%= triaje.estado %>"><%= estadoAtencion[triaje.estado] || triaje.estado %></span></td>
+              <td><%= triaje.especialidad %></td>
+              <td><span class="status-badge status-<%= triaje.estado %>"><%= estadoHistorial[triaje.estado] || triaje.estado %></span></td>
               <td>
-                <div class="table-actions">
-                  <a href="/enfermera/triajes/<%= triaje.id_cita %>/detalle" class="btn-table-primary">Ver detalle</a>
-                  <% if (triaje.estado === 'triaje_registrado') { %>
-                    <a href="/enfermera/triajes/<%= triaje.id_cita %>/editar" class="btn-table-secondary">Editar</a>
-                  <% } %>
-                </div>
+                <a href="/enfermera/triajes/<%= triaje.id_cita %>/detalle?returnTo=historial" class="btn-table-primary">Ver detalle</a>
               </td>
             </tr>
           <% }) %>

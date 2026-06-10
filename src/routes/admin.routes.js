@@ -21,12 +21,24 @@ router.get(
 );
 
 router.post(
+  '/usuarios/:id_usuario/editar',
+  isAuthenticated,
+  allowRoles('administrativo'),
+  adminController.editarUsuario
+);
+
+router.post(
   '/usuarios/:id_usuario/estado',
   isAuthenticated,
   allowRoles('administrativo'),
   adminController.cambiarEstadoUsuario
 );
-
+router.post(
+  '/usuarios/:id_usuario/eliminar',
+  isAuthenticated,
+  allowRoles('administrativo'),
+  adminController.eliminarUsuario
+);
 router.get(
   '/medicos',
   isAuthenticated,
@@ -46,6 +58,34 @@ router.post(
   isAuthenticated,
   allowRoles('administrativo'),
   adminController.storeNuevoMedico
+);
+
+router.get(
+  '/medicos/:id_medico/editar',
+  isAuthenticated,
+  allowRoles('administrativo'),
+  adminController.showEditarMedico
+);
+
+router.post(
+  '/medicos/:id_medico/editar',
+  isAuthenticated,
+  allowRoles('administrativo'),
+  adminController.updateMedico
+);
+
+router.post(
+  '/medicos/:id_medico/estado',
+  isAuthenticated,
+  allowRoles('administrativo'),
+  adminController.cambiarEstadoMedico
+);
+
+router.post(
+  '/medicos/:id_medico/eliminar',
+  isAuthenticated,
+  allowRoles('administrativo'),
+  adminController.eliminarMedico
 );
 
 router.get(
@@ -70,10 +110,52 @@ router.post(
 );
 
 router.get(
+  '/enfermeras/:id_enfermera/editar',
+  isAuthenticated,
+  allowRoles('administrativo'),
+  adminController.showEditarEnfermera
+);
+
+router.post(
+  '/enfermeras/:id_enfermera/editar',
+  isAuthenticated,
+  allowRoles('administrativo'),
+  adminController.updateEnfermera
+);
+
+router.post(
+  '/enfermeras/:id_enfermera/estado',
+  isAuthenticated,
+  allowRoles('administrativo'),
+  adminController.cambiarEstadoEnfermera
+);
+
+router.post(
+  '/enfermeras/:id_enfermera/eliminar',
+  isAuthenticated,
+  allowRoles('administrativo'),
+  adminController.eliminarEnfermera
+);
+
+router.get(
   '/citas',
   isAuthenticated,
   allowRoles('administrativo'),
   adminController.citas
+);
+
+router.get(
+  '/citas/:id_cita/detalle',
+  isAuthenticated,
+  allowRoles('administrativo'),
+  adminController.detalleCita
+);
+
+router.post(
+  '/citas/:id_cita/cancelar',
+  isAuthenticated,
+  allowRoles('administrativo'),
+  adminController.cancelarCita
 );
 
 module.exports = router;

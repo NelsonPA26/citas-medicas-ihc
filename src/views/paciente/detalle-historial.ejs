@@ -1,83 +1,85 @@
 <div class="module-card detalle-historial-card">
   <div class="module-header">
-    <p>Revisa la información registrada durante tu atención.</p>
+    <p>Revisa la informaci&oacute;n registrada durante tu atenci&oacute;n.</p>
   </div>
 
-  <section class="patient-summary">
-    <div>
-      <span>Fecha</span>
-      <strong><%= new Date(consulta.fecha).toLocaleDateString('es-PE') %></strong>
-    </div>
+  <div class="clinical-overview patient-history-overview">
+    <section class="patient-summary clinical-panel">
+      <h3>Datos de la cita</h3>
 
-    <div>
-      <span>Hora</span>
-      <strong><%= consulta.hora %></strong>
-    </div>
-
-    <div>
-      <span>Médico</span>
-      <strong>
-        Dr(a). <%= consulta.medico_nombres %> <%= consulta.medico_apellido_paterno %>
-      </strong>
-    </div>
-
-    <div>
-      <span>Especialidad</span>
-      <strong><%= consulta.especialidad %></strong>
-    </div>
-
-    <div class="full-row">
-      <span>Motivo de consulta</span>
-      <strong><%= consulta.motivo %></strong>
-    </div>
-  </section>
-
-  <section class="triaje-summary">
-    <h3>Triaje registrado</h3>
-
-    <% if (consulta.temperatura) { %>
-      <div class="triaje-summary-grid">
-        <div>
-          <span>Temperatura</span>
-          <strong><%= consulta.temperatura %> °C</strong>
-        </div>
-
-        <div>
-          <span>Presión arterial</span>
-          <strong><%= consulta.presion_arterial || 'No registrada' %></strong>
-        </div>
-
-        <div>
-          <span>Frecuencia cardiaca</span>
-          <strong><%= consulta.frecuencia_cardiaca || 'No registrada' %> lpm</strong>
-        </div>
-
-        <div>
-          <span>Saturación O₂</span>
-          <strong><%= consulta.saturacion || 'No registrada' %>%</strong>
-        </div>
-
-        <div class="full-row">
-          <span>Síntomas</span>
-          <strong><%= consulta.sintomas || 'No registrados' %></strong>
-        </div>
-
-        <div class="full-row">
-          <span>Observaciones de enfermería</span>
-          <strong><%= consulta.triaje_observaciones || 'Sin observaciones' %></strong>
-        </div>
+      <div>
+        <span>Fecha</span>
+        <strong><%= new Date(consulta.fecha).toLocaleDateString('es-PE') %></strong>
       </div>
-    <% } else { %>
-      <p class="text-muted">No hay información de triaje disponible.</p>
-    <% } %>
-  </section>
+
+      <div>
+        <span>Hora</span>
+        <strong><%= consulta.hora %></strong>
+      </div>
+
+      <div>
+        <span>M&eacute;dico</span>
+        <strong>Dr(a). <%= consulta.medico_nombres %> <%= consulta.medico_apellido_paterno %></strong>
+      </div>
+
+      <div>
+        <span>Especialidad</span>
+        <strong><%= consulta.especialidad %></strong>
+      </div>
+
+      <div class="full-row">
+        <span>Motivo de consulta</span>
+        <strong><%= consulta.motivo %></strong>
+      </div>
+    </section>
+
+    <section class="triaje-summary clinical-panel">
+      <h3>Triaje registrado</h3>
+
+      <% if (consulta.temperatura) { %>
+        <div class="triaje-summary-grid compact-clinical-grid">
+          <div>
+            <span>Temperatura</span>
+            <strong><%= consulta.temperatura %> &deg;C</strong>
+          </div>
+
+          <div>
+            <span>Presi&oacute;n arterial</span>
+            <strong><%= consulta.presion_arterial || 'No registrada' %></strong>
+          </div>
+
+          <div>
+            <span>Frecuencia cardiaca</span>
+            <strong><%= consulta.frecuencia_cardiaca || 'No registrada' %> lpm</strong>
+          </div>
+
+          <div>
+            <span>Saturaci&oacute;n O2</span>
+            <strong><%= consulta.saturacion || 'No registrada' %>%</strong>
+          </div>
+
+          <div class="full-row">
+            <span>S&iacute;ntomas</span>
+            <strong><%= consulta.sintomas || 'No registrados' %></strong>
+          </div>
+
+          <div class="full-row">
+            <span>Observaciones de enfermer&iacute;a</span>
+            <strong><%= consulta.triaje_observaciones || 'Sin observaciones' %></strong>
+          </div>
+        </div>
+      <% } else { %>
+        <p class="text-muted">No hay informaci&oacute;n de triaje disponible.</p>
+      <% } %>
+    </section>
+  </div>
 
   <section class="consulta-detail-section">
-    <h3>Consulta médica</h3>
+    <h3>Consulta m&eacute;dica</h3>
 
     <div class="consulta-detail-grid">
       <div class="full-row">
-        <span>Diagnóstico</span>
+        <span>Diagn&oacute;stico</span>
         <strong><%= consulta.diagnostico %></strong>
       </div>
 
@@ -95,7 +97,7 @@
         <span>Observaciones</span>
 
         <% if (consulta.privada === 1) { %>
-          <strong>Las observaciones de esta consulta son internas del personal médico.</strong>
+          <strong>Las observaciones de esta consulta son internas del personal m&eacute;dico.</strong>
         <% } else { %>
           <strong><%= consulta.observaciones || 'Sin observaciones registradas' %></strong>
         <% } %>

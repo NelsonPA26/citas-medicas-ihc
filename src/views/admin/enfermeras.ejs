@@ -1,18 +1,36 @@
 <div class="module-card usuarios-card">
   <div class="module-header module-header-row">
     <div>
-      <p>Consulta el personal de enfermería registrado en el sistema.</p>
+      <p>Consulta el personal de enfermeria registrado en el sistema.</p>
     </div>
 
     <a href="/admin/enfermeras/nuevo" class="btn-dark btn-header-action">
       Registrar enfermera
     </a>
   </div>
+    <form action="/admin/enfermeras" method="GET" class="filter-card">
+    <div class="filter-grid two-columns">
+      <div class="form-group">
+        <label for="q">Buscar</label>
+        <input
+          type="text"
+          id="q"
+          name="q"
+          value="<%= filters?.q || '' %>"
+          placeholder="Nombre, DNI o correo"
+        >
+      </div>
+    </div>
 
+    <div class="filter-actions">
+      <a href="/admin/enfermeras" class="btn-light">Limpiar filtros</a>
+      <button type="submit" class="btn-dark">Filtrar</button>
+    </div>
+  </form>
   <% if (enfermeras.length === 0) { %>
     <div class="empty-state">
       <h3>No hay enfermeras registradas</h3>
-      <p>Registra personal de enfermería para el proceso de triaje.</p>
+      <p>Registra personal de enfermeria para el proceso de triaje.</p>
       <a href="/admin/enfermeras/nuevo" class="btn-dark">Registrar enfermera</a>
     </div>
   <% } else { %>
@@ -24,9 +42,10 @@
             <th>Enfermera</th>
             <th>DNI</th>
             <th>Correo</th>
-            <th>Área</th>
+            <th>Area</th>
             <th>Turno</th>
             <th>Estado</th>
+            <th>Acciones</th>
           </tr>
         </thead>
 
@@ -50,10 +69,46 @@
 
               <td>
                 <% if (enfermera.activo === 1) { %>
-                  <span class="status-badge status-completada">Activo</span>
+                  <span class="status-badge status-activo">Activo</span>
                 <% } else { %>
-                  <span class="status-badge status-cancelada">Inactivo</span>
+                  <span class="status-badge status-inactivo">Inactivo</span>
                 <% } %>
+              </td>
+
+              <td>
+                <div class="table-actions">
+                  <a
+                    class="btn-light btn-table-action"
+                    href="/admin/enfermeras/<%= enfermera.id_enfermera %>/editar"
+                  >
+                    Editar
+                  </a>
+
+                  <form
+                    action="/admin/enfermeras/<%= enfermera.id_enfermera %>/estado"
+                    method="POST"
+                    data-confirm-title="<%= enfermera.activo === 1 ? 'Desactivar enfermera' : 'Activar enfermera' %>"
+                    data-confirm="<%= enfermera.activo === 1 ? 'La enfermera no podra acceder ni registrar triajes mientras este desactivada.' : 'La enfermera recuperara el acceso operativo al sistema.' %>"
+                    data-confirm-button="<%= enfermera.activo === 1 ? 'Desactivar' : 'Activar' %>"
+                  >
+                    <input type="hidden" name="accion" value="<%= enfermera.activo === 1 ? 'desactivar' : 'activar' %>">
+                    <button type="submit" class="<%= enfermera.activo === 1 ? 'btn-cancel' : 'btn-activate' %> btn-table-action">
+                      <%= enfermera.activo === 1 ? 'Desactivar' : 'Activar' %>
+                    </button>
+                  </form>
+
+                                    <% if (Number(enfermera.registros_asociados || 0) === 0) { %>
+                    <form
+                      action="/admin/enfermeras/<%= enfermera.id_enfermera %>/eliminar"
+                      method="POST"
+                      data-confirm-title="Eliminar ficha profesional"
+                      data-confirm="Esta enfermera no tiene triajes asociados. Se eliminará su ficha y su cuenta de acceso."
+                      data-confirm-button="Eliminar"
+                    >
+                      <button type="submit" class="btn-danger btn-table-action">Eliminar</button>
+                    </form>
+                  <% } %>
+                </div>
               </td>
             </tr>
           <% }) %>

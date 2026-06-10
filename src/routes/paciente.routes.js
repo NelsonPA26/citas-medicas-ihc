@@ -28,6 +28,20 @@ router.post(
 );
 
 router.get(
+  '/mis-citas/:id_cita/editar',
+  isAuthenticated,
+  allowRoles('paciente'),
+  pacienteController.showEditarCita
+);
+
+router.post(
+  '/mis-citas/:id_cita/editar',
+  isAuthenticated,
+  allowRoles('paciente'),
+  pacienteController.updateCita
+);
+
+router.get(
   '/horas-disponibles',
   isAuthenticated,
   allowRoles('paciente'),
@@ -39,6 +53,13 @@ router.get(
   isAuthenticated,
   allowRoles('paciente'),
   pacienteController.misCitas
+);
+
+router.get(
+  '/mis-citas/:id_cita/resumen',
+  isAuthenticated,
+  allowRoles('paciente'),
+  pacienteController.resumenCita
 );
 
 router.post(
@@ -53,6 +74,20 @@ router.get(
   isAuthenticated,
   allowRoles('paciente'),
   pacienteController.historial
+);
+
+router.get(
+  '/antecedentes',
+  isAuthenticated,
+  allowRoles('paciente'),
+  pacienteController.showAntecedentes
+);
+
+router.post(
+  '/antecedentes',
+  isAuthenticated,
+  allowRoles('paciente'),
+  pacienteController.updateAntecedentes
 );
 
 router.get(

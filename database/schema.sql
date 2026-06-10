@@ -106,10 +106,12 @@ CREATE TABLE cita (
   id_medico INT NOT NULL,
   fecha DATE NOT NULL,
   hora TIME NOT NULL,
+  sintomas VARCHAR(255),
   motivo VARCHAR(255) NOT NULL,
   estado ENUM(
     'pendiente',
     'triaje_registrado',
+    'en_consulta',
     'completada',
     'cancelada'
   ) DEFAULT 'pendiente',

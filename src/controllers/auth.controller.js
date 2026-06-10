@@ -13,6 +13,16 @@ function redirectByRole(rol) {
   return routes[rol] || '/login';
 }
 
+function passwordFuerte(value) {
+  return (
+    typeof value === 'string' &&
+    value.length >= 8 &&
+    /[A-Z]/.test(value) &&
+    /[a-z]/.test(value) &&
+    /\d/.test(value) &&
+    /[^A-Za-z0-9]/.test(value)
+  );
+}
 exports.showLogin = (req, res) => {
   res.render('auth/login', {
     title: 'Iniciar Sesión'
@@ -149,10 +159,17 @@ exports.register = async (req, res) => {
         title: 'Crear Cuenta',
         error: 'Las contraseñas no coinciden.',
         success: null,
-        old
+        old 
       });
     }
 
+    if (!passwordFuerte(password)) {
+      return res.render('auth/register', {
+        title: 'Registro',
+        error: 'La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.',
+        old: req.body
+      });
+    }
     const [existing] = await db.query(
       `
       SELECT p.id_persona
@@ -370,8 +387,8 @@ exports.resetPassword = async (req, res) => {
       return res.redirect(`/reset-password/${token}`);
     }
 
-    if (new_password.length < 6) {
-      req.session.error = 'La nueva contraseña debe tener al menos 6 caracteres.';
+    if (!passwordFuerte(new_password)) {
+      req.session.error = 'La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.';
       return res.redirect(`/reset-password/${token}`);
     }
 

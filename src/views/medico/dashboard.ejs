@@ -6,17 +6,20 @@
   </div>
 
   <div class="stat-card">
-    <h3>Consultas en borrador</h3>
+    <h3>Consultas en progreso</h3>
     <p class="stat-number"><%= stats.borradores || 0 %></p>
+    <a href="/medico/citas" class="card-link">Continuar consultas</a>
   </div>
 
   <div class="stat-card">
     <h3>Consultas completadas</h3>
     <p class="stat-number"><%= stats.completadas || 0 %></p>
+    <a href="/medico/pacientes" class="card-link">Ver historiales</a>
   </div>
 
   <div class="stat-card">
     <h3>Pacientes atendidos</h3>
     <p class="stat-number"><%= stats.pacientes_atendidos || 0 %></p>
+    <a href="/medico/pacientes" class="card-link">Ver pacientes</a>
   </div>
 </div>

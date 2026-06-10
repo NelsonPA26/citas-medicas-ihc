@@ -37,15 +37,15 @@
               <td><%= cita.paciente_dni || 'No registrado' %></td>
               <td><%= cita.motivo %></td>
               <td>
-                <% if (cita.borrador === 1) { %>
-                  <span class="status-badge status-borrador">Borrador</span>
+                <% if (cita.estado === 'en_consulta' || cita.borrador === 1) { %>
+                  <span class="status-badge status-en_consulta">En consulta</span>
                 <% } else { %>
                   <span class="status-badge status-triaje_registrado">Con triaje</span>
                 <% } %>
               </td>
               <td>
                 <a href="/medico/citas/<%= cita.id_cita %>/atender" class="btn-table-primary">
-                  <%= cita.borrador === 1 ? 'Continuar' : 'Atender' %>
+                  <%= cita.estado === 'en_consulta' || cita.borrador === 1 ? 'Continuar' : 'Atender' %>
                 </a>
               </td>
             </tr>

@@ -1,6 +1,6 @@
 <div class="dashboard-grid">
   <div class="stat-card highlight-card">
-    <h3>Próxima cita</h3>
+    <h3>Proxima cita</h3>
 
     <% if (proximaCita) { %>
       <p>
@@ -11,10 +11,16 @@
       </p>
       <p><%= proximaCita.especialidad %></p>
       <span class="status-badge status-<%= proximaCita.estado %>">
-        <%= proximaCita.estado === 'pendiente' ? 'Pendiente' : 'Triaje registrado' %>
+        <% if (proximaCita.estado === 'pendiente') { %>
+          Pendiente
+        <% } else if (proximaCita.estado === 'triaje_registrado') { %>
+          Triaje registrado
+        <% } else if (proximaCita.estado === 'en_consulta') { %>
+          En consulta
+        <% } %>
       </span>
     <% } else { %>
-      <p>No tienes citas próximas registradas.</p>
+      <p>No tienes citas proximas registradas.</p>
       <a href="/paciente/reservar-cita" class="card-link">Reservar cita</a>
     <% } %>
   </div>
@@ -22,15 +28,18 @@
   <div class="stat-card">
     <h3>Citas pendientes</h3>
     <p class="stat-number"><%= stats.pendientes || 0 %></p>
+    <a href="/paciente/mis-citas" class="card-link">Revisar citas</a>
   </div>
 
   <div class="stat-card">
     <h3>Consultas completadas</h3>
     <p class="stat-number"><%= stats.completadas || 0 %></p>
+    <a href="/paciente/historial" class="card-link">Ver historial</a>
   </div>
 
   <div class="stat-card">
     <h3>Citas canceladas</h3>
     <p class="stat-number"><%= stats.canceladas || 0 %></p>
+    <a href="/paciente/mis-citas" class="card-link">Ver registros</a>
   </div>
 </div>

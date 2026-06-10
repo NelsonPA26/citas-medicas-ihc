@@ -48,4 +48,11 @@ router.get(
   medicoController.historialPaciente
 );
 
+router.get(
+  '/pacientes/:id_paciente/historial/:id_consulta',
+  isAuthenticated,
+  allowRoles('medico'),
+  medicoController.detalleConsultaPaciente
+);
+
 module.exports = router;

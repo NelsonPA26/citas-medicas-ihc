@@ -1,110 +1,220 @@
+<%
+  const esModoDetalle = typeof modoDetalle !== 'undefined' && modoDetalle;
+  const sintomasGuardados = triaje.sintomas ? triaje.sintomas.split(',').map(item => item.trim()) : [];
+  const otroTriajeGuardado = sintomasGuardados.find(item => item.startsWith('Otro:'));
+  const sintomasBaseTriaje = sintomasGuardados.map(item => item.startsWith('Otro:') ? 'Otro' : item);
+  const gruposTriaje = [
+    { titulo: 'Generales', items: ['Fiebre', 'Malestar general', 'Cansancio', 'Dolor muscular'] },
+    { titulo: 'Respiratorios', items: ['Tos', 'Dolor de garganta', 'Congestion nasal', 'Dificultad respiratoria'] },
+    { titulo: 'Digestivos', items: ['Dolor abdominal', 'Nauseas', 'Vomitos', 'Diarrea'] },
+    { titulo: 'Neurologicos / otros', items: ['Dolor de cabeza', 'Mareos', 'Ansiedad', 'Otro'] }
+  ];
+  const antecedentesClinicos = [
+    { etiqueta: 'Alergias', valor: cita.alergias },
+    { etiqueta: 'Enfermedades previas', valor: cita.enfermedades_previas },
+    { etiqueta: 'Medicacion actual', valor: cita.medicacion_actual },
+    { etiqueta: 'Cirugias', valor: cita.cirugias },
+    { etiqueta: 'Antecedentes familiares', valor: cita.antecedentes_familiares },
+    { etiqueta: 'Observaciones', valor: cita.antecedentes_observaciones }
+  ].filter(item => item.valor && String(item.valor).trim() !== '');
+%>
+
 <div class="module-card triaje-card">
   <div class="module-header">
-    <h2>Registrar triaje</h2>
-    <p>Registra los signos vitales y síntomas principales del paciente.</p>
+    <p>
+      <% if (esModoDetalle) { %>
+        Revisa la informacion registrada durante el triaje. Los campos se muestran en modo lectura.
+      <% } else if (modoEdicion) { %>
+        Actualiza los signos vitales antes de que el medico inicie la consulta.
+      <% } else { %>
+        Registra signos vitales y sintomas verificados durante el triaje.
+      <% } %>
+    </p>
   </div>
 
-  <section class="patient-summary">
-    <div>
-      <span>Paciente</span>
-      <strong>
-        <%= cita.paciente_nombres %>
-        <%= cita.paciente_apellido_paterno %>
-        <%= cita.paciente_apellido_materno || '' %>
-      </strong>
-    </div>
+  <div class="clinical-overview">
+    <section class="patient-summary clinical-panel">
+      <h3>Resumen del paciente</h3>
+      <div><span>Paciente</span><strong><%= cita.paciente_nombres %> <%= cita.paciente_apellido_paterno %> <%= cita.paciente_apellido_materno || '' %></strong></div>
+      <div><span>DNI</span><strong><%= cita.paciente_dni || 'No registrado' %></strong></div>
+      <div><span>Edad</span><strong><%= cita.paciente_edad !== null ? cita.paciente_edad + ' anios' : 'No registrada' %></strong></div>
+      <div><span>Sexo</span><strong><%= cita.paciente_sexo || 'No registrado' %></strong></div>
+      <div><span>Fecha y hora</span><strong><%= new Date(cita.fecha).toLocaleDateString('es-PE') %> - <%= cita.hora %></strong></div>
+      <div><span>Especialidad</span><strong><%= cita.especialidad %></strong></div>
+      <% if (cita.medico_nombres) { %>
+        <div class="full-row"><span>Medico</span><strong>Dr(a). <%= cita.medico_nombres %> <%= cita.medico_apellido_paterno %> <%= cita.medico_apellido_materno || '' %></strong></div>
+      <% } %>
+      <div class="full-row"><span>Motivo de consulta</span><strong><%= cita.motivo %></strong></div>
+      <div class="full-row">
+        <span>Sintomas declarados por el paciente</span>
+        <strong><%= cita.sintomas_paciente || 'No declarados por el paciente' %></strong>
+      </div>
+    </section>
 
-    <div>
-      <span>DNI</span>
-      <strong><%= cita.paciente_dni || 'No registrado' %></strong>
-    </div>
+    <section class="triaje-summary clinical-panel clinical-antecedentes-panel">
+      <h3>Antecedentes medicos</h3>
+      <% if (antecedentesClinicos.length > 0) { %>
+        <div class="clinical-note-list clinical-note-grid">
+          <% antecedentesClinicos.forEach(item => { %>
+            <div class="clinical-note-item">
+              <span><%= item.etiqueta %></span>
+              <strong><%= item.valor %></strong>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="clinical-empty-text">No hay antecedentes medicos registrados.</p>
+      <% } %>
+    </section>
+  </div>
 
-    <div>
-      <span>Edad</span>
-      <strong><%= cita.paciente_edad !== null ? cita.paciente_edad + ' años' : 'No registrada' %></strong>
-    </div>
-
-    <div>
-      <span>Sexo</span>
-      <strong><%= cita.paciente_sexo || 'No registrado' %></strong>
-    </div>
-
-    <div>
-      <span>Fecha y hora</span>
-      <strong><%= new Date(cita.fecha).toLocaleDateString('es-PE') %> - <%= cita.hora %></strong>
-    </div>
-
-    <div>
-      <span>Especialidad</span>
-      <strong><%= cita.especialidad %></strong>
-    </div>
-
-    <div class="full-row">
-      <span>Motivo de consulta</span>
-      <strong><%= cita.motivo %></strong>
-    </div>
-  </section>
-
-  <form action="/enfermera/triaje/<%= cita.id_cita %>/registrar" method="POST" class="triaje-form" id="triajeForm">
+  <form action="<%= actionUrl %>" method="POST" class="triaje-form js-role-validated-form <%= esModoDetalle ? 'readonly-clinical-form' : '' %>" id="triajeForm" novalidate>
     <div id="triajeMessage" class="step-message hidden"></div>
 
     <div class="triaje-grid">
       <div class="form-group">
-        <label for="temperatura">Temperatura °C</label>
-        <input type="number" step="0.1" id="temperatura" name="temperatura" placeholder="Ejemplo: 36.8" required>
+        <label for="temperatura">Temperatura C</label>
+        <input type="text" inputmode="decimal" id="temperatura" name="temperatura" value="<%= triaje.temperatura || '' %>" placeholder="36.8" min="30" max="45" data-validate="decimal" <%= esModoDetalle ? 'readonly' : 'required' %>>
+        <span class="field-message" data-for="temperatura"></span>
       </div>
-
       <div class="form-group">
-        <label for="presion_arterial">Presión arterial</label>
-        <input type="text" id="presion_arterial" name="presion_arterial" placeholder="Ejemplo: 120/80" required>
+        <label for="presion_arterial">Presion arterial</label>
+        <input type="text" inputmode="numeric" id="presion_arterial" name="presion_arterial" value="<%= triaje.presion_arterial || '' %>" placeholder="120/80" maxlength="7" data-validate="blood-pressure" <%= esModoDetalle ? 'readonly' : 'required' %>>
+        <span class="field-message" data-for="presion_arterial"></span>
       </div>
-
       <div class="form-group">
         <label for="frecuencia_cardiaca">Frecuencia cardiaca</label>
-        <input type="number" id="frecuencia_cardiaca" name="frecuencia_cardiaca" placeholder="Ejemplo: 75" required>
+        <input type="text" inputmode="numeric" id="frecuencia_cardiaca" name="frecuencia_cardiaca" value="<%= triaje.frecuencia_cardiaca || '' %>" placeholder="75" min="30" max="220" maxlength="3" data-validate="digits" <%= esModoDetalle ? 'readonly' : 'required' %>>
+        <span class="field-message" data-for="frecuencia_cardiaca"></span>
       </div>
-
       <div class="form-group">
-        <label for="saturacion">Saturación O₂ (%)</label>
-        <input type="number" id="saturacion" name="saturacion" placeholder="Ejemplo: 98" required>
+        <label for="saturacion">Saturacion O2 (%)</label>
+        <input type="text" inputmode="numeric" id="saturacion" name="saturacion" value="<%= triaje.saturacion || '' %>" placeholder="98" min="50" max="100" maxlength="3" data-validate="digits" <%= esModoDetalle ? 'readonly' : 'required' %>>
+        <span class="field-message" data-for="saturacion"></span>
       </div>
     </div>
 
     <div class="form-group">
-      <label for="sintomas">Síntomas principales</label>
-      <textarea id="sintomas" name="sintomas" placeholder="Describe los síntomas referidos por el paciente." required></textarea>
+      <label>Sintomas verificados por enfermeria</label>
+      <small class="form-help">Selecciona los sintomas que el paciente refiere durante el triaje.</small>
+      <div class="symptom-category-grid symptom-category-grid-four">
+        <% gruposTriaje.forEach(grupo => { %>
+          <fieldset class="symptom-category">
+            <legend><%= grupo.titulo %></legend>
+            <% grupo.items.forEach(sintoma => { %>
+              <label class="checkbox-option">
+                <input
+                  type="checkbox"
+                  name="sintomas[]"
+                  value="<%= sintoma %>"
+                  <%= sintomasBaseTriaje.includes(sintoma) ? 'checked' : '' %>
+                  <%= esModoDetalle ? 'disabled' : '' %>
+                >
+                <span><%= sintoma === 'Otro' ? 'Otro sintoma' : sintoma %></span>
+              </label>
+            <% }) %>
+          </fieldset>
+        <% }) %>
+      </div>
+
+      <div class="form-group symptom-other-field <%= otroTriajeGuardado ? '' : 'hidden' %>" id="triajeOtherSymptomGroup">
+        <label for="sintomas_otro">Otro sintoma verificado</label>
+        <input
+          type="text"
+          id="sintomas_otro"
+          name="sintomas_otro"
+          maxlength="120"
+          data-validate="clinical-text"
+          data-min="5"
+          placeholder="Describe el sintoma adicional"
+          value="<%= otroTriajeGuardado ? otroTriajeGuardado.replace('Otro:', '').trim() : '' %>"
+          <%= esModoDetalle ? 'readonly' : (otroTriajeGuardado ? '' : 'disabled') %>
+        >
+        <span class="field-message" data-for="sintomas_otro"></span>
+      </div>
     </div>
 
     <div class="form-group">
       <label for="observaciones">Observaciones</label>
-      <textarea id="observaciones" name="observaciones" placeholder="Opcional: agrega observaciones relevantes."></textarea>
+      <textarea id="observaciones" name="observaciones" placeholder="Opcional: paciente llega acompanado, ansioso, requiere prioridad, no colabora con la toma de signos, se deriva a medico." maxlength="800" data-validate="clinical-text" data-min="5" <%= esModoDetalle ? 'readonly' : '' %>><%= triaje.observaciones || '' %></textarea>
+      <span class="field-message" data-for="observaciones"></span>
     </div>
 
     <div class="form-actions">
-      <a href="/enfermera/triaje-pendiente" class="btn-light">Cancelar</a>
-      <button type="submit" class="btn-dark">Guardar triaje</button>
+      <% if (esModoDetalle) { %>
+        <a href="<%= typeof backUrl !== 'undefined' ? backUrl : '/enfermera/triajes' %>" class="btn-light">Volver</a>
+      <% } else { %>
+        <a
+          href="<%= modoEdicion ? '/enfermera/triajes' : '/enfermera/triaje-pendiente' %>"
+          class="btn-light js-cancel-triaje"
+          data-cancel-message="<%= modoEdicion ? 'Si cancelas, se perderan los cambios no guardados del triaje.' : 'Si cancelas, no se guardara el triaje de esta cita.' %>"
+        >
+          Cancelar
+        </a>
+        <button type="submit" class="btn-dark"><%= modoEdicion ? 'Actualizar triaje' : 'Guardar triaje' %></button>
+      <% } %>
     </div>
   </form>
 </div>
 
+<div class="modal-overlay hidden" id="cancelTriajeModal">
+  <div class="confirm-modal">
+    <h3>Cancelar cambios</h3>
+    <p id="cancelTriajeText">Seguro que deseas cancelar?</p>
+    <div class="modal-actions">
+      <button type="button" class="btn-light" id="closeCancelTriajeModal">Seguir editando</button>
+      <a href="#" class="btn-danger" id="confirmCancelTriaje">Si, cancelar</a>
+    </div>
+  </div>
+</div>
+
+<script src="/js/role-validations.js"></script>
+
 <script>
   const triajeForm = document.getElementById('triajeForm');
   const triajeMessage = document.getElementById('triajeMessage');
-
   const temperaturaInput = document.getElementById('temperatura');
   const presionInput = document.getElementById('presion_arterial');
   const frecuenciaInput = document.getElementById('frecuencia_cardiaca');
   const saturacionInput = document.getElementById('saturacion');
-  const sintomasInput = document.getElementById('sintomas');
+  const triajeSymptomChecks = document.querySelectorAll('input[name="sintomas[]"]');
+  const otherTriajeGroup = document.getElementById('triajeOtherSymptomGroup');
+  const otherTriajeInput = document.getElementById('sintomas_otro');
+  const cancelTriajeLink = document.querySelector('.js-cancel-triaje');
+  const cancelTriajeModal = document.getElementById('cancelTriajeModal');
+  const cancelTriajeText = document.getElementById('cancelTriajeText');
+  const closeCancelTriajeModal = document.getElementById('closeCancelTriajeModal');
+  const confirmCancelTriaje = document.getElementById('confirmCancelTriaje');
+  const isTriajeReadOnly = <%= esModoDetalle ? 'true' : 'false' %>;
+  const isTriajeEditMode = <%= modoEdicion ? 'true' : 'false' %>;
+  const observacionesInput = document.getElementById('observaciones');
+  const initialTriajeState = {
+    temperatura: temperaturaInput.value,
+    presion: presionInput.value,
+    frecuencia: frecuenciaInput.value,
+    saturacion: saturacionInput.value,
+    otro: otherTriajeInput.value,
+    observaciones: observacionesInput.value,
+    sintomas: Array.from(triajeSymptomChecks).filter(input => input.checked).map(input => input.value).sort().join('|')
+  };
+
+  function triajeHasChanges() {
+    const currentSymptoms = Array.from(triajeSymptomChecks).filter(input => input.checked).map(input => input.value).sort().join('|');
+    return (
+      temperaturaInput.value !== initialTriajeState.temperatura ||
+      presionInput.value !== initialTriajeState.presion ||
+      frecuenciaInput.value !== initialTriajeState.frecuencia ||
+      saturacionInput.value !== initialTriajeState.saturacion ||
+      otherTriajeInput.value !== initialTriajeState.otro ||
+      observacionesInput.value !== initialTriajeState.observaciones ||
+      currentSymptoms !== initialTriajeState.sintomas
+    );
+  }
 
   function showTriajeMessage(message, field = null) {
     triajeMessage.textContent = message;
     triajeMessage.classList.remove('hidden');
-
-    document.querySelectorAll('.field-error').forEach(input => {
-      input.classList.remove('field-error');
-    });
-
+    document.querySelectorAll('.field-error').forEach(input => input.classList.remove('field-error'));
     if (field) {
       field.classList.add('field-error');
       field.focus();
@@ -114,67 +224,83 @@
   function clearTriajeMessage() {
     triajeMessage.textContent = '';
     triajeMessage.classList.add('hidden');
+    document.querySelectorAll('.field-error').forEach(input => input.classList.remove('field-error'));
+  }
 
-    document.querySelectorAll('.field-error').forEach(input => {
-      input.classList.remove('field-error');
+  function updateOtherTriajeSymptom() {
+    const checked = Array.from(triajeSymptomChecks).some(input => input.value === 'Otro' && input.checked);
+    otherTriajeGroup.classList.toggle('hidden', !checked);
+    otherTriajeInput.disabled = !checked && !isTriajeReadOnly;
+    if (!checked && !isTriajeReadOnly) otherTriajeInput.value = '';
+  }
+
+  [temperaturaInput, presionInput, frecuenciaInput, saturacionInput, otherTriajeInput].forEach(input => {
+    input.addEventListener('input', clearTriajeMessage);
+  });
+  triajeSymptomChecks.forEach(input => input.addEventListener('change', () => {
+    clearTriajeMessage();
+    updateOtherTriajeSymptom();
+  }));
+
+  if (cancelTriajeLink) {
+    cancelTriajeLink.addEventListener('click', event => {
+      event.preventDefault();
+      if (isTriajeEditMode && !triajeHasChanges()) {
+        window.location.href = cancelTriajeLink.href;
+        return;
+      }
+      cancelTriajeText.textContent = cancelTriajeLink.dataset.cancelMessage;
+      confirmCancelTriaje.href = cancelTriajeLink.href;
+      cancelTriajeModal.classList.remove('hidden');
     });
   }
 
-  [temperaturaInput, presionInput, frecuenciaInput, saturacionInput, sintomasInput].forEach(input => {
-    input.addEventListener('input', clearTriajeMessage);
+  closeCancelTriajeModal.addEventListener('click', () => cancelTriajeModal.classList.add('hidden'));
+  cancelTriajeModal.addEventListener('click', event => {
+    if (event.target === cancelTriajeModal) cancelTriajeModal.classList.add('hidden');
   });
 
-  triajeForm.addEventListener('submit', (event) => {
+  if (!isTriajeReadOnly) triajeForm.addEventListener('submit', event => {
     const temperatura = Number(temperaturaInput.value);
     const frecuencia = Number(frecuenciaInput.value);
     const saturacion = Number(saturacionInput.value);
+    const sintomasSeleccionados = Array.from(triajeSymptomChecks).filter(input => input.checked).map(input => input.value);
 
-    if (!temperaturaInput.value) {
+    if (!temperaturaInput.value || temperatura < 30 || temperatura > 45) {
       event.preventDefault();
-      showTriajeMessage('Ingresa la temperatura del paciente.', temperaturaInput);
+      showTriajeMessage('Ingresa una temperatura valida entre 30 y 45 C.', temperaturaInput);
       return;
     }
 
-    if (temperatura < 30 || temperatura > 45) {
+    if (!/^\d{2,3}\/\d{2,3}$/.test(presionInput.value.trim())) {
       event.preventDefault();
-      showTriajeMessage('La temperatura ingresada no parece válida.', temperaturaInput);
+      showTriajeMessage('Ingresa la presion arterial con formato 120/80.', presionInput);
       return;
     }
 
-    if (!presionInput.value.trim()) {
+    if (!frecuenciaInput.value || frecuencia < 30 || frecuencia > 220) {
       event.preventDefault();
-      showTriajeMessage('Ingresa la presión arterial del paciente.', presionInput);
+      showTriajeMessage('Ingresa una frecuencia cardiaca valida.', frecuenciaInput);
       return;
     }
 
-    if (!frecuenciaInput.value) {
+    if (!saturacionInput.value || saturacion < 50 || saturacion > 100) {
       event.preventDefault();
-      showTriajeMessage('Ingresa la frecuencia cardiaca.', frecuenciaInput);
+      showTriajeMessage('La saturacion debe estar entre 50 y 100.', saturacionInput);
       return;
     }
 
-    if (frecuencia < 30 || frecuencia > 220) {
+    if (sintomasSeleccionados.length === 0) {
       event.preventDefault();
-      showTriajeMessage('La frecuencia cardiaca ingresada no parece válida.', frecuenciaInput);
+      showTriajeMessage('Selecciona al menos un sintoma verificado por enfermeria.');
       return;
     }
 
-    if (!saturacionInput.value) {
+    if (sintomasSeleccionados.includes('Otro') && !window.RoleValidation.validateField(otherTriajeInput)) {
       event.preventDefault();
-      showTriajeMessage('Ingresa la saturación de oxígeno.', saturacionInput);
-      return;
-    }
-
-    if (saturacion < 50 || saturacion > 100) {
-      event.preventDefault();
-      showTriajeMessage('La saturación debe estar entre 50 y 100.', saturacionInput);
-      return;
-    }
-
-    if (!sintomasInput.value.trim()) {
-      event.preventDefault();
-      showTriajeMessage('Describe los síntomas principales del paciente.', sintomasInput);
-      return;
+      showTriajeMessage('Describe el otro sintoma verificado.', otherTriajeInput);
     }
   });
+
+  updateOtherTriajeSymptom();
 </script>

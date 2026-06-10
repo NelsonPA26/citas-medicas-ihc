@@ -1,0 +1,426 @@
+<%
+  function fechaLegible(value) {
+    if (!value) return 'Sin registro previo';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return 'Sin registro previo';
+    return date.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  const tiene = value => Boolean(value && String(value).trim());
+  const textoGuardado = value => String(value || '');
+
+  function estadoGuardado(value) {
+    if (!tiene(value)) return 'no';
+    const text = textoGuardado(value).toLowerCase();
+    if (text.includes('no sabe') || text.includes('no recuerda')) return 'no_sabe';
+    if (text.startsWith('no refiere') || text.startsWith('no consume')) return 'no';
+    return 'si';
+  }
+
+  function contiene(value, item) {
+    return textoGuardado(value).toLowerCase().includes(String(item).toLowerCase());
+  }
+
+  function extraerCampo(value, etiqueta) {
+    const text = textoGuardado(value);
+    const regex = new RegExp(`${etiqueta}:\\s*([^\\.]+)`, 'i');
+    const match = text.match(regex);
+    return match ? match[1].trim() : '';
+  }
+
+  function extraerDetalle(value) {
+    return extraerCampo(value, 'Detalle');
+  }
+
+  const alergiasEstado = estadoGuardado(antecedentes.alergias);
+  const enfermedadesEstado = estadoGuardado(antecedentes.enfermedades_previas);
+  const medicacionEstado = estadoGuardado(antecedentes.medicacion_actual);
+  const cirugiasEstado = estadoGuardado(antecedentes.cirugias);
+  const familiaresEstado = estadoGuardado(antecedentes.antecedentes_familiares);
+%>
+
+<div class="module-card antecedentes-card">
+  <div class="module-header antecedentes-header">
+    <div>
+      <p>Registra tus antecedentes para que enfermeria y medicina los revisen durante la atencion.</p>
+    </div>
+
+    <div class="antecedentes-meta">
+      <span>Ultima actualizacion: <strong><%= fechaLegible(antecedentes.fecha_actualizacion) %></strong></span>
+    </div>
+  </div>
+
+  <form action="/paciente/antecedentes" method="POST" class="antecedentes-form js-patient-validated-form" id="antecedentesForm" novalidate>
+    <section class="antecedente-section" data-section="alergias">
+      <div class="antecedente-section-heading">
+        <h3>Alergias</h3>
+        <p>Indica si tienes alergias conocidas. Si no tienes, marca la opcion rapida.</p>
+      </div>
+
+      <div class="segmented-field" role="radiogroup" aria-label="Estado de alergias">
+        <label><input type="radio" name="alergias_estado" value="no" <%= alergiasEstado === 'no' ? 'checked' : '' %>> No refiere alergias</label>
+        <label><input type="radio" name="alergias_estado" value="si" <%= alergiasEstado === 'si' ? 'checked' : '' %>> Si tiene alergias</label>
+        <label><input type="radio" name="alergias_estado" value="no_sabe" <%= alergiasEstado === 'no_sabe' ? 'checked' : '' %>> No sabe</label>
+      </div>
+
+      <div class="conditional-fields" data-when="alergias_estado:si">
+        <div class="checkbox-grid antecedentes-options">
+          <% ['Medicamentos', 'Alimentos', 'Polvo', 'Latex', 'Picaduras', 'Otros'].forEach(item => { %>
+            <label class="checkbox-option">
+              <input type="checkbox" name="alergias_tipos[]" value="<%= item %>" <%= contiene(antecedentes.alergias, item) ? 'checked' : '' %>>
+              <span><%= item %></span>
+            </label>
+          <% }) %>
+        </div>
+
+        <div class="form-group">
+          <label for="alergias_detalle">Detalle de alergias</label>
+          <textarea id="alergias_detalle" name="alergias_detalle" maxlength="800" data-validate="medical-text" data-min="5" placeholder="Penicilina: genera ronchas y dificultad para respirar."><%= extraerDetalle(antecedentes.alergias) %></textarea>
+          <span class="field-message" data-for="alergias_detalle"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="antecedente-section" data-section="enfermedades">
+      <div class="antecedente-section-heading">
+        <h3>Enfermedades previas</h3>
+        <p>Selecciona condiciones diagnosticadas o que recuerdes haber tenido.</p>
+      </div>
+
+      <div class="segmented-field" role="radiogroup" aria-label="Estado de enfermedades previas">
+        <label><input type="radio" name="enfermedades_estado" value="no" <%= enfermedadesEstado === 'no' ? 'checked' : '' %>> Ninguna</label>
+        <label><input type="radio" name="enfermedades_estado" value="si" <%= enfermedadesEstado === 'si' ? 'checked' : '' %>> Si tiene</label>
+        <label><input type="radio" name="enfermedades_estado" value="no_sabe" <%= enfermedadesEstado === 'no_sabe' ? 'checked' : '' %>> No sabe</label>
+      </div>
+
+      <div class="conditional-fields" data-when="enfermedades_estado:si">
+        <div class="checkbox-grid antecedentes-options">
+          <% ['Diabetes', 'Hipertension arterial', 'Asma', 'Epilepsia', 'Enfermedad cardiaca', 'Enfermedad renal', 'Enfermedad hepatica', 'Ansiedad/depresion', 'Otra'].forEach(item => { %>
+            <label class="checkbox-option">
+              <input type="checkbox" name="enfermedades_tipos[]" value="<%= item %>" <%= contiene(antecedentes.enfermedades_previas, item) ? 'checked' : '' %>>
+              <span><%= item %></span>
+            </label>
+          <% }) %>
+        </div>
+
+        <div class="form-group">
+          <label for="enfermedades_detalle">Detalle u otra enfermedad</label>
+          <textarea id="enfermedades_detalle" name="enfermedades_detalle" maxlength="800" data-validate="medical-text" data-min="5" placeholder="Asma diagnosticada en la ninez."><%= extraerDetalle(antecedentes.enfermedades_previas) %></textarea>
+          <span class="field-message" data-for="enfermedades_detalle"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="antecedente-section" data-section="medicacion">
+      <div class="antecedente-section-heading">
+        <h3>Medicacion actual</h3>
+        <p>Registra medicamentos que consumes actualmente, aunque sean ocasionales.</p>
+      </div>
+
+      <div class="segmented-field" role="radiogroup" aria-label="Estado de medicacion actual">
+        <label><input type="radio" name="medicacion_estado" value="no" <%= medicacionEstado === 'no' ? 'checked' : '' %>> No consume medicacion</label>
+        <label><input type="radio" name="medicacion_estado" value="si" <%= medicacionEstado === 'si' ? 'checked' : '' %>> Si consume</label>
+        <label><input type="radio" name="medicacion_estado" value="no_sabe" <%= medicacionEstado === 'no_sabe' ? 'checked' : '' %>> No sabe</label>
+      </div>
+
+      <div class="conditional-fields" data-when="medicacion_estado:si">
+        <div class="antecedentes-input-grid">
+          <div class="form-group">
+            <label for="medicamento_nombre">Medicamento</label>
+            <input id="medicamento_nombre" name="medicamento_nombre" type="text" maxlength="120" data-validate="medical-text" data-min="3" placeholder="Losartan" value="<%= extraerCampo(antecedentes.medicacion_actual, 'Medicamento') %>">
+            <span class="field-message" data-for="medicamento_nombre"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="medicamento_dosis">Dosis</label>
+            <input id="medicamento_dosis" name="medicamento_dosis" type="text" maxlength="80" data-validate="medical-text" data-min="2" placeholder="50 mg" value="<%= extraerCampo(antecedentes.medicacion_actual, 'Dosis') %>">
+            <span class="field-message" data-for="medicamento_dosis"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="medicamento_frecuencia">Frecuencia</label>
+            <input id="medicamento_frecuencia" name="medicamento_frecuencia" type="text" maxlength="120" data-validate="medical-text" data-min="3" placeholder="1 vez al dia" value="<%= extraerCampo(antecedentes.medicacion_actual, 'Frecuencia') %>">
+            <span class="field-message" data-for="medicamento_frecuencia"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="medicamento_motivo">Motivo</label>
+            <input id="medicamento_motivo" name="medicamento_motivo" type="text" maxlength="160" data-validate="medical-text" data-min="3" placeholder="Presion arterial" value="<%= extraerCampo(antecedentes.medicacion_actual, 'Motivo') %>">
+            <span class="field-message" data-for="medicamento_motivo"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="medicamento_desde">Desde cuando</label>
+            <input id="medicamento_desde" name="medicamento_desde" type="text" maxlength="80" data-validate="medical-text" data-min="3" placeholder="2024" value="<%= extraerCampo(antecedentes.medicacion_actual, 'Desde') %>">
+            <span class="field-message" data-for="medicamento_desde"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="medicacion_detalle">Detalle adicional</label>
+            <input id="medicacion_detalle" name="medicacion_detalle" type="text" maxlength="180" data-validate="medical-text" data-min="5" placeholder="Opcional" value="<%= extraerCampo(antecedentes.medicacion_actual, 'Detalle adicional') %>">
+            <span class="field-message" data-for="medicacion_detalle"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="antecedente-section" data-section="cirugias">
+      <div class="antecedente-section-heading">
+        <h3>Cirugias</h3>
+        <p>Indica cirugias previas y el anio aproximado si lo recuerdas.</p>
+      </div>
+
+      <div class="segmented-field" role="radiogroup" aria-label="Estado de cirugias">
+        <label><input type="radio" name="cirugias_estado" value="no" <%= cirugiasEstado === 'no' ? 'checked' : '' %>> No</label>
+        <label><input type="radio" name="cirugias_estado" value="si" <%= cirugiasEstado === 'si' ? 'checked' : '' %>> Si</label>
+        <label><input type="radio" name="cirugias_estado" value="no_sabe" <%= cirugiasEstado === 'no_sabe' ? 'checked' : '' %>> No recuerda</label>
+      </div>
+
+      <div class="conditional-fields" data-when="cirugias_estado:si">
+        <div class="antecedentes-input-grid">
+          <div class="form-group">
+            <label for="cirugia_tipo">Tipo de cirugia</label>
+            <input id="cirugia_tipo" name="cirugia_tipo" type="text" maxlength="160" data-validate="medical-text" data-min="5" placeholder="Apendicectomia" value="<%= extraerCampo(antecedentes.cirugias, 'Cirugias referidas') %>">
+            <span class="field-message" data-for="cirugia_tipo"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="cirugia_anio">Anio aproximado</label>
+            <input id="cirugia_anio" name="cirugia_anio" type="text" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="2019" value="<%= extraerCampo(antecedentes.cirugias, 'Ano aproximado') || extraerCampo(antecedentes.cirugias, 'Anio aproximado') || extraerCampo(antecedentes.cirugias, 'Año aproximado') || extraerCampo(antecedentes.cirugias, 'AÃ±o aproximado') %>">
+            <span class="field-message" data-for="cirugia_anio"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="cirugia_observaciones">Observaciones</label>
+            <input id="cirugia_observaciones" name="cirugia_observaciones" type="text" maxlength="180" data-validate="medical-text" data-min="5" placeholder="Sin complicaciones" value="<%= extraerCampo(antecedentes.cirugias, 'Observaciones') %>">
+            <span class="field-message" data-for="cirugia_observaciones"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="antecedente-section" data-section="familiares">
+      <div class="antecedente-section-heading">
+        <h3>Antecedentes familiares</h3>
+        <p>Registra enfermedades relevantes en familiares cercanos.</p>
+      </div>
+
+      <div class="segmented-field" role="radiogroup" aria-label="Estado de antecedentes familiares">
+        <label><input type="radio" name="familiares_estado" value="no" <%= familiaresEstado === 'no' ? 'checked' : '' %>> Ninguno</label>
+        <label><input type="radio" name="familiares_estado" value="si" <%= familiaresEstado === 'si' ? 'checked' : '' %>> Si tiene</label>
+        <label><input type="radio" name="familiares_estado" value="no_sabe" <%= familiaresEstado === 'no_sabe' ? 'checked' : '' %>> No sabe</label>
+      </div>
+
+      <div class="conditional-fields" data-when="familiares_estado:si">
+        <div class="checkbox-grid antecedentes-options">
+          <% ['Hipertension', 'Diabetes', 'Cancer', 'Enfermedad cardiaca', 'Enfermedad mental', 'Enfermedad renal', 'Otro'].forEach(item => { %>
+            <label class="checkbox-option">
+              <input type="checkbox" name="familiares_tipos[]" value="<%= item %>" <%= contiene(antecedentes.antecedentes_familiares, item) ? 'checked' : '' %>>
+              <span><%= item %></span>
+            </label>
+          <% }) %>
+        </div>
+
+        <div class="checkbox-grid antecedentes-options compact-options">
+          <% ['Padre', 'Madre', 'Abuelo/a', 'Hermano/a', 'Otro'].forEach(item => { %>
+            <label class="checkbox-option">
+              <input type="checkbox" name="familiares_parentesco[]" value="<%= item %>" <%= contiene(antecedentes.antecedentes_familiares, item) ? 'checked' : '' %>>
+              <span><%= item %></span>
+            </label>
+          <% }) %>
+        </div>
+
+        <div class="form-group">
+          <label for="familiares_detalle">Detalle familiar</label>
+          <textarea id="familiares_detalle" name="familiares_detalle" maxlength="800" data-validate="medical-text" data-min="5" placeholder="Padre: hipertension arterial."><%= extraerDetalle(antecedentes.antecedentes_familiares) %></textarea>
+          <span class="field-message" data-for="familiares_detalle"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="antecedente-section">
+      <div class="antecedente-section-heading">
+        <h3>Observaciones adicionales</h3>
+        <p>Agrega informacion medica que no haya sido considerada en los campos anteriores.</p>
+      </div>
+
+      <div class="form-group">
+        <label for="observaciones">Observaciones</label>
+        <textarea id="observaciones" name="observaciones" maxlength="800" data-validate="medical-text" data-min="5" placeholder="Informacion adicional relevante para la atencion."><%= antecedentes.observaciones || '' %></textarea>
+        <span class="field-message" data-for="observaciones"></span>
+      </div>
+    </section>
+
+    <div id="antecedentesMessage" class="step-message hidden"></div>
+
+    <div class="form-actions antecedentes-actions">
+      <button type="button" class="btn-light" id="resetAntecedentes">Cancelar cambios</button>
+      <button type="submit" class="btn-dark">Guardar antecedentes</button>
+    </div>
+  </form>
+</div>
+
+<div class="modal-overlay hidden" id="leaveAntecedentesModal">
+  <div class="confirm-modal">
+    <h3>Abandonar antecedentes</h3>
+    <p>Existen cambios sin guardar en tus antecedentes medicos. Si sales ahora, esos cambios se perderan.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn-light" id="stayAntecedentes">Permanecer editando</button>
+      <a href="#" class="btn-danger" id="confirmLeaveAntecedentes">Salir sin guardar</a>
+    </div>
+  </div>
+</div>
+
+<script src="/js/patient-validations.js"></script>
+
+<script>
+  const antecedentesForm = document.getElementById('antecedentesForm');
+  const resetAntecedentes = document.getElementById('resetAntecedentes');
+  const antecedentesMessage = document.getElementById('antecedentesMessage');
+  const leaveAntecedentesModal = document.getElementById('leaveAntecedentesModal');
+  const stayAntecedentes = document.getElementById('stayAntecedentes');
+  const confirmLeaveAntecedentes = document.getElementById('confirmLeaveAntecedentes');
+  let allowAntecedentesLeave = false;
+  let userTouchedAntecedentes = false;
+  let initialAntecedentesState = '';
+  let pendingAntecedentesHref = '';
+
+  function serializeAntecedentes() {
+    return new URLSearchParams(new FormData(antecedentesForm)).toString();
+  }
+
+  function hasAntecedentesChanges() {
+    return userTouchedAntecedentes && serializeAntecedentes() !== initialAntecedentesState;
+  }
+
+  function updateConditionalFields() {
+    document.querySelectorAll('.conditional-fields').forEach(container => {
+      const [name, value] = container.dataset.when.split(':');
+      const checked = document.querySelector(`input[name="${name}"]:checked`);
+      const visible = checked && checked.value === value;
+      container.classList.toggle('hidden', !visible);
+
+      container.querySelectorAll('input, textarea, select').forEach(field => {
+        field.disabled = !visible;
+      });
+    });
+  }
+
+  function clearAntecedentesErrors() {
+    antecedentesMessage.textContent = '';
+    antecedentesMessage.classList.add('hidden');
+    antecedentesForm.querySelectorAll('.field-error').forEach(field => {
+      field.classList.remove('field-error');
+      field.setAttribute('aria-invalid', 'false');
+    });
+    antecedentesForm.querySelectorAll('.field-message').forEach(message => {
+      message.textContent = '';
+      message.classList.remove('is-visible');
+    });
+  }
+
+  function showAntecedentesMessage(message, field = null) {
+    antecedentesMessage.textContent = message;
+    antecedentesMessage.classList.remove('hidden');
+    if (field) {
+      field.classList.add('field-error');
+      field.setAttribute('aria-invalid', 'true');
+      field.focus();
+    }
+  }
+
+  antecedentesForm.addEventListener('input', () => {
+    userTouchedAntecedentes = true;
+    clearAntecedentesErrors();
+  });
+
+  antecedentesForm.addEventListener('change', () => {
+    userTouchedAntecedentes = true;
+    clearAntecedentesErrors();
+  });
+
+  document.querySelectorAll('.segmented-field input').forEach(input => {
+    input.addEventListener('change', updateConditionalFields);
+  });
+
+  resetAntecedentes.addEventListener('click', () => {
+    if (hasAntecedentesChanges()) {
+      pendingAntecedentesHref = '';
+      leaveAntecedentesModal.classList.remove('hidden');
+      confirmLeaveAntecedentes.textContent = 'Descartar cambios';
+      return;
+    }
+
+    antecedentesForm.reset();
+    clearAntecedentesErrors();
+    updateConditionalFields();
+    userTouchedAntecedentes = false;
+  });
+
+  antecedentesForm.addEventListener('submit', event => {
+    allowAntecedentesLeave = true;
+    updateConditionalFields();
+
+    const visibleSections = Array.from(document.querySelectorAll('.conditional-fields:not(.hidden)'));
+    const incompleteSection = visibleSections.find(section => {
+      const checkedOptions = section.querySelectorAll('input[type="checkbox"]:checked').length;
+      const filledText = Array.from(section.querySelectorAll('input[type="text"], textarea'))
+        .some(field => field.value.trim().length >= 5);
+      return checkedOptions === 0 && !filledText;
+    });
+
+    if (incompleteSection) {
+      event.preventDefault();
+      allowAntecedentesLeave = false;
+      const firstField = incompleteSection.querySelector('input:not([type="checkbox"]), textarea') || incompleteSection.querySelector('input');
+      showAntecedentesMessage('Completa el detalle o selecciona al menos una opcion en la seccion marcada.', firstField);
+      return;
+    }
+  });
+
+  document.querySelectorAll('a[href]').forEach(link => {
+    link.addEventListener('click', event => {
+      const href = link.getAttribute('href');
+      const isSamePageAnchor = href && href.startsWith('#');
+
+      if (!allowAntecedentesLeave && href && !isSamePageAnchor && hasAntecedentesChanges()) {
+        event.preventDefault();
+        pendingAntecedentesHref = link.href;
+        confirmLeaveAntecedentes.textContent = 'Salir sin guardar';
+        leaveAntecedentesModal.classList.remove('hidden');
+      }
+    });
+  });
+
+  stayAntecedentes.addEventListener('click', () => {
+    leaveAntecedentesModal.classList.add('hidden');
+    pendingAntecedentesHref = '';
+  });
+
+  leaveAntecedentesModal.addEventListener('click', event => {
+    if (event.target === leaveAntecedentesModal) {
+      leaveAntecedentesModal.classList.add('hidden');
+      pendingAntecedentesHref = '';
+    }
+  });
+
+  confirmLeaveAntecedentes.addEventListener('click', event => {
+    event.preventDefault();
+    allowAntecedentesLeave = true;
+
+    if (pendingAntecedentesHref) {
+      window.location.href = pendingAntecedentesHref;
+      return;
+    }
+
+    antecedentesForm.reset();
+    clearAntecedentesErrors();
+    updateConditionalFields();
+    userTouchedAntecedentes = false;
+    initialAntecedentesState = serializeAntecedentes();
+    leaveAntecedentesModal.classList.add('hidden');
+  });
+
+  updateConditionalFields();
+  initialAntecedentesState = serializeAntecedentes();
+</script>

@@ -1,3 +1,18 @@
+<%
+  function formatDate(value) {
+    if (!value) return 'No registrada';
+
+    const date = new Date(`${value}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return 'No registrada';
+
+    return date.toLocaleDateString('es-PE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  }
+%>
+
 <div class="module-card profile-card">
   <div class="module-header">
     <p>Consulta tus datos personales, actualiza tu información de contacto y cambia tu contraseña.</p>
@@ -28,7 +43,7 @@
 
         <div>
           <span>Fecha de nacimiento</span>
-          <strong><%= profile.fecha_nacimiento || 'No registrada' %></strong>
+          <strong><%= formatDate(profile.fecha_nacimiento) %></strong>
         </div>
 
         <div>
@@ -47,73 +62,95 @@
       <h3>Información editable</h3>
       <p class="section-help">Puedes actualizar estos datos cuando sea necesario.</p>
 
-      <form action="/perfil/actualizar" method="POST" class="profile-form" id="profileForm">
-        <div id="profileMessage" class="step-message hidden"></div>
+      <form action="/perfil/actualizar" method="POST" class="profile-form js-role-validated-form" id="profileForm" novalidate>
+        <div class="profile-form-grid">
+          <div class="form-group">
+            <label for="correo">Correo electrónico</label>
+            <input
+              type="email"
+              id="correo"
+              name="correo"
+              value="<%= profile.correo || '' %>"
+              placeholder="usuario@unt.edu.pe"
+              maxlength="120"
+              data-validate="email"
+              required
+            >
+            <span class="field-message" data-for="correo"></span>
+          </div>
 
-        <div class="form-group">
-          <label for="correo">Correo electrónico</label>
-          <input 
-            type="email" 
-            id="correo" 
-            name="correo" 
-            value="<%= profile.correo || '' %>" 
-            required
-          >
-        </div>
+          <div class="form-group">
+            <label for="telefono">Teléfono</label>
+            <input
+              type="text"
+              inputmode="numeric"
+              id="telefono"
+              name="telefono"
+              value="<%= profile.telefono || '' %>"
+              placeholder="987654321"
+              minlength="9"
+              maxlength="9"
+              data-validate="digits"
+              data-exact-length="9"
+              required
+            >
+            <span class="field-message" data-for="telefono"></span>
+          </div>
 
-        <div class="form-group">
-          <label for="telefono">Teléfono</label>
-          <input 
-            type="text" 
-            id="telefono" 
-            name="telefono" 
-            value="<%= profile.telefono || '' %>" 
-            required
-          >
-        </div>
+          <div class="form-group">
+            <label for="fecha_nacimiento">Fecha de nacimiento</label>
+            <input
+              type="date"
+              id="fecha_nacimiento"
+              name="fecha_nacimiento"
+              value="<%= profile.fecha_nacimiento || '' %>"
+              data-validate="date-not-future"
+              required
+            >
+            <span class="field-message" data-for="fecha_nacimiento"></span>
+          </div>
 
-        <div class="form-group">
-          <label for="fecha_nacimiento">Fecha de nacimiento</label>
-          <input 
-            type="date" 
-            id="fecha_nacimiento" 
-            name="fecha_nacimiento" 
-            value="<%= profile.fecha_nacimiento || '' %>" 
-            required
-          >
-        </div>
-
-        <div class="form-group">
+          <div class="form-group">
             <label for="sexo">Sexo</label>
-            <select id="sexo" name="sexo" required>
-                <option value="Masculino" <%= profile.sexo === 'Masculino' ? 'selected' : '' %>>Masculino</option>
-                <option value="Femenino" <%= profile.sexo === 'Femenino' ? 'selected' : '' %>>Femenino</option>
-                <option value="Otro" <%= profile.sexo === 'Otro' ? 'selected' : '' %>>Otro</option>
-                <option value="No especifica" <%= profile.sexo === 'No especifica' ? 'selected' : '' %>>No especifica</option>
+            <select id="sexo" name="sexo" data-validate="select" required>
+              <option value="">Seleccione una opción</option>
+              <option value="Masculino" <%= profile.sexo === 'Masculino' ? 'selected' : '' %>>Masculino</option>
+              <option value="Femenino" <%= profile.sexo === 'Femenino' ? 'selected' : '' %>>Femenino</option>
+              <option value="Otro" <%= profile.sexo === 'Otro' ? 'selected' : '' %>>Otro</option>
+              <option value="No especifica" <%= profile.sexo === 'No especifica' ? 'selected' : '' %>>No especifica</option>
             </select>
+            <span class="field-message" data-for="sexo"></span>
+          </div>
+
+          <div class="form-group profile-half-field">
+            <label for="direccion">Dirección</label>
+            <input
+              type="text"
+              id="direccion"
+              name="direccion"
+              value="<%= profile.direccion || '' %>"
+              placeholder="Av. ejemplo 123"
+              maxlength="160"
+              data-validate="address"
+            >
+            <span class="field-message" data-for="direccion"></span>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="direccion">Dirección</label>
-          <input 
-            type="text" 
-            id="direccion" 
-            name="direccion" 
-            value="<%= profile.direccion || '' %>"
-          >
+        <div class="form-actions">
+          <button type="button" class="btn-light" id="resetProfileForm">Cancelar cambios</button>
+          <button type="submit" class="btn-dark">Guardar cambios</button>
         </div>
-
-        <button type="submit" class="btn-dark">Guardar cambios</button>
       </form>
     </section>
   </div>
 
-  <div class="profile-grid single-gap">
-    <section class="profile-section">
+  <div class="profile-grid profile-grid-secondary">
+    <section class="profile-section profile-role-section">
       <h3>Datos según rol</h3>
       <p class="section-help">Estos datos son administrados por el personal autorizado.</p>
 
-      <div class="profile-info">
+      <div class="profile-info profile-role-info">
         <% if (profile.rol === 'paciente') { %>
           <div>
             <span>Código de estudiante</span>
@@ -179,157 +216,126 @@
       </div>
     </section>
 
-    <section class="profile-section">
-      <h3>Cambiar contraseña</h3>
-      <p class="section-help">Por seguridad, ingresa tu contraseña actual antes de crear una nueva.</p>
+    <section class="profile-section profile-security-form">
+      <div class="profile-section-heading">
+        <h3>Cambiar contraseña</h3>
+      </div>
 
-      <form action="/perfil/cambiar-password" method="POST" class="profile-form" id="passwordForm">
-        <div id="passwordMessage" class="step-message hidden"></div>
+      <p class="section-help">Usa una contraseña fuerte para proteger las funciones administrativas del sistema.</p>
 
-        <div class="form-group">
-          <label for="current_password">Contraseña actual</label>
-          <input 
-            type="password" 
-            id="current_password" 
-            name="current_password" 
-            required
-          >
+      <form action="/perfil/cambiar-password" method="POST" class="profile-form js-role-validated-form" id="passwordForm" novalidate>
+        <div class="profile-form-grid">
+          <div class="form-group">
+            <label for="current_password">Contraseña actual</label>
+            <input
+              type="password"
+              id="current_password"
+              name="current_password"
+              minlength="6"
+              data-validate="password"
+              required
+            >
+            <span class="field-message" data-for="current_password"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="new_password">Nueva contraseña</label>
+            <input
+              type="password"
+              id="new_password"
+              name="new_password"
+              minlength="8"
+              data-validate="strong-password"
+              required
+            >
+            <small class="form-help">Mínimo 8 caracteres, mayúscula, minúscula, número y símbolo.</small>
+            <div class="password-strength" aria-live="polite">
+              <span></span>
+              <p>Seguridad: sin evaluar</p>
+            </div>
+            <span class="field-message" data-for="new_password"></span>
+          </div>
+
+          <div class="form-group profile-half-field">
+            <label for="confirm_password">Confirmar nueva contraseña</label>
+            <input
+              type="password"
+              id="confirm_password"
+              name="confirm_password"
+              minlength="8"
+              data-validate="password-confirm"
+              data-match="new_password"
+              required
+            >
+            <span class="field-message" data-for="confirm_password"></span>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="new_password">Nueva contraseña</label>
-          <input 
-            type="password" 
-            id="new_password" 
-            name="new_password" 
-            required
-          >
-          <small class="form-help">Debe tener al menos 6 caracteres.</small>
+        <div class="form-actions">
+          <button type="reset" class="btn-light">Cancelar cambios</button>
+          <button type="submit" class="btn-dark">Cambiar contraseña</button>
         </div>
-
-        <div class="form-group">
-          <label for="confirm_password">Confirmar nueva contraseña</label>
-          <input 
-            type="password" 
-            id="confirm_password" 
-            name="confirm_password" 
-            required
-          >
-        </div>
-
-        <button type="submit" class="btn-dark">Cambiar contraseña</button>
       </form>
     </section>
   </div>
 </div>
 
+<script src="/js/role-validations.js"></script>
+
 <script>
   const fechaNacimientoInput = document.getElementById('fecha_nacimiento');
-  const sexoInput = document.getElementById('sexo');
+  const profileForm = document.getElementById('profileForm');
+  const resetProfileForm = document.getElementById('resetProfileForm');
+  const newPassword = document.getElementById('new_password');
+  const strengthBox = document.querySelector('.password-strength');
+
+  function yesterdayISO() {
+    const date = new Date();
+    date.setDate(date.getDate() - 1);
+    return date.toISOString().split('T')[0];
+  }
 
   if (fechaNacimientoInput) {
-    fechaNacimientoInput.max = new Date().toISOString().split('T')[0];
+    fechaNacimientoInput.max = yesterdayISO();
   }
 
-  function showFormMessage(container, message, field = null) {
-    container.textContent = message;
-    container.classList.remove('hidden');
-
-    document.querySelectorAll('.field-error').forEach(input => {
-      input.classList.remove('field-error');
-    });
-
-    if (field) {
-      field.classList.add('field-error');
-      field.focus();
-    }
-  }
-
-  function clearFormMessage(container) {
-    container.textContent = '';
-    container.classList.add('hidden');
-
-    document.querySelectorAll('.field-error').forEach(input => {
-      input.classList.remove('field-error');
+  if (resetProfileForm && profileForm) {
+    resetProfileForm.addEventListener('click', () => {
+      profileForm.reset();
+      profileForm.querySelectorAll('.field-error').forEach(field => {
+        field.classList.remove('field-error');
+        field.setAttribute('aria-invalid', 'false');
+      });
+      profileForm.querySelectorAll('.field-message').forEach(message => {
+        message.textContent = '';
+        message.classList.remove('is-visible');
+      });
     });
   }
 
-  const profileForm = document.getElementById('profileForm');
-  const profileMessage = document.getElementById('profileMessage');
-  const correoInput = document.getElementById('correo');
-  const telefonoInput = document.getElementById('telefono');
+  function passwordScore(value) {
+    return [
+      value.length >= 8,
+      /[A-Z]/.test(value),
+      /[a-z]/.test(value),
+      /\d/.test(value),
+      /[^A-Za-z0-9]/.test(value)
+    ].filter(Boolean).length;
+  }
 
-  [correoInput, telefonoInput, fechaNacimientoInput, sexoInput].forEach(input => {
-    if (input) {
-      input.addEventListener('input', () => clearFormMessage(profileMessage));
-      input.addEventListener('change', () => clearFormMessage(profileMessage));
-    }
-  });
+  function updateStrength() {
+    if (!newPassword || !strengthBox) return;
 
-  profileForm.addEventListener('submit', (event) => {
-    if (!correoInput.value.trim()) {
-      event.preventDefault();
-      showFormMessage(profileMessage, 'Ingresa tu correo electrónico.', correoInput);
-      return;
-    }
+    const score = passwordScore(newPassword.value);
+    const labels = ['sin evaluar', 'muy débil', 'débil', 'media', 'buena', 'fuerte'];
+    const state = score >= 5 ? 'strong' : score >= 4 ? 'good' : score >= 3 ? 'medium' : 'weak';
 
-    if (!telefonoInput.value.trim()) {
-      event.preventDefault();
-      showFormMessage(profileMessage, 'Ingresa tu número telefónico.', telefonoInput);
-      return;
-    }
+    strengthBox.dataset.strength = newPassword.value ? state : 'empty';
+    strengthBox.querySelector('p').textContent = `Seguridad: ${newPassword.value ? labels[score] : labels[0]}`;
+  }
 
-    if (!fechaNacimientoInput.value) {
-      event.preventDefault();
-      showFormMessage(profileMessage, 'Selecciona tu fecha de nacimiento.', fechaNacimientoInput);
-      return;
-    }
-
-    if (!sexoInput.value) {
-        event.preventDefault();
-        showFormMessage(profileMessage, 'Selecciona una opción en el campo sexo.', sexoInput);
-        return;
-    }
-
-    const fechaNacimiento = new Date(`${fechaNacimientoInput.value}T00:00:00`);
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-
-    if (fechaNacimiento > hoy) {
-      event.preventDefault();
-      showFormMessage(profileMessage, 'La fecha de nacimiento no puede ser futura.', fechaNacimientoInput);
-      return;
-    }
-  });
-
-  const passwordForm = document.getElementById('passwordForm');
-  const passwordMessage = document.getElementById('passwordMessage');
-
-  const currentPassword = document.getElementById('current_password');
-  const newPassword = document.getElementById('new_password');
-  const confirmPassword = document.getElementById('confirm_password');
-
-  [currentPassword, newPassword, confirmPassword].forEach(input => {
-    input.addEventListener('input', () => clearFormMessage(passwordMessage));
-  });
-
-  passwordForm.addEventListener('submit', (event) => {
-    if (!currentPassword.value.trim()) {
-      event.preventDefault();
-      showFormMessage(passwordMessage, 'Ingresa tu contraseña actual.', currentPassword);
-      return;
-    }
-
-    if (newPassword.value.length < 6) {
-      event.preventDefault();
-      showFormMessage(passwordMessage, 'La nueva contraseña debe tener al menos 6 caracteres.', newPassword);
-      return;
-    }
-
-    if (newPassword.value !== confirmPassword.value) {
-      event.preventDefault();
-      showFormMessage(passwordMessage, 'La confirmación no coincide con la nueva contraseña.', confirmPassword);
-      return;
-    }
-  });
+  if (newPassword) {
+    newPassword.addEventListener('input', updateStrength);
+    updateStrength();
+  }
 </script>
