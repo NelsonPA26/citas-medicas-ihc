@@ -1,19 +1,27 @@
 <%
   const esModoDetalle = typeof modoDetalle !== 'undefined' && modoDetalle;
-  const sintomasGuardados = triaje.sintomas ? triaje.sintomas.split(',').map(item => item.trim()) : [];
+  const normalizarSintomaGuardadoTriaje = item => ({
+    'Congestion nasal': 'Congestión nasal',
+    'Nauseas': 'Náuseas',
+    'Vomitos': 'Vómitos'
+  }[item] || item);
+  const sintomasGuardados = triaje.sintomas ? triaje.sintomas.split(',').map(item => {
+    const sintoma = item.trim();
+    return sintoma.startsWith('Otro:') ? sintoma : normalizarSintomaGuardadoTriaje(sintoma);
+  }) : [];
   const otroTriajeGuardado = sintomasGuardados.find(item => item.startsWith('Otro:'));
   const sintomasBaseTriaje = sintomasGuardados.map(item => item.startsWith('Otro:') ? 'Otro' : item);
   const gruposTriaje = [
     { titulo: 'Generales', items: ['Fiebre', 'Malestar general', 'Cansancio', 'Dolor muscular'] },
-    { titulo: 'Respiratorios', items: ['Tos', 'Dolor de garganta', 'Congestion nasal', 'Dificultad respiratoria'] },
-    { titulo: 'Digestivos', items: ['Dolor abdominal', 'Nauseas', 'Vomitos', 'Diarrea'] },
-    { titulo: 'Neurologicos / otros', items: ['Dolor de cabeza', 'Mareos', 'Ansiedad', 'Otro'] }
+    { titulo: 'Respiratorios', items: ['Tos', 'Dolor de garganta', 'Congestión nasal', 'Dificultad respiratoria'] },
+    { titulo: 'Digestivos', items: ['Dolor abdominal', 'Náuseas', 'Vómitos', 'Diarrea'] },
+    { titulo: 'Neurológicos / otros', items: ['Dolor de cabeza', 'Mareos', 'Ansiedad', 'Otro'] }
   ];
   const antecedentesClinicos = [
     { etiqueta: 'Alergias', valor: cita.alergias },
     { etiqueta: 'Enfermedades previas', valor: cita.enfermedades_previas },
-    { etiqueta: 'Medicacion actual', valor: cita.medicacion_actual },
-    { etiqueta: 'Cirugias', valor: cita.cirugias },
+    { etiqueta: 'Medicación actual', valor: cita.medicacion_actual },
+    { etiqueta: 'Cirugías', valor: cita.cirugias },
     { etiqueta: 'Antecedentes familiares', valor: cita.antecedentes_familiares },
     { etiqueta: 'Observaciones', valor: cita.antecedentes_observaciones }
   ].filter(item => item.valor && String(item.valor).trim() !== '');
@@ -23,11 +31,11 @@
   <div class="module-header">
     <p>
       <% if (esModoDetalle) { %>
-        Revisa la informacion registrada durante el triaje. Los campos se muestran en modo lectura.
+        Revisa la información registrada durante el triaje. Los campos se muestran en modo lectura.
       <% } else if (modoEdicion) { %>
-        Actualiza los signos vitales antes de que el medico inicie la consulta.
+        Actualiza los signos vitales antes de que el médico inicie la consulta.
       <% } else { %>
-        Registra signos vitales y sintomas verificados durante el triaje.
+        Registra signos vitales y síntomas verificados durante el triaje.
       <% } %>
     </p>
   </div>
@@ -37,22 +45,22 @@
       <h3>Resumen del paciente</h3>
       <div><span>Paciente</span><strong><%= cita.paciente_nombres %> <%= cita.paciente_apellido_paterno %> <%= cita.paciente_apellido_materno || '' %></strong></div>
       <div><span>DNI</span><strong><%= cita.paciente_dni || 'No registrado' %></strong></div>
-      <div><span>Edad</span><strong><%= cita.paciente_edad !== null ? cita.paciente_edad + ' anios' : 'No registrada' %></strong></div>
+      <div><span>Edad</span><strong><%= cita.paciente_edad !== null ? cita.paciente_edad + ' años' : 'No registrada' %></strong></div>
       <div><span>Sexo</span><strong><%= cita.paciente_sexo || 'No registrado' %></strong></div>
       <div><span>Fecha y hora</span><strong><%= new Date(cita.fecha).toLocaleDateString('es-PE') %> - <%= cita.hora %></strong></div>
       <div><span>Especialidad</span><strong><%= cita.especialidad %></strong></div>
       <% if (cita.medico_nombres) { %>
-        <div class="full-row"><span>Medico</span><strong>Dr(a). <%= cita.medico_nombres %> <%= cita.medico_apellido_paterno %> <%= cita.medico_apellido_materno || '' %></strong></div>
+        <div class="full-row"><span>Médico</span><strong>Dr(a). <%= cita.medico_nombres %> <%= cita.medico_apellido_paterno %> <%= cita.medico_apellido_materno || '' %></strong></div>
       <% } %>
       <div class="full-row"><span>Motivo de consulta</span><strong><%= cita.motivo %></strong></div>
       <div class="full-row">
-        <span>Sintomas declarados por el paciente</span>
+        <span>Síntomas declarados por el paciente</span>
         <strong><%= cita.sintomas_paciente || 'No declarados por el paciente' %></strong>
       </div>
     </section>
 
     <section class="triaje-summary clinical-panel clinical-antecedentes-panel">
-      <h3>Antecedentes medicos</h3>
+      <h3>Antecedentes médicos</h3>
       <% if (antecedentesClinicos.length > 0) { %>
         <div class="clinical-note-list clinical-note-grid">
           <% antecedentesClinicos.forEach(item => { %>
@@ -63,7 +71,7 @@
           <% }) %>
         </div>
       <% } else { %>
-        <p class="clinical-empty-text">No hay antecedentes medicos registrados.</p>
+        <p class="clinical-empty-text">No hay antecedentes médicos registrados.</p>
       <% } %>
     </section>
   </div>
@@ -73,30 +81,30 @@
 
     <div class="triaje-grid">
       <div class="form-group">
-        <label for="temperatura">Temperatura C</label>
+        <label for="temperatura">Temperatura (°C)</label>
         <input type="text" inputmode="decimal" id="temperatura" name="temperatura" value="<%= triaje.temperatura || '' %>" placeholder="36.8" min="30" max="45" data-validate="decimal" <%= esModoDetalle ? 'readonly' : 'required' %>>
         <span class="field-message" data-for="temperatura"></span>
       </div>
       <div class="form-group">
-        <label for="presion_arterial">Presion arterial</label>
+        <label for="presion_arterial">Presión arterial</label>
         <input type="text" inputmode="numeric" id="presion_arterial" name="presion_arterial" value="<%= triaje.presion_arterial || '' %>" placeholder="120/80" maxlength="7" data-validate="blood-pressure" <%= esModoDetalle ? 'readonly' : 'required' %>>
         <span class="field-message" data-for="presion_arterial"></span>
       </div>
       <div class="form-group">
-        <label for="frecuencia_cardiaca">Frecuencia cardiaca</label>
+        <label for="frecuencia_cardiaca">Frecuencia cardíaca</label>
         <input type="text" inputmode="numeric" id="frecuencia_cardiaca" name="frecuencia_cardiaca" value="<%= triaje.frecuencia_cardiaca || '' %>" placeholder="75" min="30" max="220" maxlength="3" data-validate="digits" <%= esModoDetalle ? 'readonly' : 'required' %>>
         <span class="field-message" data-for="frecuencia_cardiaca"></span>
       </div>
       <div class="form-group">
-        <label for="saturacion">Saturacion O2 (%)</label>
+        <label for="saturacion">Saturación O2 (%)</label>
         <input type="text" inputmode="numeric" id="saturacion" name="saturacion" value="<%= triaje.saturacion || '' %>" placeholder="98" min="50" max="100" maxlength="3" data-validate="digits" <%= esModoDetalle ? 'readonly' : 'required' %>>
         <span class="field-message" data-for="saturacion"></span>
       </div>
     </div>
 
     <div class="form-group">
-      <label>Sintomas verificados por enfermeria</label>
-      <small class="form-help">Selecciona los sintomas que el paciente refiere durante el triaje.</small>
+      <label>Síntomas verificados por enfermería</label>
+      <small class="form-help">Selecciona los síntomas que el paciente refiere durante el triaje.</small>
       <div class="symptom-category-grid symptom-category-grid-four">
         <% gruposTriaje.forEach(grupo => { %>
           <fieldset class="symptom-category">
@@ -110,7 +118,7 @@
                   <%= sintomasBaseTriaje.includes(sintoma) ? 'checked' : '' %>
                   <%= esModoDetalle ? 'disabled' : '' %>
                 >
-                <span><%= sintoma === 'Otro' ? 'Otro sintoma' : sintoma %></span>
+                <span><%= sintoma === 'Otro' ? 'Otro síntoma' : sintoma %></span>
               </label>
             <% }) %>
           </fieldset>
@@ -118,7 +126,7 @@
       </div>
 
       <div class="form-group symptom-other-field <%= otroTriajeGuardado ? '' : 'hidden' %>" id="triajeOtherSymptomGroup">
-        <label for="sintomas_otro">Otro sintoma verificado</label>
+        <label for="sintomas_otro">Otro síntoma verificado</label>
         <input
           type="text"
           id="sintomas_otro"
@@ -126,7 +134,7 @@
           maxlength="120"
           data-validate="clinical-text"
           data-min="5"
-          placeholder="Describe el sintoma adicional"
+          placeholder="Describe el síntoma adicional"
           value="<%= otroTriajeGuardado ? otroTriajeGuardado.replace('Otro:', '').trim() : '' %>"
           <%= esModoDetalle ? 'readonly' : (otroTriajeGuardado ? '' : 'disabled') %>
         >
@@ -136,7 +144,7 @@
 
     <div class="form-group">
       <label for="observaciones">Observaciones</label>
-      <textarea id="observaciones" name="observaciones" placeholder="Opcional: paciente llega acompanado, ansioso, requiere prioridad, no colabora con la toma de signos, se deriva a medico." maxlength="800" data-validate="clinical-text" data-min="5" <%= esModoDetalle ? 'readonly' : '' %>><%= triaje.observaciones || '' %></textarea>
+      <textarea id="observaciones" name="observaciones" placeholder="Opcional: paciente llega acompañado, ansioso, requiere prioridad, no colabora con la toma de signos, se deriva a médico." maxlength="800" data-validate="clinical-text" data-min="5" <%= esModoDetalle ? 'readonly' : '' %>><%= triaje.observaciones || '' %></textarea>
       <span class="field-message" data-for="observaciones"></span>
     </div>
 
@@ -147,7 +155,7 @@
         <a
           href="<%= modoEdicion ? '/enfermera/triajes' : '/enfermera/triaje-pendiente' %>"
           class="btn-light js-cancel-triaje"
-          data-cancel-message="<%= modoEdicion ? 'Si cancelas, se perderan los cambios no guardados del triaje.' : 'Si cancelas, no se guardara el triaje de esta cita.' %>"
+          data-cancel-message="<%= modoEdicion ? 'Si cancelas, se perderán los cambios no guardados del triaje.' : 'Si cancelas, no se guardará el triaje de esta cita.' %>"
         >
           Cancelar
         </a>
@@ -157,13 +165,13 @@
   </form>
 </div>
 
-<div class="modal-overlay hidden" id="cancelTriajeModal">
+<div class="modal-overlay hidden" id="cancelTriajeModal" role="dialog" aria-modal="true" aria-labelledby="cancelTriajeTitle" aria-describedby="cancelTriajeText">
   <div class="confirm-modal">
-    <h3>Cancelar cambios</h3>
-    <p id="cancelTriajeText">Seguro que deseas cancelar?</p>
+    <h3 id="cancelTriajeTitle">Cancelar cambios</h3>
+    <p id="cancelTriajeText">¿Seguro que deseas cancelar?</p>
     <div class="modal-actions">
       <button type="button" class="btn-light" id="closeCancelTriajeModal">Seguir editando</button>
-      <a href="#" class="btn-danger" id="confirmCancelTriaje">Si, cancelar</a>
+      <a href="#" class="btn-danger" id="confirmCancelTriaje">Sí, cancelar</a>
     </div>
   </div>
 </div>
@@ -252,12 +260,18 @@
       cancelTriajeText.textContent = cancelTriajeLink.dataset.cancelMessage;
       confirmCancelTriaje.href = cancelTriajeLink.href;
       cancelTriajeModal.classList.remove('hidden');
+      closeCancelTriajeModal.focus();
     });
   }
 
   closeCancelTriajeModal.addEventListener('click', () => cancelTriajeModal.classList.add('hidden'));
   cancelTriajeModal.addEventListener('click', event => {
     if (event.target === cancelTriajeModal) cancelTriajeModal.classList.add('hidden');
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !cancelTriajeModal.classList.contains('hidden')) {
+      cancelTriajeModal.classList.add('hidden');
+    }
   });
 
   if (!isTriajeReadOnly) triajeForm.addEventListener('submit', event => {
@@ -268,37 +282,46 @@
 
     if (!temperaturaInput.value || temperatura < 30 || temperatura > 45) {
       event.preventDefault();
-      showTriajeMessage('Ingresa una temperatura valida entre 30 y 45 C.', temperaturaInput);
+      showTriajeMessage('Ingresa una temperatura válida entre 30 y 45 °C.', temperaturaInput);
       return;
     }
 
     if (!/^\d{2,3}\/\d{2,3}$/.test(presionInput.value.trim())) {
       event.preventDefault();
-      showTriajeMessage('Ingresa la presion arterial con formato 120/80.', presionInput);
+      showTriajeMessage('Ingresa la presión arterial con formato 120/80.', presionInput);
+      return;
+    }
+
+    const presionMatch = presionInput.value.trim().match(/^(\d{2,3})\/(\d{2,3})$/);
+    const sistolica = Number(presionMatch[1]);
+    const diastolica = Number(presionMatch[2]);
+    if (sistolica < 70 || sistolica > 250 || diastolica < 40 || diastolica > 150) {
+      event.preventDefault();
+      showTriajeMessage('La presión arterial no está dentro de un rango válido.', presionInput);
       return;
     }
 
     if (!frecuenciaInput.value || frecuencia < 30 || frecuencia > 220) {
       event.preventDefault();
-      showTriajeMessage('Ingresa una frecuencia cardiaca valida.', frecuenciaInput);
+      showTriajeMessage('Ingresa una frecuencia cardíaca válida.', frecuenciaInput);
       return;
     }
 
     if (!saturacionInput.value || saturacion < 50 || saturacion > 100) {
       event.preventDefault();
-      showTriajeMessage('La saturacion debe estar entre 50 y 100.', saturacionInput);
+      showTriajeMessage('La saturación debe estar entre 50 y 100.', saturacionInput);
       return;
     }
 
     if (sintomasSeleccionados.length === 0) {
       event.preventDefault();
-      showTriajeMessage('Selecciona al menos un sintoma verificado por enfermeria.');
+      showTriajeMessage('Selecciona al menos un síntoma verificado por enfermería.');
       return;
     }
 
     if (sintomasSeleccionados.includes('Otro') && !window.RoleValidation.validateField(otherTriajeInput)) {
       event.preventDefault();
-      showTriajeMessage('Describe el otro sintoma verificado.', otherTriajeInput);
+      showTriajeMessage('Describe el otro síntoma verificado.', otherTriajeInput);
     }
   });
 

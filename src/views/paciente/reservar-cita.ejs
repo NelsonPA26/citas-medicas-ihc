@@ -85,6 +85,7 @@
           const sintomasSeleccionados = modoEdicion && cita.sintomas
             ? cita.sintomas.split(',').map(item => item.trim())
             : [];
+          const otroSintomaGuardado = sintomasSeleccionados.find(item => item.startsWith('Otro:'));
           const sintomasBaseSeleccionados = sintomasSeleccionados.map(item => item.startsWith('Otro:') ? 'Otro' : item);
           const gruposSintomas = [
             { titulo: 'Generales', items: ['Fiebre', 'Malestar general', 'Cansancio', 'Dolor muscular'] },
@@ -112,6 +113,22 @@
               </div>
             </fieldset>
           <% }) %>
+        </div>
+
+        <div class="form-group symptom-other-field <%= otroSintomaGuardado ? '' : 'hidden' %>" id="appointmentOtherSymptomGroup">
+          <label for="sintomas_otro">Otro síntoma</label>
+          <input
+            type="text"
+            id="sintomas_otro"
+            name="sintomas_otro"
+            maxlength="120"
+            data-validate="medical-text"
+            data-min="5"
+            placeholder="Describe el síntoma adicional"
+            value="<%= otroSintomaGuardado ? otroSintomaGuardado.replace('Otro:', '').trim() : '' %>"
+            <%= otroSintomaGuardado ? '' : 'disabled' %>
+          >
+          <small class="field-message" data-for="sintomas_otro"></small>
         </div>
       </div>
 
@@ -163,9 +180,9 @@
   </form>
 </div>
 
-<div class="modal-overlay hidden" id="cancelAppointmentModal">
+<div class="modal-overlay hidden" id="cancelAppointmentModal" role="dialog" aria-modal="true" aria-labelledby="cancelAppointmentTitle" aria-describedby="cancelAppointmentText">
   <div class="confirm-modal">
-    <h3>Cancelar cambios</h3>
+    <h3 id="cancelAppointmentTitle">Cancelar cambios</h3>
     <p id="cancelAppointmentText">¿Seguro que deseas cancelar?</p>
     <div class="modal-actions">
       <button type="button" class="btn-light" id="closeCancelAppointmentModal">Seguir editando</button>
@@ -188,6 +205,8 @@
   const steps = document.querySelectorAll('.appointment-step');
   const indicators = document.querySelectorAll('[data-step-indicator]');
   const symptomChecks = document.querySelectorAll('input[name="sintomas[]"]');
+  const otherSymptomGroup = document.getElementById('appointmentOtherSymptomGroup');
+  const otherSymptomInput = document.getElementById('sintomas_otro');
   const nextStep1 = document.getElementById('nextStep1');
   const nextStep2 = document.getElementById('nextStep2');
   const backStep2 = document.getElementById('backStep2');
@@ -210,6 +229,7 @@
     fecha: fechaInput.value,
     hora: horaSelect.value,
     motivo: motivoInput.value,
+    otro: otherSymptomInput.value,
     sintomas: Array.from(symptomChecks).filter(input => input.checked).map(input => input.value).sort().join('|')
   };
 
@@ -221,6 +241,7 @@
       fechaInput.value !== initialAppointmentState.fecha ||
       horaSelect.value !== initialAppointmentState.hora ||
       motivoInput.value !== initialAppointmentState.motivo ||
+      otherSymptomInput.value !== initialAppointmentState.otro ||
       currentSymptoms !== initialAppointmentState.sintomas
     );
   }
@@ -229,6 +250,8 @@
     input.addEventListener('input', clearInlineMessage);
     input.addEventListener('change', clearInlineMessage);
   });
+
+  otherSymptomInput.addEventListener('input', clearInlineMessage);
 
   fechaInput.min = new Date().toISOString().split('T')[0];
 
@@ -252,6 +275,10 @@
     stepMessage.textContent = '';
     stepMessage.classList.add('hidden');
     document.querySelectorAll('.field-error').forEach(input => input.classList.remove('field-error'));
+  }
+
+  function closeAppointmentCancelModal() {
+    cancelAppointmentModal.classList.add('hidden');
   }
 
   function filtrarMedicos() {
@@ -311,6 +338,18 @@
   medicoSelect.addEventListener('change', cargarHorasDisponibles);
   fechaInput.addEventListener('change', cargarHorasDisponibles);
 
+  function updateOtherSymptomField() {
+    const checked = Array.from(symptomChecks).some(input => input.value === 'Otro' && input.checked);
+    otherSymptomGroup.classList.toggle('hidden', !checked);
+    otherSymptomInput.disabled = !checked;
+    if (!checked) otherSymptomInput.value = '';
+  }
+
+  symptomChecks.forEach(input => input.addEventListener('change', () => {
+    clearInlineMessage();
+    updateOtherSymptomField();
+  }));
+
   nextStep1.addEventListener('click', () => {
     if (!especialidadSelect.value) return showInlineMessage('Selecciona una especialidad para continuar.', especialidadSelect);
     if (!medicoSelect.value) return showInlineMessage('Selecciona un médico disponible para continuar.', medicoSelect);
@@ -326,12 +365,21 @@
     if (!window.PatientValidation.validateField(motivoInput)) return showInlineMessage('Revisa el motivo de la consulta.', motivoInput);
 
     const sintomas = Array.from(symptomChecks).filter(input => input.checked).map(input => input.value);
+    if (sintomas.includes('Otro') && !window.PatientValidation.validateField(otherSymptomInput)) {
+      return showInlineMessage('Describe el otro síntoma para continuar.', otherSymptomInput);
+    }
+
     const medicoTexto = medicoSelect.options[medicoSelect.selectedIndex].textContent.trim();
+    const sintomasResumen = sintomas.map(sintoma => (
+      sintoma === 'Otro' && otherSymptomInput.value.trim()
+        ? `Otro: ${otherSymptomInput.value.trim()}`
+        : sintoma
+    ));
     summaryEspecialidad.textContent = especialidadSelect.value;
     summaryMedico.textContent = medicoTexto;
     summaryFecha.textContent = fechaInput.value;
     summaryHora.textContent = horaSelect.value.substring(0, 5);
-    summarySintomas.textContent = sintomas.length > 0 ? sintomas.join(', ') : 'No seleccionados';
+    summarySintomas.textContent = sintomasResumen.length > 0 ? sintomasResumen.join(', ') : 'No seleccionados';
     summaryMotivo.textContent = motivoInput.value;
     showStep(3);
   });
@@ -348,13 +396,18 @@
     cancelAppointmentText.textContent = cancelAppointmentLink.dataset.cancelMessage;
     confirmCancelAppointment.href = cancelAppointmentLink.href;
     cancelAppointmentModal.classList.remove('hidden');
+    closeCancelAppointmentModal.focus();
   });
 
-  closeCancelAppointmentModal.addEventListener('click', () => cancelAppointmentModal.classList.add('hidden'));
+  closeCancelAppointmentModal.addEventListener('click', closeAppointmentCancelModal);
   cancelAppointmentModal.addEventListener('click', event => {
-    if (event.target === cancelAppointmentModal) cancelAppointmentModal.classList.add('hidden');
+    if (event.target === cancelAppointmentModal) closeAppointmentCancelModal();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !cancelAppointmentModal.classList.contains('hidden')) closeAppointmentCancelModal();
   });
 
   filtrarMedicos();
+  updateOtherSymptomField();
   if (modoEdicion) cargarHorasDisponibles();
 </script>

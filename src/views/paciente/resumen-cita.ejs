@@ -9,7 +9,7 @@
 
 <div class="module-card resumen-cita-card">
   <div class="module-header">
-    <p>Revisa la informacion principal de esta cita.</p>
+    <p>Revisa la información principal de esta cita.</p>
   </div>
 
   <div class="clinical-overview patient-history-overview">
@@ -32,7 +32,7 @@
       </div>
 
       <div>
-        <span>Medico</span>
+        <span>Médico</span>
         <strong>Dr(a). <%= cita.medico_nombres %> <%= cita.medico_apellido_paterno %> <%= cita.medico_apellido_materno || '' %></strong>
       </div>
 
@@ -53,7 +53,7 @@
 
       <% if (cita.sintomas_paciente) { %>
         <div class="full-row">
-          <span>Sintomas declarados</span>
+          <span>Síntomas declarados</span>
           <strong><%= cita.sintomas_paciente %></strong>
         </div>
       <% } %>
@@ -67,41 +67,41 @@
           <% if (cita.temperatura) { %>
             <div>
               <span>Temperatura</span>
-              <strong><%= cita.temperatura %> C</strong>
+              <strong><%= cita.temperatura %> °C</strong>
             </div>
           <% } %>
 
           <% if (cita.presion_arterial) { %>
             <div>
-              <span>Presion arterial</span>
+              <span>Presión arterial</span>
               <strong><%= cita.presion_arterial %></strong>
             </div>
           <% } %>
 
           <% if (cita.frecuencia_cardiaca) { %>
             <div>
-              <span>Frecuencia cardiaca</span>
+              <span>Frecuencia cardíaca</span>
               <strong><%= cita.frecuencia_cardiaca %> lpm</strong>
             </div>
           <% } %>
 
           <% if (cita.saturacion) { %>
             <div>
-              <span>Saturacion O2</span>
+              <span>Saturación O2</span>
               <strong><%= cita.saturacion %>%</strong>
             </div>
           <% } %>
 
           <% if (cita.sintomas_triaje) { %>
             <div class="full-row">
-              <span>Sintomas verificados</span>
+              <span>Síntomas verificados</span>
               <strong><%= cita.sintomas_triaje %></strong>
             </div>
           <% } %>
 
           <% if (cita.triaje_observaciones) { %>
             <div class="full-row">
-              <span>Observaciones de enfermeria</span>
+              <span>Observaciones de enfermería</span>
               <strong><%= cita.triaje_observaciones %></strong>
             </div>
           <% } %>

@@ -36,7 +36,7 @@
       <p><%= user ? user.rol : '' %></p>
     </div>
 
-    <nav class="sidebar-nav">
+    <nav class="sidebar-nav" aria-label="Navegación principal">
 
       <% if (user && user.rol === 'paciente') { %>
         <a href="/paciente/dashboard" class="<%= currentPath === '/paciente/dashboard' ? 'active' : '' %>">
@@ -177,11 +177,11 @@
 
     <section class="dashboard-content">
       <% if (error) { %>
-        <div class="alert alert-error dashboard-alert"><%= error %></div>
+        <div class="alert alert-error dashboard-alert" role="alert"><%= error %></div>
       <% } %>
 
       <% if (success) { %>
-        <div class="alert alert-success dashboard-alert auto-dismiss"><%= success %></div>
+        <div class="alert alert-success dashboard-alert auto-dismiss" role="status"><%= success %></div>
       <% } %>
 
       <%- body %>
@@ -189,9 +189,9 @@
   </main>
 
   <div class="modal-overlay hidden" id="globalConfirmModal">
-    <div class="confirm-modal">
-      <h3 id="globalConfirmTitle">Confirmar accion</h3>
-      <p id="globalConfirmText">Estas seguro de continuar?</p>
+    <div class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="globalConfirmTitle" aria-describedby="globalConfirmText">
+      <h3 id="globalConfirmTitle">Confirmar acción</h3>
+      <p id="globalConfirmText">¿Estás seguro de continuar?</p>
 
       <div class="modal-actions">
         <button type="button" class="btn-light" id="globalConfirmCancel">Cancelar</button>
@@ -202,6 +202,10 @@
 
   <script>
   const autoDismissAlerts = document.querySelectorAll('.auto-dismiss');
+
+  document.querySelectorAll('.sidebar-nav a.active').forEach(link => {
+    link.setAttribute('aria-current', 'page');
+  });
 
   autoDismissAlerts.forEach(alert => {
     setTimeout(() => {
@@ -259,7 +263,6 @@ function moveRowsByStatusPriority(tbody) {
 
       const getRows = () => Array.from(tbody.querySelectorAll('tr'));
       if (getRows().length === 0) return;
-      moveRowsByStatusPriority(tbody);
 
       const existingPagination =
         container.nextElementSibling?.classList.contains('table-pagination')
@@ -350,13 +353,6 @@ function moveRowsByStatusPriority(tbody) {
 
         const orderedRows = Array.from(tbody.querySelectorAll('tr'))
         .sort((a, b) => {
-          const priorityA = getStatusPriority(a);
-          const priorityB = getStatusPriority(b);
-
-          if (priorityA !== priorityB) {
-            return priorityA - priorityB;
-          }
-
           const aText = (a.children[index]?.textContent || '').trim();
           const bText = (b.children[index]?.textContent || '').trim();
 
@@ -393,8 +389,8 @@ function moveRowsByStatusPriority(tbody) {
       form.addEventListener('submit', event => {
         event.preventDefault();
         pendingConfirmForm = form;
-        globalConfirmTitle.textContent = form.dataset.confirmTitle || 'Confirmar accion';
-        globalConfirmText.textContent = form.dataset.confirm || 'Estas seguro de continuar?';
+        globalConfirmTitle.textContent = form.dataset.confirmTitle || 'Confirmar acción';
+        globalConfirmText.textContent = form.dataset.confirm || '¿Estás seguro de continuar?';
         globalConfirmAccept.textContent = form.dataset.confirmButton || 'Confirmar';
         globalConfirmModal.classList.remove('hidden');
       });
@@ -413,6 +409,13 @@ function moveRowsByStatusPriority(tbody) {
 
     globalConfirmModal.addEventListener('click', event => {
       if (event.target === globalConfirmModal) {
+        pendingConfirmForm = null;
+        globalConfirmModal.classList.add('hidden');
+      }
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !globalConfirmModal.classList.contains('hidden')) {
         pendingConfirmForm = null;
         globalConfirmModal.classList.add('hidden');
       }

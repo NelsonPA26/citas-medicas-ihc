@@ -57,8 +57,8 @@ window.RoleValidation = (() => {
     const min = field.min === '' ? null : Number(field.min);
     const max = field.max === '' ? null : Number(field.max);
 
-    if (min !== null && value < min) return `El valor minimo permitido es ${min}.`;
-    if (max !== null && value > max) return `El valor maximo permitido es ${max}.`;
+    if (min !== null && value < min) return `El valor mínimo permitido es ${min}.`;
+    if (max !== null && value > max) return `El valor máximo permitido es ${max}.`;
     return '';
   }
 
@@ -70,29 +70,29 @@ window.RoleValidation = (() => {
     if (!field.required && !value) return '';
 
     if (type === 'search' && !SEARCH_PATTERN.test(value)) {
-      return 'Usa solo letras, numeros, espacios y puntuacion basica.';
+      return 'Usa solo letras, números, espacios y puntuación básica.';
     }
 
     if (type === 'clinical-text') {
       const min = Number(field.dataset.min || field.minLength || 5);
       if (value.length < min) return `Ingresa al menos ${min} caracteres.`;
-      if (!TEXT_PATTERN.test(value)) return 'Usa solo texto, numeros y puntuacion basica.';
+      if (!TEXT_PATTERN.test(value)) return 'Usa solo texto, números y puntuación básica.';
     }
 
     if (type === 'digits') {
       const min = field.minLength || field.dataset.minLength;
       const max = field.maxLength > 0 ? field.maxLength : field.dataset.maxLength;
       const exact = field.dataset.exactLength;
-      if (!/^\d+$/.test(value)) return 'Solo se permiten numeros.';
-      if (exact && value.length !== Number(exact)) return `Debe tener exactamente ${exact} digitos.`;
-      if (min && value.length < Number(min)) return `Debe tener al menos ${min} digitos.`;
-      if (max && value.length > Number(max)) return `Debe tener como maximo ${max} digitos.`;
+      if (!/^\d+$/.test(value)) return 'Solo se permiten números.';
+      if (exact && value.length !== Number(exact)) return `Debe tener exactamente ${exact} dígitos.`;
+      if (min && value.length < Number(min)) return `Debe tener al menos ${min} dígitos.`;
+      if (max && value.length > Number(max)) return `Debe tener como máximo ${max} dígitos.`;
       const numericMessage = rangeMessage(field, Number(value));
       if (numericMessage) return numericMessage;
     }
 
     if (type === 'decimal') {
-      if (!/^\d+(\.\d{1,2})?$/.test(value)) return 'Ingresa un numero valido.';
+      if (!/^\d+(\.\d{1,2})?$/.test(value)) return 'Ingresa un número válido.';
       const numericMessage = rangeMessage(field, Number(value));
       if (numericMessage) return numericMessage;
     }
@@ -103,29 +103,29 @@ window.RoleValidation = (() => {
       const systolic = Number(match[1]);
       const diastolic = Number(match[2]);
       if (systolic < 70 || systolic > 250 || diastolic < 40 || diastolic > 150) {
-        return 'La presion arterial ingresada no parece valida.';
+        return 'La presión arterial ingresada no parece válida.';
       }
     }
 
     if (type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      return 'Ingresa un correo valido con un solo @.';
+      return 'Ingresa un correo válido con un solo @.';
     }
 
     if (type === 'date') {
       const date = new Date(`${value}T00:00:00`);
-      if (Number.isNaN(date.getTime())) return 'Selecciona una fecha valida.';
+      if (Number.isNaN(date.getTime())) return 'Selecciona una fecha válida.';
     }
 
     if (type === 'date-not-future') {
       const date = new Date(`${value}T00:00:00`);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      if (Number.isNaN(date.getTime())) return 'Selecciona una fecha valida.';
+      if (Number.isNaN(date.getTime())) return 'Selecciona una fecha válida.';
       if (date >= today) return 'La fecha debe ser anterior a la fecha actual.';
     }
 
     if (type === 'address' && !ADDRESS_PATTERN.test(value)) {
-      return 'Usa letras, numeros y puntuacion basica para la direccion.';
+      return 'Usa letras, números y puntuación básica para la dirección.';
     }
 
     if (type === 'password' && field.minLength > 0 && value.length < field.minLength) {
@@ -134,18 +134,18 @@ window.RoleValidation = (() => {
 
     if (type === 'strong-password') {
       if (value.length < 8) return 'Debe tener al menos 8 caracteres.';
-      if (!/[A-Z]/.test(value)) return 'Debe incluir al menos una mayuscula.';
-      if (!/[a-z]/.test(value)) return 'Debe incluir al menos una minuscula.';
-      if (!/\d/.test(value)) return 'Debe incluir al menos un numero.';
-      if (!/[^A-Za-z0-9]/.test(value)) return 'Debe incluir al menos un simbolo.';
+      if (!/[A-Z]/.test(value)) return 'Debe incluir al menos una mayúscula.';
+      if (!/[a-z]/.test(value)) return 'Debe incluir al menos una minúscula.';
+      if (!/\d/.test(value)) return 'Debe incluir al menos un número.';
+      if (!/[^A-Za-z0-9]/.test(value)) return 'Debe incluir al menos un símbolo.';
     }
 
     if (type === 'password-confirm') {
       const source = document.getElementById(field.dataset.match || '');
-      if (source && value !== source.value) return 'La confirmacion no coincide.';
+      if (source && value !== source.value) return 'La confirmación no coincide.';
     }
 
-    if (field.validity.typeMismatch) return 'El formato ingresado no es valido.';
+    if (field.validity.typeMismatch) return 'El formato ingresado no es válido.';
     if (field.validity.tooLong) return 'El texto es demasiado largo.';
 
     return '';

@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 
 async function generarHash() {
-  const password = '123456';
+  const password = 'UNT12345*';
   const hash = await bcrypt.hash(password, 10);
 
   console.log('Contraseña:', password);

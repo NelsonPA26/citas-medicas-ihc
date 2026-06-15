@@ -17,6 +17,19 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
+app.disable('x-powered-by');
+
+function dashboardByRole(rol) {
+  const routes = {
+    paciente: '/paciente/dashboard',
+    medico: '/medico/dashboard',
+    enfermera: '/enfermera/dashboard',
+    administrativo: '/admin/dashboard'
+  };
+
+  return routes[rol] || '/login';
+}
+
 // Configuración de vistas
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -49,7 +62,7 @@ app.use((req, res, next) => {
   res.locals.error = req.session.error || null;
   res.locals.success = req.session.success || null;
 
-  res.locals.currentPath = req.originalUrl;
+  res.locals.currentPath = req.path;
 
   delete req.session.error;
   delete req.session.success;
@@ -88,6 +101,32 @@ app.get('/test-db', async (req, res) => {
       error: error.message
     });
   }
+});
+
+app.use((req, res) => {
+  const backUrl = req.session && req.session.user
+    ? dashboardByRole(req.session.user.rol)
+    : '/login';
+
+  res.status(404).render('errors/404', {
+    title: 'Página no encontrada',
+    layout: req.session && req.session.user ? 'layouts/dashboard' : 'layouts/auth',
+    backUrl
+  });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err);
+
+  const backUrl = req.session && req.session.user
+    ? dashboardByRole(req.session.user.rol)
+    : '/login';
+
+  res.status(500).render('errors/500', {
+    title: 'Error del sistema',
+    layout: req.session && req.session.user ? 'layouts/dashboard' : 'layouts/auth',
+    backUrl
+  });
 });
 
 // Servidor

@@ -29,7 +29,7 @@
         <select id="rol" name="rol">
           <option value="">Todos</option>
           <option value="paciente" <%= filters.rol === 'paciente' ? 'selected' : '' %>>Paciente</option>
-          <option value="medico" <%= filters.rol === 'medico' ? 'selected' : '' %>>Medico</option>
+          <option value="medico" <%= filters.rol === 'medico' ? 'selected' : '' %>>Médico</option>
           <option value="enfermera" <%= filters.rol === 'enfermera' ? 'selected' : '' %>>Enfermera</option>
           <option value="administrativo" <%= filters.rol === 'administrativo' ? 'selected' : '' %>>Administrativo</option>
         </select>
@@ -78,7 +78,7 @@
             <th><a class="sort-link" href="<%= sortQuery('usuario') %>">Usuario<%= sortMark('usuario') %></a></th>
             <th><a class="sort-link" href="<%= sortQuery('dni') %>">DNI<%= sortMark('dni') %></a></th>
             <th><a class="sort-link" href="<%= sortQuery('correo') %>">Correo<%= sortMark('correo') %></a></th>
-            <th><a class="sort-link" href="<%= sortQuery('telefono') %>">Telefono<%= sortMark('telefono') %></a></th>
+            <th><a class="sort-link" href="<%= sortQuery('telefono') %>">Teléfono<%= sortMark('telefono') %></a></th>
             <th><a class="sort-link" href="<%= sortQuery('rol') %>">Rol<%= sortMark('rol') %></a></th>
             <th><a class="sort-link" href="<%= sortQuery('estado') %>">Estado<%= sortMark('estado') %></a></th>
             <th>Acciones</th>
@@ -212,7 +212,7 @@
         <a
           href="/admin/usuarios?<%= prevQuery.toString() %>"
           class="pagination-button <%= pagination.page <= 1 ? 'disabled' : '' %>"
-          aria-label="Pagina anterior"
+          aria-label="Página anterior"
         >
           &lt;
         </a>
@@ -220,7 +220,7 @@
         <a
           href="/admin/usuarios?<%= nextQuery.toString() %>"
           class="pagination-button <%= pagination.page >= pagination.totalPages ? 'disabled' : '' %>"
-          aria-label="Pagina siguiente"
+          aria-label="Página siguiente"
         >
           &gt;
         </a>
@@ -377,8 +377,8 @@
 
 <div class="modal-overlay hidden" id="userStatusModal">
   <div class="confirm-modal">
-    <h3 id="userStatusTitle">Confirmar accion</h3>
-    <p id="userStatusText">Estas seguro de realizar esta accion?</p>
+    <h3 id="userStatusTitle">Confirmar acción</h3>
+    <p id="userStatusText">¿Estás seguro de realizar esta acción?</p>
 
     <div class="modal-actions">
       <button type="button" class="btn-light" id="closeUserStatusModal">Cancelar</button>

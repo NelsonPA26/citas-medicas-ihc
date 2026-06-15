@@ -51,7 +51,8 @@ function detalleValido(value) {
   const text = (value || '').trim();
 
   if (!text) return true;
-  if (!textoClinicoValido(text, true)) return false;
+  if (text.length > 200) return false;
+  if (!/^[\p{L}0-9 .,;:()/%+-]+$/u.test(text)) return false;
 
   return !/^([\p{L}])\1{2,}$/iu.test(text);
 }
@@ -76,6 +77,11 @@ function normalizarSintomas(sintomas, sintomasOtro = '') {
   }
 
   return validos.length > 0 ? validos.join(', ') : null;
+}
+
+function incluyeSintomaOtro(sintomas) {
+  const seleccionados = Array.isArray(sintomas) ? sintomas : [sintomas].filter(Boolean);
+  return seleccionados.includes('Otro');
 }
 
 function normalizarLista(value) {
@@ -125,10 +131,14 @@ function construirMedicacion(body) {
 }
 
 function esFechaValida(fecha) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(fecha || ''))) return false;
+
   const hoy = new Date();
   hoy.setHours(0, 0, 0, 0);
 
   const fechaSeleccionada = new Date(`${fecha}T00:00:00`);
+  if (Number.isNaN(fechaSeleccionada.getTime())) return false;
+
   const dia = fechaSeleccionada.getDay();
 
   if (fechaSeleccionada < hoy) return false;
@@ -151,6 +161,23 @@ async function obtenerPacientePorPersona(idPersona) {
   );
 
   return rows[0] || null;
+}
+
+async function existeMedicoActivo(idMedico) {
+  const [rows] = await db.query(
+    `
+    SELECT m.id_medico
+    FROM medico m
+    INNER JOIN persona p ON m.id_persona = p.id_persona
+    INNER JOIN usuario u ON p.id_persona = u.id_persona
+    WHERE m.id_medico = ?
+    AND u.activo = 1
+    LIMIT 1
+    `,
+    [idMedico]
+  );
+
+  return rows.length > 0;
 }
 
 exports.dashboard = async (req, res) => {
@@ -265,6 +292,13 @@ exports.getHorasDisponibles = async (req, res) => {
       });
     }
 
+    if (!(await existeMedicoActivo(id_medico))) {
+      return res.json({
+        ok: false,
+        mensaje: 'El médico seleccionado no está disponible.'
+      });
+    }
+
     const params = [id_medico, fecha];
     let excludeCurrent = '';
 
@@ -311,7 +345,12 @@ exports.storeReservarCita = async (req, res) => {
     }
 
     if (!textoClinicoValido(motivo, true)) {
-      req.session.error = 'Ingresa un motivo valido con al menos 5 caracteres.';
+      req.session.error = 'Ingresa un motivo válido con al menos 5 caracteres.';
+      return res.redirect('/paciente/reservar-cita');
+    }
+
+    if (incluyeSintomaOtro(sintomas) && !textoClinicoValido(sintomas_otro, true)) {
+      req.session.error = 'Describe el otro síntoma con al menos 5 caracteres.';
       return res.redirect('/paciente/reservar-cita');
     }
 
@@ -332,18 +371,8 @@ exports.storeReservarCita = async (req, res) => {
       return res.redirect('/paciente/dashboard');
     }
 
-    const [existeMedico] = await db.query(
-      `
-      SELECT id_medico
-      FROM medico
-      WHERE id_medico = ?
-      LIMIT 1
-      `,
-      [id_medico]
-    );
-
-    if (existeMedico.length === 0) {
-      req.session.error = 'El médico seleccionado no existe.';
+    if (!(await existeMedicoActivo(id_medico))) {
+      req.session.error = 'El médico seleccionado no está disponible.';
       return res.redirect('/paciente/reservar-cita');
     }
 
@@ -400,7 +429,7 @@ exports.showEditarCita = async (req, res) => {
     const paciente = await obtenerPacientePorPersona(req.session.user.id_persona);
 
     if (!paciente) {
-      req.session.error = 'No se encontro el perfil del paciente.';
+      req.session.error = 'No se encontró el perfil del paciente.';
       return res.redirect('/paciente/dashboard');
     }
 
@@ -430,7 +459,7 @@ exports.showEditarCita = async (req, res) => {
     }
 
     if (citaRows[0].estado !== 'pendiente') {
-      req.session.error = 'Solo puedes editar reservas que aun estan pendientes de triaje.';
+      req.session.error = 'Solo puedes editar reservas que aún están pendientes de triaje.';
       return res.redirect('/paciente/mis-citas');
     }
 
@@ -482,24 +511,29 @@ exports.updateCita = async (req, res) => {
     }
 
     if (!textoClinicoValido(motivo, true)) {
-      req.session.error = 'Ingresa un motivo valido con al menos 5 caracteres.';
+      req.session.error = 'Ingresa un motivo válido con al menos 5 caracteres.';
+      return res.redirect(`/paciente/mis-citas/${id_cita}/editar`);
+    }
+
+    if (incluyeSintomaOtro(sintomas) && !textoClinicoValido(sintomas_otro, true)) {
+      req.session.error = 'Describe el otro síntoma con al menos 5 caracteres.';
       return res.redirect(`/paciente/mis-citas/${id_cita}/editar`);
     }
 
     if (!esFechaValida(fecha)) {
-      req.session.error = 'La fecha seleccionada no es valida. Debe ser de lunes a viernes y no puede ser pasada.';
+      req.session.error = 'La fecha seleccionada no es válida. Debe ser de lunes a viernes y no puede ser pasada.';
       return res.redirect(`/paciente/mis-citas/${id_cita}/editar`);
     }
 
     if (!HORAS_ATENCION.includes(hora)) {
-      req.session.error = 'La hora seleccionada no esta dentro del horario de atencion.';
+      req.session.error = 'La hora seleccionada no está dentro del horario de atención.';
       return res.redirect(`/paciente/mis-citas/${id_cita}/editar`);
     }
 
     const paciente = await obtenerPacientePorPersona(req.session.user.id_persona);
 
     if (!paciente) {
-      req.session.error = 'No se encontro el perfil del paciente.';
+      req.session.error = 'No se encontró el perfil del paciente.';
       return res.redirect('/paciente/dashboard');
     }
 
@@ -522,6 +556,11 @@ exports.updateCita = async (req, res) => {
     if (citaRows[0].estado !== 'pendiente') {
       req.session.error = 'Solo puedes editar reservas pendientes de triaje.';
       return res.redirect('/paciente/mis-citas');
+    }
+
+    if (!(await existeMedicoActivo(id_medico))) {
+      req.session.error = 'El médico seleccionado no está disponible.';
+      return res.redirect(`/paciente/mis-citas/${id_cita}/editar`);
     }
 
     const [ocupada] = await db.query(
@@ -567,7 +606,7 @@ exports.updateCita = async (req, res) => {
       return res.redirect(`/paciente/mis-citas/${req.params.id_cita}/editar`);
     }
 
-    req.session.error = 'Ocurrio un error al actualizar la reserva.';
+    req.session.error = 'Ocurrió un error al actualizar la reserva.';
     return res.redirect(`/paciente/mis-citas/${req.params.id_cita}/editar`);
   }
 };
@@ -710,7 +749,7 @@ exports.resumenCita = async (req, res) => {
     const paciente = await obtenerPacientePorPersona(req.session.user.id_persona);
 
     if (!paciente) {
-      req.session.error = 'No se encontro el perfil del paciente.';
+      req.session.error = 'No se encontró el perfil del paciente.';
       return res.redirect('/paciente/dashboard');
     }
 
@@ -772,7 +811,7 @@ exports.showAntecedentes = async (req, res) => {
     const paciente = await obtenerPacientePorPersona(req.session.user.id_persona);
 
     if (!paciente) {
-      req.session.error = 'No se encontro el perfil del paciente.';
+      req.session.error = 'No se encontró el perfil del paciente.';
       return res.redirect('/paciente/dashboard');
     }
 
@@ -800,7 +839,7 @@ exports.showAntecedentes = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudieron cargar tus antecedentes medicos.';
+    req.session.error = 'No se pudieron cargar tus antecedentes médicos.';
     return res.redirect('/paciente/dashboard');
   }
 };
@@ -810,7 +849,7 @@ exports.updateAntecedentes = async (req, res) => {
     const paciente = await obtenerPacientePorPersona(req.session.user.id_persona);
 
     if (!paciente) {
-      req.session.error = 'No se encontro el perfil del paciente.';
+      req.session.error = 'No se encontró el perfil del paciente.';
       return res.redirect('/paciente/dashboard');
     }
 
@@ -824,7 +863,7 @@ exports.updateAntecedentes = async (req, res) => {
     ];
 
     if (estados.some(estado => !estadosPermitidos.includes(estado))) {
-      req.session.error = 'Selecciona una opcion valida en cada seccion de antecedentes.';
+      req.session.error = 'Selecciona una opción válida en cada sección de antecedentes.';
       return res.redirect('/paciente/antecedentes');
     }
 
@@ -843,16 +882,23 @@ exports.updateAntecedentes = async (req, res) => {
       req.body.observaciones
     ];
 
-    if (detalles.some(campo => {
-      const text = String(campo || '').trim();
-      return text && /^([\p{L}])\1{2,}$/iu.test(text);
-    })) {
-      req.session.error = 'Usa texto clinico valido y evita respuestas ambiguas como letras repetidas.';
+    if (detalles.some(campo => !detalleValido(campo))) {
+      req.session.error = 'Usa texto clínico válido y evita respuestas ambiguas como letras repetidas.';
       return res.redirect('/paciente/antecedentes');
     }
 
-    if (req.body.cirugia_anio && !/^\d{4}$/.test(String(req.body.cirugia_anio).trim())) {
-      req.session.error = 'Ingresa un anio de cirugia valido con 4 digitos.';
+    if (req.body.cirugia_anio) {
+      const anioCirugia = Number(String(req.body.cirugia_anio).trim());
+      const anioActual = new Date().getFullYear();
+
+      if (!Number.isInteger(anioCirugia) || anioCirugia < 1900 || anioCirugia > anioActual) {
+        req.session.error = 'Ingresa un año de cirugía válido entre 1900 y el año actual.';
+        return res.redirect('/paciente/antecedentes');
+      }
+    }
+
+    if (req.body.cirugias_estado === 'si' && req.body.cirugia_anio && !req.body.cirugia_tipo) {
+      req.session.error = 'Indica el tipo de cirugía cuando registres un año aproximado.';
       return res.redirect('/paciente/antecedentes');
     }
 
@@ -931,7 +977,7 @@ exports.updateAntecedentes = async (req, res) => {
       || (req.body.cirugias_estado === 'si' && !cirugias)
       || (req.body.familiares_estado === 'si' && !antecedentes_familiares)
     ) {
-      req.session.error = 'Completa el detalle o selecciona al menos una opcion cuando marques que si tienes antecedentes.';
+      req.session.error = 'Completa el detalle o selecciona al menos una opción cuando marques que sí tienes antecedentes.';
       return res.redirect('/paciente/antecedentes');
     }
 
@@ -969,7 +1015,7 @@ exports.updateAntecedentes = async (req, res) => {
     return res.redirect('/paciente/antecedentes');
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudieron actualizar tus antecedentes medicos.';
+    req.session.error = 'No se pudieron actualizar tus antecedentes médicos.';
     return res.redirect('/paciente/antecedentes');
   }
 };

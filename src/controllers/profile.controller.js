@@ -148,7 +148,11 @@ exports.updateProfile = async (req, res) => {
       sexo
     } = req.body;
 
-    if (!correo || !telefono || !fecha_nacimiento || !sexo) {
+    const correoLimpio = (correo || '').trim().toLowerCase();
+    const telefonoLimpio = (telefono || '').trim().replace(/\s/g, '');
+    const direccionLimpia = (direccion || '').trim().replace(/\s{2,}/g, ' ');
+
+    if (!correoLimpio || !telefonoLimpio || !fecha_nacimiento || !sexo) {
       req.session.error = 'El correo, teléfono, fecha de nacimiento y sexo son obligatorios.';
       return res.redirect('/perfil');
     }
@@ -169,25 +173,38 @@ exports.updateProfile = async (req, res) => {
       return res.redirect('/perfil');
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoLimpio)) {
       req.session.error = 'Ingresa un correo electrónico válido.';
       return res.redirect('/perfil');
     }
 
-    if (!/^\d{9}$/.test(telefono)) {
-      req.session.error = 'El teléfono debe tener exactamente 9 dígitos.';
+    if (!/^\d{7,15}$/.test(telefonoLimpio)) {
+      req.session.error = 'El teléfono debe tener entre 7 y 15 dígitos.';
       return res.redirect('/perfil');
     }
 
     const [existing] = await db.query(
       `
-      SELECT id_persona
+      SELECT 'persona' AS origen
       FROM persona
       WHERE correo = ?
       AND id_persona <> ?
+
+      UNION
+
+      SELECT 'usuario' AS origen
+      FROM usuario
+      WHERE username = ?
+      AND id_usuario <> ?
+
       LIMIT 1
       `,
-      [correo, req.session.user.id_persona]
+      [
+        correoLimpio,
+        req.session.user.id_persona,
+        correoLimpio,
+        req.session.user.id_usuario
+      ]
     );
 
     if (existing.length > 0) {
@@ -195,28 +212,51 @@ exports.updateProfile = async (req, res) => {
       return res.redirect('/perfil');
     }
 
-    await db.query(
-      `
-      UPDATE persona
-      SET 
-        correo = ?,
-        telefono = ?,
-        direccion = ?,
-        fecha_nacimiento = ?,
-        sexo = ?
-      WHERE id_persona = ?
-      `,
-      [
-        correo,
-        telefono,
-        direccion || null,
-        fecha_nacimiento,
-        sexo,
-        req.session.user.id_persona
-      ]
-    );
+    const connection = await db.getConnection();
 
-    req.session.user.correo = correo;
+    try {
+      await connection.beginTransaction();
+
+      await connection.query(
+        `
+        UPDATE persona
+        SET
+          correo = ?,
+          telefono = ?,
+          direccion = ?,
+          fecha_nacimiento = ?,
+          sexo = ?
+        WHERE id_persona = ?
+        `,
+        [
+          correoLimpio,
+          telefonoLimpio,
+          direccionLimpia || null,
+          fecha_nacimiento,
+          sexo,
+          req.session.user.id_persona
+        ]
+      );
+
+      await connection.query(
+        `
+        UPDATE usuario
+        SET username = ?
+        WHERE id_usuario = ?
+        `,
+        [correoLimpio, req.session.user.id_usuario]
+      );
+
+      await connection.commit();
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+
+    req.session.user.correo = correoLimpio;
+    req.session.user.username = correoLimpio;
 
     req.session.success = 'Perfil actualizado correctamente.';
     return res.redirect('/perfil');

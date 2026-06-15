@@ -3569,3 +3569,17 @@ body {
     grid-template-columns: 1fr;
   }
 }
+.error-state-card {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.error-state-card h2 {
+  margin-bottom: 12px;
+}
+
+.error-state-card p {
+  color: var(--muted-text);
+  line-height: 1.6;
+}

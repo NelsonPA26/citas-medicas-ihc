@@ -1,11 +1,11 @@
 <div class="module-card detalle-historial-card">
   <div class="module-header">
-    <p>Revisa la informacion completa registrada durante esta consulta.</p>
+    <p>Revisa la información completa registrada durante esta consulta.</p>
   </div>
 
   <div class="clinical-overview patient-history-overview">
     <section class="triaje-summary clinical-panel">
-      <h3>Consulta medica</h3>
+      <h3>Consulta médica</h3>
       <div class="triaje-summary-grid compact-clinical-grid">
         <div><span>Fecha</span><strong><%= new Date(consulta.fecha).toLocaleDateString('es-PE') %></strong></div>
         <div><span>Hora</span><strong><%= consulta.hora %></strong></div>
@@ -16,23 +16,23 @@
     <section class="triaje-summary clinical-panel">
       <h3>Triaje registrado</h3>
       <div class="triaje-summary-grid compact-clinical-grid">
-        <div><span>Temperatura</span><strong><%= consulta.temperatura || 'N/R' %> C</strong></div>
-        <div><span>Presion arterial</span><strong><%= consulta.presion_arterial || 'N/R' %></strong></div>
-        <div><span>Frecuencia cardiaca</span><strong><%= consulta.frecuencia_cardiaca || 'N/R' %> lpm</strong></div>
-        <div><span>Saturacion O2</span><strong><%= consulta.saturacion || 'N/R' %>%</strong></div>
-        <div class="full-row"><span>Sintomas verificados</span><strong><%= consulta.sintomas || 'No registrados' %></strong></div>
+        <div><span>Temperatura</span><strong><%= consulta.temperatura || 'N/R' %> °C</strong></div>
+        <div><span>Presión arterial</span><strong><%= consulta.presion_arterial || 'N/R' %></strong></div>
+        <div><span>Frecuencia cardíaca</span><strong><%= consulta.frecuencia_cardiaca || 'N/R' %> lpm</strong></div>
+        <div><span>Saturación O2</span><strong><%= consulta.saturacion || 'N/R' %>%</strong></div>
+        <div class="full-row"><span>Síntomas verificados</span><strong><%= consulta.sintomas || 'No registrados' %></strong></div>
         <% if (consulta.triaje_observaciones) { %>
-          <div class="full-row"><span>Observaciones de enfermeria</span><strong><%= consulta.triaje_observaciones %></strong></div>
+          <div class="full-row"><span>Observaciones de enfermería</span><strong><%= consulta.triaje_observaciones %></strong></div>
         <% } %>
       </div>
     </section>
   </div>
 
   <section class="triaje-summary">
-    <h3>Atencion medica</h3>
+    <h3>Atención médica</h3>
     <div class="consulta-detail-grid consulta-detail-grid-two">
       <div>
-        <span>Diagnostico</span>
+        <span>Diagnóstico</span>
         <strong><%= consulta.diagnostico %></strong>
       </div>
       <div>
@@ -45,7 +45,7 @@
       </div>
       <% if (consulta.observaciones) { %>
         <div>
-          <span>Observaciones medicas</span>
+          <span>Observaciones médicas</span>
           <strong><%= consulta.observaciones %></strong>
         </div>
       <% } %>

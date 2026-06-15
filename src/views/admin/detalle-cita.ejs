@@ -10,7 +10,7 @@
 
 <div class="module-card detalle-cita-card">
   <div class="module-header">
-    <p>Revisa la informacion completa registrada para esta cita.</p>
+    <p>Revisa la información completa registrada para esta cita.</p>
   </div>
 
   <div class="clinical-overview">
@@ -18,23 +18,23 @@
       <h3>Paciente y cita</h3>
       <div><span>Paciente</span><strong><%= cita.paciente_nombres %> <%= cita.paciente_apellido_paterno %> <%= cita.paciente_apellido_materno || '' %></strong></div>
       <div><span>DNI</span><strong><%= cita.paciente_dni || 'No registrado' %></strong></div>
-      <div><span>Edad</span><strong><%= cita.paciente_edad !== null ? cita.paciente_edad + ' anios' : 'No registrada' %></strong></div>
+      <div><span>Edad</span><strong><%= cita.paciente_edad !== null ? cita.paciente_edad + ' años' : 'No registrada' %></strong></div>
       <div><span>Sexo</span><strong><%= cita.paciente_sexo || 'No registrado' %></strong></div>
       <div><span>Fecha y hora</span><strong><%= new Date(cita.fecha).toLocaleDateString('es-PE') %> - <%= cita.hora %></strong></div>
       <div><span>Estado</span><strong><span class="status-badge status-<%= cita.estado %>"><%= estadoLabel[cita.estado] || cita.estado %></span></strong></div>
-      <div><span>Medico</span><strong>Dr(a). <%= cita.medico_nombres %> <%= cita.medico_apellido_paterno %> <%= cita.medico_apellido_materno || '' %></strong></div>
+      <div><span>Médico</span><strong>Dr(a). <%= cita.medico_nombres %> <%= cita.medico_apellido_paterno %> <%= cita.medico_apellido_materno || '' %></strong></div>
       <div><span>Especialidad</span><strong><%= cita.especialidad %></strong></div>
       <div class="full-row"><span>Motivo de consulta</span><strong><%= cita.motivo %></strong></div>
-      <div class="full-row"><span>Sintomas declarados</span><strong><%= cita.sintomas_paciente || 'No declarados por el paciente' %></strong></div>
+      <div class="full-row"><span>Síntomas declarados</span><strong><%= cita.sintomas_paciente || 'No declarados por el paciente' %></strong></div>
     </section>
 
     <section class="triaje-summary clinical-panel">
-      <h3>Antecedentes medicos</h3>
+      <h3>Antecedentes médicos</h3>
       <div class="triaje-summary-grid compact-clinical-grid">
         <div><span>Alergias</span><strong><%= cita.alergias || 'No registradas' %></strong></div>
         <div><span>Enfermedades previas</span><strong><%= cita.enfermedades_previas || 'No registradas' %></strong></div>
-        <div><span>Medicacion actual</span><strong><%= cita.medicacion_actual || 'No registrada' %></strong></div>
-        <div><span>Cirugias</span><strong><%= cita.cirugias || 'No registradas' %></strong></div>
+        <div><span>Medicación actual</span><strong><%= cita.medicacion_actual || 'No registrada' %></strong></div>
+        <div><span>Cirugías</span><strong><%= cita.cirugias || 'No registradas' %></strong></div>
         <div class="full-row"><span>Antecedentes familiares</span><strong><%= cita.antecedentes_familiares || 'No registrados' %></strong></div>
         <div class="full-row"><span>Observaciones</span><strong><%= cita.antecedentes_observaciones || 'Sin observaciones' %></strong></div>
       </div>
@@ -46,26 +46,26 @@
 
     <% if (cita.id_triaje) { %>
       <div class="triaje-summary-grid">
-        <div><span>Temperatura</span><strong><%= cita.temperatura %> C</strong></div>
-        <div><span>Presion arterial</span><strong><%= cita.presion_arterial || 'No registrada' %></strong></div>
-        <div><span>Frecuencia cardiaca</span><strong><%= cita.frecuencia_cardiaca || 'No registrada' %> lpm</strong></div>
-        <div><span>Saturacion O2</span><strong><%= cita.saturacion || 'No registrada' %>%</strong></div>
-        <div class="full-row"><span>Sintomas verificados</span><strong><%= cita.sintomas_triaje || 'No registrados' %></strong></div>
-        <div class="full-row"><span>Observaciones de enfermeria</span><strong><%= cita.triaje_observaciones || 'Sin observaciones' %></strong></div>
+        <div><span>Temperatura</span><strong><%= cita.temperatura %> °C</strong></div>
+        <div><span>Presión arterial</span><strong><%= cita.presion_arterial || 'No registrada' %></strong></div>
+        <div><span>Frecuencia cardíaca</span><strong><%= cita.frecuencia_cardiaca || 'No registrada' %> lpm</strong></div>
+        <div><span>Saturación O2</span><strong><%= cita.saturacion || 'No registrada' %>%</strong></div>
+        <div class="full-row"><span>Síntomas verificados</span><strong><%= cita.sintomas_triaje || 'No registrados' %></strong></div>
+        <div class="full-row"><span>Observaciones de enfermería</span><strong><%= cita.triaje_observaciones || 'Sin observaciones' %></strong></div>
         <div><span>Enfermera responsable</span><strong><%= cita.enfermera_nombres ? `${cita.enfermera_nombres} ${cita.enfermera_apellido_paterno}` : 'No registrada' %></strong></div>
         <div><span>Fecha de registro</span><strong><%= cita.triaje_fecha_registro ? new Date(cita.triaje_fecha_registro).toLocaleString('es-PE') : 'No registrada' %></strong></div>
       </div>
     <% } else { %>
-      <p class="text-muted">Todavia no hay triaje registrado para esta cita.</p>
+      <p class="text-muted">Todavía no hay triaje registrado para esta cita.</p>
     <% } %>
   </section>
 
   <section class="consulta-detail-section">
-    <h3>Consulta medica</h3>
+    <h3>Consulta médica</h3>
 
     <% if (cita.id_consulta) { %>
       <div class="consulta-detail-grid">
-        <div class="full-row"><span>Diagnostico</span><strong><%= cita.diagnostico || 'No registrado' %></strong></div>
+        <div class="full-row"><span>Diagnóstico</span><strong><%= cita.diagnostico || 'No registrado' %></strong></div>
         <div class="full-row"><span>Tratamiento</span><strong><%= cita.tratamiento || 'No registrado' %></strong></div>
         <div class="full-row"><span>Recomendaciones</span><strong><%= cita.recomendaciones || 'Sin recomendaciones registradas' %></strong></div>
         <div class="full-row"><span>Observaciones</span><strong><%= cita.consulta_observaciones || 'Sin observaciones registradas' %></strong></div>
@@ -73,7 +73,7 @@
         <div><span>Fecha de registro</span><strong><%= cita.consulta_fecha_registro ? new Date(cita.consulta_fecha_registro).toLocaleString('es-PE') : 'No registrada' %></strong></div>
       </div>
     <% } else { %>
-      <p class="text-muted">Todavia no hay consulta medica registrada para esta cita.</p>
+      <p class="text-muted">Todavía no hay consulta médica registrada para esta cita.</p>
     <% } %>
   </section>
 

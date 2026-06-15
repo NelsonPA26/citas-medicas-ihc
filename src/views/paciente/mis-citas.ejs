@@ -9,7 +9,7 @@
 
 <div class="module-card citas-card">
   <div class="module-header">
-    <p>Consulta tus citas activas y canceladas. Las consultas completadas se muestran en Historial medico.</p>
+    <p>Consulta tus citas activas y canceladas. Las consultas completadas se muestran en Historial médico.</p>
   </div>
 
   <form action="/paciente/mis-citas" method="GET" class="filter-card js-patient-validated-form" novalidate>
@@ -104,14 +104,14 @@
   <% } %>
 </div>
 
-<div class="modal-overlay hidden" id="cancelModal">
+<div class="modal-overlay hidden" id="cancelModal" role="dialog" aria-modal="true" aria-labelledby="cancelModalTitle" aria-describedby="cancelModalText">
   <div class="confirm-modal">
-    <h3>Cancelar cita</h3>
-    <p id="cancelModalText">Estas por cancelar esta cita. Esta accion cambiara su estado a cancelada.</p>
+    <h3 id="cancelModalTitle">Cancelar cita</h3>
+    <p id="cancelModalText">Estás por cancelar esta cita. Esta acción cambiará su estado a cancelada.</p>
     <div class="modal-actions">
       <button type="button" class="btn-light" id="closeCancelModal">Conservar cita</button>
       <form method="POST" id="cancelForm">
-        <button type="submit" class="btn-danger">Si, cancelar</button>
+        <button type="submit" class="btn-danger">Sí, cancelar</button>
       </form>
     </div>
   </div>
@@ -126,16 +126,24 @@
   const closeCancelModal = document.getElementById('closeCancelModal');
   const cancelModalText = document.getElementById('cancelModalText');
 
+  function closePatientCancelModal() {
+    cancelModal.classList.add('hidden');
+  }
+
   cancelButtons.forEach(button => {
     button.addEventListener('click', () => {
       cancelForm.action = button.dataset.cancelUrl;
-      cancelModalText.textContent = `Estas por cancelar la cita programada para ${button.dataset.citaInfo}. Esta accion cambiara su estado a cancelada.`;
+      cancelModalText.textContent = `Estás por cancelar la cita programada para ${button.dataset.citaInfo}. Esta acción cambiará su estado a cancelada.`;
       cancelModal.classList.remove('hidden');
+      closeCancelModal.focus();
     });
   });
 
-  closeCancelModal.addEventListener('click', () => cancelModal.classList.add('hidden'));
+  closeCancelModal.addEventListener('click', closePatientCancelModal);
   cancelModal.addEventListener('click', event => {
-    if (event.target === cancelModal) cancelModal.classList.add('hidden');
+    if (event.target === cancelModal) closePatientCancelModal();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !cancelModal.classList.contains('hidden')) closePatientCancelModal();
   });
 </script>

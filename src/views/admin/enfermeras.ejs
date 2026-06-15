@@ -1,7 +1,7 @@
 <div class="module-card usuarios-card">
   <div class="module-header module-header-row">
     <div>
-      <p>Consulta el personal de enfermeria registrado en el sistema.</p>
+      <p>Consulta el personal de enfermería registrado en el sistema.</p>
     </div>
 
     <a href="/admin/enfermeras/nuevo" class="btn-dark btn-header-action">
@@ -30,7 +30,7 @@
   <% if (enfermeras.length === 0) { %>
     <div class="empty-state">
       <h3>No hay enfermeras registradas</h3>
-      <p>Registra personal de enfermeria para el proceso de triaje.</p>
+      <p>Registra personal de enfermería para el proceso de triaje.</p>
       <a href="/admin/enfermeras/nuevo" class="btn-dark">Registrar enfermera</a>
     </div>
   <% } else { %>
@@ -88,7 +88,7 @@
                     action="/admin/enfermeras/<%= enfermera.id_enfermera %>/estado"
                     method="POST"
                     data-confirm-title="<%= enfermera.activo === 1 ? 'Desactivar enfermera' : 'Activar enfermera' %>"
-                    data-confirm="<%= enfermera.activo === 1 ? 'La enfermera no podra acceder ni registrar triajes mientras este desactivada.' : 'La enfermera recuperara el acceso operativo al sistema.' %>"
+                    data-confirm="<%= enfermera.activo === 1 ? 'La enfermera no podrá acceder ni registrar triajes mientras esté desactivada.' : 'La enfermera recuperará el acceso operativo al sistema.' %>"
                     data-confirm-button="<%= enfermera.activo === 1 ? 'Desactivar' : 'Activar' %>"
                   >
                     <input type="hidden" name="accion" value="<%= enfermera.activo === 1 ? 'desactivar' : 'activar' %>">

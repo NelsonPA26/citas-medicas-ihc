@@ -1,3 +1,14 @@
+function dashboardByRole(rol) {
+  const routes = {
+    paciente: '/paciente/dashboard',
+    medico: '/medico/dashboard',
+    enfermera: '/enfermera/dashboard',
+    administrativo: '/admin/dashboard'
+  };
+
+  return routes[rol] || '/login';
+}
+
 function allowRoles(...rolesPermitidos) {
   return (req, res, next) => {
     if (!req.session || !req.session.user) {
@@ -9,7 +20,7 @@ function allowRoles(...rolesPermitidos) {
 
     if (!rolesPermitidos.includes(rolUsuario)) {
       req.session.error = 'No tienes permisos para acceder a esta sección.';
-      return res.redirect('/login');
+      return res.redirect(dashboardByRole(rolUsuario));
     }
 
     next();

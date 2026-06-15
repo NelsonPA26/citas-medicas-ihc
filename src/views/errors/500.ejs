@@ -1,0 +1,8 @@
+<div class="<%= user ? 'module-card error-state-card' : 'auth-card login-card error-state-card' %>">
+  <h2>Error del sistema</h2>
+  <p>No se pudo completar la solicitud. Intenta nuevamente y, si el problema continúa, comunícate con administración.</p>
+
+  <div class="form-actions">
+    <a href="<%= backUrl %>" class="<%= user ? 'btn-dark' : 'btn btn-primary' %>">Volver al inicio</a>
+  </div>
+</div>

@@ -8,7 +8,7 @@
   const defaultAction = type === 'enfermera' ? '/admin/enfermeras/nuevo' : '/admin/medicos/nuevo';
   const action = typeof formAction !== 'undefined' ? formAction : defaultAction;
   const returnUrl = type === 'enfermera' ? '/admin/enfermeras' : '/admin/medicos';
-  const roleLabel = type === 'enfermera' ? 'enfermera' : 'medico';
+  const roleLabel = type === 'enfermera' ? 'enfermera' : 'médico';
 %>
 
 <div class="module-card admin-form-card personal-form-card">
@@ -17,7 +17,7 @@
     <p>
       <%= isEdit
         ? `Actualiza los datos operativos y de contacto del ${roleLabel}.`
-        : `Completa la informacion del ${roleLabel} que tendra acceso al sistema.` %>
+        : `Completa la información del ${roleLabel} que tendrá acceso al sistema.` %>
     </p>
   </div>
 
@@ -94,13 +94,13 @@
         </div>
 
         <div class="form-group">
-          <label for="telefono">Telefono</label>
+          <label for="telefono">Teléfono</label>
           <input type="tel" id="telefono" name="telefono" value="<%= values.telefono || '' %>" data-validate="digits" pattern="[0-9]{7,15}" inputmode="numeric" maxlength="15" autocomplete="tel" required>
           <small class="field-message" data-for="telefono"></small>
         </div>
 
         <div class="form-group">
-          <label for="direccion">Direccion</label>
+          <label for="direccion">Dirección</label>
           <input type="text" id="direccion" name="direccion" value="<%= values.direccion || '' %>" maxlength="150" autocomplete="street-address">
           <small class="field-message" data-for="direccion"></small>
         </div>
@@ -108,7 +108,7 @@
     </section>
 
     <section class="form-section">
-      <h3><%= type === 'enfermera' ? 'Datos de enfermeria' : 'Datos profesionales' %></h3>
+      <h3><%= type === 'enfermera' ? 'Datos de enfermería' : 'Datos profesionales' %></h3>
 
       <% if (type === 'enfermera') { %>
         <div class="admin-form-grid three-columns">
@@ -145,7 +145,7 @@
           </div>
 
           <div class="form-group">
-            <label for="numero_colegiatura">Numero de colegiatura</label>
+            <label for="numero_colegiatura">Número de colegiatura</label>
             <input type="text" id="numero_colegiatura" name="numero_colegiatura" value="<%= values.numero_colegiatura || '' %>" data-validate="code" pattern="[A-Za-z0-9-]{3,30}" maxlength="30" required>
             <small class="field-message" data-for="numero_colegiatura"></small>
           </div>
@@ -166,7 +166,7 @@
 
     <% if (!isEdit) { %>
       <div class="notice-box">
-        La cuenta sera creada con contrasena temporal <strong>123456</strong> y debera cambiarla desde su perfil.
+        La cuenta sera creada con contrasena temporal <strong>UNT12345*</strong> y debera cambiarla desde su perfil.
       </div>
     <% } %>
 

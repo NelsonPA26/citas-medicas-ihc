@@ -89,8 +89,8 @@
                   <form
                     action="/admin/medicos/<%= medico.id_medico %>/estado"
                     method="POST"
-                    data-confirm-title="<%= medico.activo === 1 ? 'Desactivar medico' : 'Activar medico' %>"
-                    data-confirm="<%= medico.activo === 1 ? 'El medico no podra acceder ni atender nuevas citas mientras este desactivado.' : 'El medico recuperara el acceso operativo al sistema.' %>"
+                    data-confirm-title="<%= medico.activo === 1 ? 'Desactivar médico' : 'Activar médico' %>"
+                    data-confirm="<%= medico.activo === 1 ? 'El médico no podrá acceder ni atender nuevas citas mientras esté desactivado.' : 'El médico recuperará el acceso operativo al sistema.' %>"
                     data-confirm-button="<%= medico.activo === 1 ? 'Desactivar' : 'Activar' %>"
                   >
                     <input type="hidden" name="accion" value="<%= medico.activo === 1 ? 'desactivar' : 'activar' %>">

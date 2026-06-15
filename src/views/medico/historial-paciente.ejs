@@ -2,8 +2,8 @@
   const antecedentesClinicos = [
     { etiqueta: 'Alergias', valor: paciente.alergias },
     { etiqueta: 'Enfermedades previas', valor: paciente.enfermedades_previas },
-    { etiqueta: 'Medicacion actual', valor: paciente.medicacion_actual },
-    { etiqueta: 'Cirugias', valor: paciente.cirugias },
+    { etiqueta: 'Medicación actual', valor: paciente.medicacion_actual },
+    { etiqueta: 'Cirugías', valor: paciente.cirugias },
     { etiqueta: 'Antecedentes familiares', valor: paciente.antecedentes_familiares },
     { etiqueta: 'Observaciones', valor: paciente.antecedentes_observaciones }
   ].filter(item => item.valor && String(item.valor).trim() !== '');
@@ -11,7 +11,7 @@
 
 <div class="module-card detalle-historial-card">
   <div class="module-header">
-    <p>Revisa antecedentes y consultas medicas previas del paciente.</p>
+    <p>Revisa antecedentes y consultas médicas previas del paciente.</p>
   </div>
 
   <div class="clinical-overview patient-history-overview">
@@ -23,10 +23,10 @@
           <strong><%= paciente.nombres %> <%= paciente.apellido_paterno %> <%= paciente.apellido_materno || '' %></strong>
         </div>
         <div class="clinical-note-item"><span>DNI</span><strong><%= paciente.dni || 'No registrado' %></strong></div>
-        <div class="clinical-note-item"><span>Edad</span><strong><%= paciente.edad !== null ? paciente.edad + ' anios' : 'No registrada' %></strong></div>
+        <div class="clinical-note-item"><span>Edad</span><strong><%= paciente.edad !== null ? paciente.edad + ' años' : 'No registrada' %></strong></div>
         <div class="clinical-note-item"><span>Sexo</span><strong><%= paciente.sexo || 'No registrado' %></strong></div>
         <div class="clinical-note-item"><span>Correo</span><strong><%= paciente.correo || 'No registrado' %></strong></div>
-        <div class="clinical-note-item"><span>Telefono</span><strong><%= paciente.telefono || 'No registrado' %></strong></div>
+        <div class="clinical-note-item"><span>Teléfono</span><strong><%= paciente.telefono || 'No registrado' %></strong></div>
       </div>
     </section>
 
@@ -42,7 +42,7 @@
           <% }) %>
         </div>
       <% } else { %>
-        <p class="clinical-empty-text">No hay antecedentes medicos registrados.</p>
+        <p class="clinical-empty-text">No hay antecedentes médicos registrados.</p>
       <% } %>
     </section>
   </div>
@@ -53,7 +53,7 @@
     <% if (consultas.length === 0) { %>
       <div class="empty-state empty-state-compact">
         <h3>Sin consultas completadas</h3>
-        <p>Este paciente aun no tiene consultas completadas contigo.</p>
+        <p>Este paciente aún no tiene consultas completadas contigo.</p>
       </div>
     <% } else { %>
       <div class="table-responsive">
@@ -63,9 +63,9 @@
               <th>Fecha</th>
               <th>Hora</th>
               <th>Motivo</th>
-              <th>Diagnostico</th>
+              <th>Diagnóstico</th>
               <th>Tratamiento</th>
-              <th>Accion</th>
+              <th>Acción</th>
             </tr>
           </thead>
           <tbody>

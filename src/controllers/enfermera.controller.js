@@ -43,7 +43,7 @@ function normalizarSintomasTriaje(sintomas, sintomasOtro = '') {
 
   if (seleccionados.includes('Otro')) {
     const detalle = (sintomasOtro || '').trim().replace(/,/g, ';');
-    if (/^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,;:()/-]{5,120}$/.test(detalle)) {
+    if (textoTriajeValido(detalle, true, 120)) {
       validos.push(`Otro: ${detalle}`);
     }
   }
@@ -51,8 +51,31 @@ function normalizarSintomasTriaje(sintomas, sintomasOtro = '') {
   return validos.join(', ');
 }
 
+function incluyeSintomaOtroTriaje(sintomas) {
+  const seleccionados = Array.isArray(sintomas) ? sintomas : [sintomas].filter(Boolean);
+  return seleccionados.includes('Otro');
+}
+
+function textoTriajeValido(value, required = false, maxLength = 800) {
+  const texto = String(value || '').trim();
+  if (!texto) return !required;
+
+  return texto.length >= 5
+    && texto.length <= maxLength
+    && /^[\p{L}0-9 .,;:()/-]+$/u.test(texto);
+}
+
 function presionValida(value) {
-  return /^\d{2,3}\/\d{2,3}$/.test(String(value || '').trim());
+  const match = String(value || '').trim().match(/^(\d{2,3})\/(\d{2,3})$/);
+  if (!match) return false;
+
+  const sistolica = Number(match[1]);
+  const diastolica = Number(match[2]);
+
+  return sistolica >= 70
+    && sistolica <= 250
+    && diastolica >= 40
+    && diastolica <= 150;
 }
 
 exports.dashboard = async (req, res) => {
@@ -244,9 +267,20 @@ exports.storeRegistrarTriaje = async (req, res) => {
       observaciones
     } = req.body;
     const sintomasNormalizados = normalizarSintomasTriaje(sintomas, sintomas_otro);
+    const observacionesNormalizadas = String(observaciones || '').trim() || null;
+
+    if (incluyeSintomaOtroTriaje(sintomas) && !textoTriajeValido(sintomas_otro, true, 120)) {
+      req.session.error = 'Describe el otro síntoma verificado con al menos 5 caracteres.';
+      return res.redirect(`/enfermera/triaje/${id_cita}/registrar`);
+    }
 
     if (!temperatura || !presion_arterial || !frecuencia_cardiaca || !saturacion || !sintomasNormalizados) {
       req.session.error = 'Completa los campos obligatorios del triaje.';
+      return res.redirect(`/enfermera/triaje/${id_cita}/registrar`);
+    }
+
+    if (!textoTriajeValido(observacionesNormalizadas, false, 800)) {
+      req.session.error = 'Las observaciones deben tener entre 5 y 800 caracteres válidos.';
       return res.redirect(`/enfermera/triaje/${id_cita}/registrar`);
     }
 
@@ -254,12 +288,12 @@ exports.storeRegistrarTriaje = async (req, res) => {
     const fc = Number(frecuencia_cardiaca);
     const sat = Number(saturacion);
 
-    if (temp < 30 || temp > 45) {
+    if (!Number.isFinite(temp) || temp < 30 || temp > 45) {
       req.session.error = 'La temperatura ingresada no parece válida.';
       return res.redirect(`/enfermera/triaje/${id_cita}/registrar`);
     }
 
-    if (fc < 30 || fc > 220) {
+    if (!Number.isFinite(fc) || fc < 30 || fc > 220) {
       req.session.error = 'La frecuencia cardiaca ingresada no parece válida.';
       return res.redirect(`/enfermera/triaje/${id_cita}/registrar`);
     }
@@ -269,7 +303,7 @@ exports.storeRegistrarTriaje = async (req, res) => {
       return res.redirect(`/enfermera/triaje/${id_cita}/registrar`);
     }
 
-    if (sat < 50 || sat > 100) {
+    if (!Number.isFinite(sat) || sat < 50 || sat > 100) {
       req.session.error = 'La saturación debe estar entre 50 y 100.';
       return res.redirect(`/enfermera/triaje/${id_cita}/registrar`);
     }
@@ -343,7 +377,7 @@ exports.storeRegistrarTriaje = async (req, res) => {
         frecuencia_cardiaca,
         saturacion,
         sintomasNormalizados,
-        observaciones || null
+        observacionesNormalizadas
       ]
     );
 
@@ -382,7 +416,7 @@ exports.showEditarTriaje = async (req, res) => {
     const enfermera = await obtenerEnfermeraPorPersona(req.session.user.id_persona);
 
     if (!enfermera) {
-      req.session.error = 'No se encontro el perfil de enfermeria.';
+      req.session.error = 'No se encontró el perfil de enfermería.';
       return res.redirect('/enfermera/dashboard');
     }
 
@@ -438,7 +472,7 @@ exports.showEditarTriaje = async (req, res) => {
     );
 
     if (rows.length === 0) {
-      req.session.error = 'Solo puedes editar triajes que aun no pasaron a consulta medica.';
+      req.session.error = 'Solo puedes editar triajes que aún no pasaron a consulta médica.';
       return res.redirect('/enfermera/triajes');
     }
 
@@ -467,7 +501,7 @@ exports.showDetalleTriaje = async (req, res) => {
     const enfermera = await obtenerEnfermeraPorPersona(req.session.user.id_persona);
 
     if (!enfermera) {
-      req.session.error = 'No se encontro el perfil de enfermeria.';
+      req.session.error = 'No se encontró el perfil de enfermería.';
       return res.redirect('/enfermera/dashboard');
     }
 
@@ -557,9 +591,20 @@ exports.updateTriaje = async (req, res) => {
       observaciones
     } = req.body;
     const sintomasNormalizados = normalizarSintomasTriaje(sintomas, sintomas_otro);
+    const observacionesNormalizadas = String(observaciones || '').trim() || null;
+
+    if (incluyeSintomaOtroTriaje(sintomas) && !textoTriajeValido(sintomas_otro, true, 120)) {
+      req.session.error = 'Describe el otro síntoma verificado con al menos 5 caracteres.';
+      return res.redirect(`/enfermera/triajes/${id_cita}/editar`);
+    }
 
     if (!temperatura || !presion_arterial || !frecuencia_cardiaca || !saturacion || !sintomasNormalizados) {
       req.session.error = 'Completa los campos obligatorios del triaje.';
+      return res.redirect(`/enfermera/triajes/${id_cita}/editar`);
+    }
+
+    if (!textoTriajeValido(observacionesNormalizadas, false, 800)) {
+      req.session.error = 'Las observaciones deben tener entre 5 y 800 caracteres válidos.';
       return res.redirect(`/enfermera/triajes/${id_cita}/editar`);
     }
 
@@ -567,7 +612,18 @@ exports.updateTriaje = async (req, res) => {
     const fc = Number(frecuencia_cardiaca);
     const sat = Number(saturacion);
 
-    if (temp < 30 || temp > 45 || fc < 30 || fc > 220 || sat < 50 || sat > 100 || !presionValida(presion_arterial)) {
+    if (
+      !Number.isFinite(temp)
+      || temp < 30
+      || temp > 45
+      || !Number.isFinite(fc)
+      || fc < 30
+      || fc > 220
+      || !Number.isFinite(sat)
+      || sat < 50
+      || sat > 100
+      || !presionValida(presion_arterial)
+    ) {
       req.session.error = 'Revisa los rangos ingresados en los signos vitales.';
       return res.redirect(`/enfermera/triajes/${id_cita}/editar`);
     }
@@ -575,7 +631,7 @@ exports.updateTriaje = async (req, res) => {
     const enfermera = await obtenerEnfermeraPorPersona(req.session.user.id_persona);
 
     if (!enfermera) {
-      req.session.error = 'No se encontro el perfil de enfermeria.';
+      req.session.error = 'No se encontró el perfil de enfermería.';
       return res.redirect('/enfermera/dashboard');
     }
 
@@ -600,14 +656,14 @@ exports.updateTriaje = async (req, res) => {
         frecuencia_cardiaca,
         saturacion,
         sintomasNormalizados,
-        observaciones || null,
+        observacionesNormalizadas,
         id_cita,
         enfermera.id_enfermera
       ]
     );
 
     if (result.affectedRows === 0) {
-      req.session.error = 'No se pudo editar: la cita ya paso a consulta medica o no te pertenece.';
+      req.session.error = 'No se pudo editar: la cita ya pasó a consulta médica o no te pertenece.';
       return res.redirect('/enfermera/triajes');
     }
 
@@ -747,7 +803,7 @@ exports.historialTriajes = async (req, res) => {
     const enfermera = await obtenerEnfermeraPorPersona(req.session.user.id_persona);
 
     if (!enfermera) {
-      req.session.error = 'No se encontro el perfil de enfermeria.';
+      req.session.error = 'No se encontró el perfil de enfermería.';
       return res.redirect('/enfermera/dashboard');
     }
 

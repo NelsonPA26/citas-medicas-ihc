@@ -1,0 +1,8 @@
+<div class="<%= user ? 'module-card error-state-card' : 'auth-card login-card error-state-card' %>">
+  <h2>Página no encontrada</h2>
+  <p>No encontramos la ruta solicitada. Puede haber sido movida, escrita con error o ya no estar disponible.</p>
+
+  <div class="form-actions">
+    <a href="<%= backUrl %>" class="<%= user ? 'btn-dark' : 'btn btn-primary' %>">Volver al inicio</a>
+  </div>
+</div>

@@ -2,6 +2,9 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const db = require('../config/database');
 
+const MAX_FAILED_LOGIN_ATTEMPTS = 5;
+const LOGIN_LOCK_MINUTES = 10;
+
 function redirectByRole(rol) {
   const routes = {
     paciente: '/paciente/dashboard',
@@ -23,6 +26,29 @@ function passwordFuerte(value) {
     /[^A-Za-z0-9]/.test(value)
   );
 }
+
+function limpiarTexto(value) {
+  return (value || '').trim().replace(/\s{2,}/g, ' ');
+}
+
+function textoPersonaValido(value, min = 2, max = 80) {
+  const text = limpiarTexto(value);
+  if (text.length < min || text.length > max) return false;
+  return /^[\p{L} .'-]+$/u.test(text);
+}
+
+function dniValido(value) {
+  return /^[0-9]{8}$/.test(value || '');
+}
+
+function telefonoValido(value) {
+  return /^[0-9]{7,15}$/.test(value || '');
+}
+
+function correoValido(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value || '');
+}
+
 exports.showLogin = (req, res) => {
   res.render('auth/login', {
     title: 'Iniciar Sesión'
@@ -47,6 +73,8 @@ exports.login = async (req, res) => {
         u.rol,
         u.activo,
         u.debe_cambiar_password,
+        u.failed_attempts,
+        u.locked_until,
         p.id_persona,
         p.nombres,
         p.apellido_paterno,
@@ -72,12 +100,53 @@ exports.login = async (req, res) => {
       return res.redirect('/login');
     }
 
+    if (user.locked_until && new Date(user.locked_until) > new Date()) {
+      req.session.error = 'Tu cuenta está bloqueada temporalmente por varios intentos fallidos. Inténtalo nuevamente en unos minutos.';
+      return res.redirect('/login');
+    }
+
     const passwordOk = await bcrypt.compare(password, user.password_hash);
 
     if (!passwordOk) {
+      const failedAttempts = Number(user.failed_attempts || 0) + 1;
+
+      if (failedAttempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
+        await db.query(
+          `
+          UPDATE usuario
+          SET failed_attempts = ?,
+              locked_until = DATE_ADD(NOW(), INTERVAL ${LOGIN_LOCK_MINUTES} MINUTE)
+          WHERE id_usuario = ?
+          `,
+          [failedAttempts, user.id_usuario]
+        );
+
+        req.session.error = `Usuario o contraseña incorrectos. La cuenta quedó bloqueada por ${LOGIN_LOCK_MINUTES} minutos.`;
+        return res.redirect('/login');
+      }
+
+      await db.query(
+        `
+        UPDATE usuario
+        SET failed_attempts = ?
+        WHERE id_usuario = ?
+        `,
+        [failedAttempts, user.id_usuario]
+      );
+
       req.session.error = 'Usuario o contraseña incorrectos.';
       return res.redirect('/login');
     }
+
+    await db.query(
+      `
+      UPDATE usuario
+      SET failed_attempts = 0,
+          locked_until = NULL
+      WHERE id_usuario = ?
+      `,
+      [user.id_usuario]
+    );
 
     req.session.user = {
       id_usuario: user.id_usuario,
@@ -127,16 +196,23 @@ exports.register = async (req, res) => {
       confirm_password,
     } = req.body;
 
+    const nombresLimpio = limpiarTexto(nombres);
+    const apellidoPaternoLimpio = limpiarTexto(apellido_paterno);
+    const apellidoMaternoLimpio = limpiarTexto(apellido_materno);
+    const dniLimpio = limpiarTexto(dni);
+    const correoLimpio = limpiarTexto(correo).toLowerCase();
+    const telefonoLimpio = limpiarTexto(telefono).replace(/\s/g, '');
+
     const old = {
-      nombres,
-      apellido_paterno,
-      apellido_materno,
-      dni,
-      correo,
-      telefono
+      nombres: nombresLimpio,
+      apellido_paterno: apellidoPaternoLimpio,
+      apellido_materno: apellidoMaternoLimpio,
+      dni: dniLimpio,
+      correo: correoLimpio,
+      telefono: telefonoLimpio
     };
 
-    if (!nombres || !apellido_paterno || !dni || !correo || !telefono || !password || !confirm_password) {
+    if (!nombresLimpio || !apellidoPaternoLimpio || !dniLimpio || !correoLimpio || !telefonoLimpio || !password || !confirm_password) {
       return res.render('auth/register', {
         title: 'Crear Cuenta',
         error: 'Completa todos los campos obligatorios.',
@@ -145,10 +221,55 @@ exports.register = async (req, res) => {
       });
     }
 
-    if (dni.length !== 8) {
+    if (!textoPersonaValido(nombresLimpio)) {
+      return res.render('auth/register', {
+        title: 'Crear Cuenta',
+        error: 'Ingresa nombres válidos.',
+        success: null,
+        old
+      });
+    }
+
+    if (!textoPersonaValido(apellidoPaternoLimpio)) {
+      return res.render('auth/register', {
+        title: 'Crear Cuenta',
+        error: 'Ingresa un apellido paterno válido.',
+        success: null,
+        old
+      });
+    }
+
+    if (apellidoMaternoLimpio && !textoPersonaValido(apellidoMaternoLimpio)) {
+      return res.render('auth/register', {
+        title: 'Crear Cuenta',
+        error: 'Ingresa un apellido materno válido.',
+        success: null,
+        old
+      });
+    }
+
+    if (!dniValido(dniLimpio)) {
       return res.render('auth/register', {
         title: 'Crear Cuenta',
         error: 'El DNI debe tener 8 dígitos.',
+        success: null,
+        old
+      });
+    }
+
+    if (!correoValido(correoLimpio)) {
+      return res.render('auth/register', {
+        title: 'Crear Cuenta',
+        error: 'Ingresa un correo válido.',
+        success: null,
+        old
+      });
+    }
+
+    if (!telefonoValido(telefonoLimpio)) {
+      return res.render('auth/register', {
+        title: 'Crear Cuenta',
+        error: 'El teléfono debe tener entre 7 y 15 dígitos.',
         success: null,
         old
       });
@@ -167,7 +288,8 @@ exports.register = async (req, res) => {
       return res.render('auth/register', {
         title: 'Registro',
         error: 'La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.',
-        old: req.body
+        success: null,
+        old
       });
     }
     const [existing] = await db.query(
@@ -177,7 +299,7 @@ exports.register = async (req, res) => {
       LEFT JOIN usuario u ON p.id_persona = u.id_persona
       WHERE p.dni = ? OR p.correo = ? OR u.username = ?
       `,
-      [dni, correo, correo]
+      [dniLimpio, correoLimpio, correoLimpio]
     );
 
     if (existing.length > 0) {
@@ -202,7 +324,7 @@ exports.register = async (req, res) => {
         telefono
       ) VALUES (?, ?, ?, ?, ?, ?)
       `,
-      [nombres, apellido_paterno, apellido_materno || null, dni, correo, telefono]
+      [nombresLimpio, apellidoPaternoLimpio, apellidoMaternoLimpio || null, dniLimpio, correoLimpio, telefonoLimpio]
     );
 
     const idPersona = personaResult.insertId;
@@ -219,7 +341,7 @@ exports.register = async (req, res) => {
         debe_cambiar_password
       ) VALUES (?, ?, ?, 'paciente', 1, 0)
       `,
-      [idPersona, correo, passwordHash]
+      [idPersona, correoLimpio, passwordHash]
     );
 
     await connection.query(

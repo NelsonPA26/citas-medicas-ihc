@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
 const db = require('../config/database');
 
+const TEMPORARY_PASSWORD = 'UNT12345*';
+
 exports.dashboard = async (req, res) => {
   try {
     const [[stats]] = await db.query(
@@ -1116,7 +1118,7 @@ exports.storeNuevoMedico = async (req, res) => {
     );
 
     const idPersona = personaResult.insertId;
-    const passwordHash = await bcrypt.hash('123456', 10);
+    const passwordHash = await bcrypt.hash(TEMPORARY_PASSWORD, 10);
 
     await connection.query(
       `
@@ -1146,7 +1148,7 @@ exports.storeNuevoMedico = async (req, res) => {
 
     await connection.commit();
 
-    req.session.success = 'Médico registrado correctamente. Contraseña temporal: 123456.';
+    req.session.success = `Médico registrado correctamente. Contraseña temporal: ${TEMPORARY_PASSWORD}.`;
     return res.redirect('/admin/medicos');
   } catch (error) {
     await connection.rollback();
@@ -1192,12 +1194,12 @@ exports.showEditarMedico = async (req, res) => {
     );
 
     if (rows.length === 0) {
-      req.session.error = 'El medico seleccionado no existe.';
+      req.session.error = 'El médico seleccionado no existe.';
       return res.redirect('/admin/medicos');
     }
 
     return res.render('admin/formulario-personal', {
-      title: 'Editar medico',
+      title: 'Editar médico',
       layout: 'layouts/dashboard',
       modoEdicion: true,
       formAction: `/admin/medicos/${id_medico}/editar`,
@@ -1293,7 +1295,7 @@ await connection.beginTransaction();
 
     if (rows.length === 0) {
       await connection.rollback();
-      req.session.error = 'El medico seleccionado no existe.';
+      req.session.error = 'El médico seleccionado no existe.';
       return res.redirect('/admin/medicos');
     }
 
@@ -1328,11 +1330,11 @@ await connection.beginTransaction();
     if (duplicados.length > 0) {
       await connection.rollback();
       return res.render('admin/formulario-personal', {
-        title: 'Editar medico',
+        title: 'Editar médico',
         layout: 'layouts/dashboard',
         modoEdicion: true,
         formAction: `/admin/medicos/${id_medico}/editar`,
-        formError: 'El DNI, correo o numero de colegiatura ya está registrado.',
+        formError: 'El DNI, correo o número de colegiatura ya está registrado.',
         old: req.body
       });
     }
@@ -1391,7 +1393,7 @@ await connection.beginTransaction();
   } catch (error) {
     await connection.rollback();
     console.error(error);
-    req.session.error = 'Ocurrio un error al actualizar el medico.';
+    req.session.error = 'Ocurrió un error al actualizar el médico.';
     return res.redirect('/admin/medicos');
   } finally {
     connection.release();
@@ -1613,7 +1615,7 @@ exports.storeNuevaEnfermera = async (req, res) => {
     );
 
     const idPersona = personaResult.insertId;
-    const passwordHash = await bcrypt.hash('123456', 10);
+    const passwordHash = await bcrypt.hash(TEMPORARY_PASSWORD, 10);
 
     await connection.query(
       `
@@ -1642,7 +1644,7 @@ exports.storeNuevaEnfermera = async (req, res) => {
 
     await connection.commit();
 
-    req.session.success = 'Enfermera registrada correctamente. Contraseña temporal: 123456.';
+    req.session.success = `Enfermera registrada correctamente. Contraseña temporal: ${TEMPORARY_PASSWORD}.`;
     return res.redirect('/admin/enfermeras');
   } catch (error) {
     await connection.rollback();
@@ -1862,7 +1864,7 @@ if (!TURNOS_PERMITIDOS.includes(turno)) {
   } catch (error) {
     await connection.rollback();
     console.error(error);
-    req.session.error = 'Ocurrio un error al actualizar la enfermera.';
+    req.session.error = 'Ocurrió un error al actualizar la enfermera.';
     return res.redirect('/admin/enfermeras');
   } finally {
     connection.release();
@@ -1894,7 +1896,7 @@ exports.cambiarEstadoMedico = async (req, res) => {
     return res.redirect('/admin/medicos');
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo actualizar el estado del medico.';
+    req.session.error = 'No se pudo actualizar el estado del médico.';
     return res.redirect('/admin/medicos');
   }
 };
@@ -2309,7 +2311,8 @@ exports.detalleCita = async (req, res) => {
         con.tratamiento,
         con.recomendaciones,
         con.observaciones AS consulta_observaciones,
-        con.borrador
+        con.borrador,
+        con.fecha_creacion AS consulta_fecha_registro
       FROM cita c
       INNER JOIN paciente pac ON c.id_paciente = pac.id_paciente
       INNER JOIN persona per_paciente ON pac.id_persona = per_paciente.id_persona

@@ -43,7 +43,7 @@ exports.dashboard = async (req, res) => {
       `
       SELECT
         SUM(CASE WHEN c.estado IN ('triaje_registrado', 'en_consulta') THEN 1 ELSE 0 END) AS listas_atencion,
-        SUM(CASE WHEN con.borrador = 1 THEN 1 ELSE 0 END) AS borradores,
+        SUM(CASE WHEN c.estado = 'en_consulta' AND con.borrador = 1 THEN 1 ELSE 0 END) AS borradores,
         SUM(CASE WHEN c.estado = 'completada' THEN 1 ELSE 0 END) AS completadas,
         COUNT(DISTINCT CASE WHEN c.estado = 'completada' THEN c.id_paciente END) AS pacientes_atendidos
       FROM cita c
@@ -99,10 +99,8 @@ exports.citasDelDia = async (req, res) => {
   INNER JOIN triaje t ON c.id_cita = t.id_cita
   LEFT JOIN consulta con ON c.id_cita = con.id_cita
   WHERE c.id_medico = ?
-  AND (
-    c.estado IN ('triaje_registrado', 'en_consulta')
-    OR con.borrador = 1
-  )
+  AND c.estado IN ('triaje_registrado', 'en_consulta')
+  AND (con.id_consulta IS NULL OR con.borrador = 1)
   ORDER BY
     CASE WHEN c.estado = 'en_consulta' OR con.borrador = 1 THEN 0 ELSE 1 END ASC,
     c.fecha ASC,
@@ -182,10 +180,8 @@ exports.showAtenderCita = async (req, res) => {
       LEFT JOIN consulta con ON c.id_cita = con.id_cita
       WHERE c.id_cita = ?
       AND c.id_medico = ?
-      AND (
-        c.estado IN ('triaje_registrado', 'en_consulta')
-        OR con.borrador = 1
-      )
+      AND c.estado IN ('triaje_registrado', 'en_consulta')
+      AND (con.id_consulta IS NULL OR con.borrador = 1)
       LIMIT 1
       `,
       [id_cita, medico.id_medico]
@@ -269,9 +265,16 @@ exports.storeAtenderCita = async (req, res) => {
 
     const [citaRows] = await connection.query(
       `
-      SELECT c.id_cita, c.estado, c.id_medico, t.id_triaje
+      SELECT
+        c.id_cita,
+        c.estado,
+        c.id_medico,
+        t.id_triaje,
+        con.id_consulta,
+        con.borrador
       FROM cita c
       LEFT JOIN triaje t ON c.id_cita = t.id_cita
+      LEFT JOIN consulta con ON c.id_cita = con.id_cita
       WHERE c.id_cita = ?
       AND c.id_medico = ?
       LIMIT 1
@@ -301,6 +304,18 @@ exports.storeAtenderCita = async (req, res) => {
     if (citaRows[0].estado === 'cancelada') {
       await connection.rollback();
       req.session.error = 'No puedes atender una cita cancelada.';
+      return res.redirect('/medico/citas');
+    }
+
+    if (!['triaje_registrado', 'en_consulta'].includes(citaRows[0].estado)) {
+      await connection.rollback();
+      req.session.error = 'La cita no está en un estado válido para atención médica.';
+      return res.redirect('/medico/citas');
+    }
+
+    if (citaRows[0].id_consulta && Number(citaRows[0].borrador) === 0) {
+      await connection.rollback();
+      req.session.error = 'Esta consulta ya fue finalizada y no puede modificarse.';
       return res.redirect('/medico/citas');
     }
 
@@ -509,13 +524,19 @@ exports.historialPaciente = async (req, res) => {
       INNER JOIN persona per ON pac.id_persona = per.id_persona
       LEFT JOIN antecedente ant ON pac.id_paciente = ant.id_paciente
       WHERE pac.id_paciente = ?
+      AND EXISTS (
+        SELECT 1
+        FROM cita c_relacionada
+        WHERE c_relacionada.id_paciente = pac.id_paciente
+        AND c_relacionada.id_medico = ?
+      )
       LIMIT 1
       `,
-      [id_paciente]
+      [id_paciente, medico.id_medico]
     );
 
     if (pacienteRows.length === 0) {
-      req.session.error = 'El paciente seleccionado no existe.';
+      req.session.error = 'El paciente seleccionado no existe o no está relacionado con tus citas.';
       return res.redirect('/medico/pacientes');
     }
 
@@ -573,7 +594,7 @@ exports.detalleConsultaPaciente = async (req, res) => {
     const medico = await obtenerMedicoPorPersona(req.session.user.id_persona);
 
     if (!medico) {
-      req.session.error = 'No se encontro el perfil del medico.';
+      req.session.error = 'No se encontró el perfil del médico.';
       return res.redirect('/medico/dashboard');
     }
 

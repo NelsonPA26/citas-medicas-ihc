@@ -12,10 +12,10 @@ document.querySelectorAll('.js-admin-person-form').forEach(form => {
 
   const messages = {
     valueMissing: 'Este campo es obligatorio.',
-    patternMismatch: 'El formato ingresado no es valido.',
-    tooShort: 'Ingresa mas caracteres.',
+    patternMismatch: 'El formato ingresado no es válido.',
+    tooShort: 'Ingresa más caracteres.',
     tooLong: 'El valor ingresado es demasiado largo.',
-    typeMismatch: 'Ingresa un valor con formato valido.'
+    typeMismatch: 'Ingresa un valor con formato válido.'
   };
 
   function getMessage(field) {
@@ -24,15 +24,15 @@ document.querySelectorAll('.js-admin-person-form').forEach(form => {
     }
 
     if (field.id === 'dni' && field.validity.patternMismatch) {
-      return 'El DNI debe tener exactamente 8 digitos.';
+      return 'El DNI debe tener exactamente 8 dígitos.';
     }
 
     if (field.id === 'telefono' && field.validity.patternMismatch) {
-      return 'Ingresa solo digitos, entre 7 y 15 numeros.';
+      return 'Ingresa solo dígitos, entre 7 y 15 números.';
     }
 
     if (field.id === 'correo' && field.validity.typeMismatch) {
-      return 'Ingresa un correo valido.';
+      return 'Ingresa un correo válido.';
     }
 
     if (field.id === 'correo' && field.value.split('@').length !== 2) {
@@ -40,7 +40,7 @@ document.querySelectorAll('.js-admin-person-form').forEach(form => {
     }
 
     if (field.dataset.validate === 'code' && field.validity.patternMismatch) {
-      return 'Usa solo letras, numeros y guion.';
+      return 'Usa solo letras, números y guion.';
     }
 
     if (field.id === 'fecha_nacimiento' && field.value) {
