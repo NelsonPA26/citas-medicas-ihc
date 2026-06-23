@@ -209,15 +209,16 @@
         <p>Registra enfermedades relevantes en familiares cercanos.</p>
       </div>
 
-      <div class="segmented-field" role="radiogroup" aria-label="Estado de antecedentes familiares">
+      <div class="segmented-field" role="radiogroup" aria-label="¿Tiene antecedentes familiares?">
         <label><input type="radio" name="familiares_estado" value="no" <%= familiaresEstado === 'no' ? 'checked' : '' %>> Ninguno</label>
         <label><input type="radio" name="familiares_estado" value="si" <%= familiaresEstado === 'si' ? 'checked' : '' %>> Sí tiene</label>
         <label><input type="radio" name="familiares_estado" value="no_sabe" <%= familiaresEstado === 'no_sabe' ? 'checked' : '' %>> No sabe</label>
       </div>
 
       <div class="conditional-fields" data-when="familiares_estado:si">
+        <h4>Enfermedades presentes en la familia</h4>
         <div class="checkbox-grid antecedentes-options">
-          <% ['Hipertensión', 'Diabetes', 'Cáncer', 'Enfermedad cardíaca', 'Enfermedad mental', 'Enfermedad renal', 'Otro'].forEach(item => { %>
+          <% ['Hipertensión', 'Diabetes', 'Cáncer', 'Enfermedad cardíaca', 'Enfermedad renal', 'Enfermedad mental', 'Otro'].forEach(item => { %>
             <label class="checkbox-option">
               <input type="checkbox" name="familiares_tipos[]" value="<%= item %>" <%= contiene(antecedentes.antecedentes_familiares, item) ? 'checked' : '' %>>
               <span><%= item %></span>
@@ -225,8 +226,9 @@
           <% }) %>
         </div>
 
+        <h4>Familiar afectado</h4>
         <div class="checkbox-grid antecedentes-options compact-options">
-          <% ['Padre', 'Madre', 'Abuelo/a', 'Hermano/a', 'Otro'].forEach(item => { %>
+          <% ['Padre', 'Madre', 'Abuelo/a', 'Hermano/a'].forEach(item => { %>
             <label class="checkbox-option">
               <input type="checkbox" name="familiares_parentesco[]" value="<%= item %>" <%= contiene(antecedentes.antecedentes_familiares, item) ? 'checked' : '' %>>
               <span><%= item %></span>
