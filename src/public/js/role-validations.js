@@ -19,6 +19,14 @@ window.RoleValidation = (() => {
     return domains.length ? `${local}@${domains.join('').replace(/@/g, '')}` : local;
   }
 
+  function formatPhone(value) {
+    return value
+      .replace(/\D/g, '')
+      .slice(0, 9)
+      .replace(/(\d{3})(?=\d)/g, '$1 ')
+      .trim();
+  }
+
   function sanitize(field) {
     const type = field.dataset.validate;
 
@@ -32,6 +40,10 @@ window.RoleValidation = (() => {
 
     if (type === 'digits') {
       field.value = field.value.replace(/\D/g, '');
+    }
+
+    if (type === 'phone-pe') {
+      field.value = formatPhone(field.value);
     }
 
     if (type === 'decimal') {
@@ -89,6 +101,12 @@ window.RoleValidation = (() => {
       if (max && value.length > Number(max)) return `Debe tener como máximo ${max} dígitos.`;
       const numericMessage = rangeMessage(field, Number(value));
       if (numericMessage) return numericMessage;
+    }
+
+    if (type === 'phone-pe') {
+      const digits = value.replace(/\D/g, '');
+      if (digits.length !== 9) return 'El teléfono debe tener exactamente 9 dígitos.';
+      if (!/^\d{3} \d{3} \d{3}$/.test(value)) return 'Usa el formato 987 654 321.';
     }
 
     if (type === 'decimal') {

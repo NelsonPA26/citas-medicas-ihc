@@ -11,6 +11,11 @@
       year: 'numeric'
     });
   }
+
+  function formatPhone(value) {
+    const digits = String(value || '').replace(/\D/g, '').slice(0, 9);
+    return digits.replace(/(\d{3})(?=\d)/g, '$1 ').trim();
+  }
 %>
 
 <div class="module-card profile-card">
@@ -86,11 +91,11 @@
               inputmode="numeric"
               id="telefono"
               name="telefono"
-              value="<%= profile.telefono || '' %>"
-              placeholder="987654321"
-              minlength="7"
-              maxlength="15"
-              data-validate="digits"
+              value="<%= formatPhone(profile.telefono) %>"
+              placeholder="987 654 321"
+              maxlength="11"
+              data-validate="phone-pe"
+              autocomplete="tel"
               required
             >
             <span class="field-message" data-for="telefono"></span>

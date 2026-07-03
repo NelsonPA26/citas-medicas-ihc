@@ -218,6 +218,55 @@
   });
 
   const TABLE_PAGE_SIZE = 6;
+  const COMPACT_CENTER_HEADERS = new Set([
+    'accion',
+    'acciones',
+    'area',
+    'colegiatura',
+    'consultas completadas',
+    'dni',
+    'edad',
+    'especialidad',
+    'estado',
+    'estado de atencion',
+    'fecha',
+    'hora',
+    'rol',
+    'sexo',
+    'signos vitales',
+    'telefono',
+    'turno',
+    'ultima atencion'
+  ]);
+
+  function normalizeHeaderText(value) {
+    return value
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[↑↓]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function applyCompactColumnAlignment() {
+    document.querySelectorAll('.data-table').forEach(table => {
+      const headers = Array.from(table.querySelectorAll('thead th'));
+      const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+      headers.forEach((header, index) => {
+        const headerText = normalizeHeaderText(header.textContent || '');
+        if (!COMPACT_CENTER_HEADERS.has(headerText)) return;
+
+        header.classList.add('table-col-center');
+        rows.forEach(row => {
+          row.children[index]?.classList.add('table-col-center');
+        });
+      });
+    });
+  }
+
   function getStatusPriority(row) {
   const statusBadge = row.querySelector('.status-badge');
 
@@ -333,6 +382,7 @@ function moveRowsByStatusPriority(tbody) {
     });
   }
 
+  applyCompactColumnAlignment();
   initializeTablePagination();
 
   document.querySelectorAll('.data-table').forEach(table => {

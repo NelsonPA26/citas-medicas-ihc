@@ -178,8 +178,8 @@ exports.updateProfile = async (req, res) => {
       return res.redirect('/perfil');
     }
 
-    if (!/^\d{7,15}$/.test(telefonoLimpio)) {
-      req.session.error = 'El teléfono debe tener entre 7 y 15 dígitos.';
+    if (!/^\d{9}$/.test(telefonoLimpio)) {
+      req.session.error = 'El teléfono debe tener exactamente 9 dígitos.';
       return res.redirect('/perfil');
     }
 
