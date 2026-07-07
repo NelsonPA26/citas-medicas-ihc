@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-hidden="true">
+  <defs>
+    <linearGradient id="skinGrad" x1="18" y1="10" x2="43" y2="55" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffd6a8"/>
+      <stop offset="1" stop-color="#ffb36f"/>
+    </linearGradient>
+    <linearGradient id="hairGrad" x1="18" y1="6" x2="42" y2="33" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#244b73"/>
+      <stop offset="1" stop-color="#0b2d52"/>
+    </linearGradient>
+    <linearGradient id="scrubGrad" x1="13" y1="32" x2="48" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#52d7d1"/>
+      <stop offset="1" stop-color="#1aa6a1"/>
+    </linearGradient>
+    <linearGradient id="shirtGrad" x1="13" y1="32" x2="48" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#bae9ff"/>
+      <stop offset="1" stop-color="#7cc9f5"/>
+    </linearGradient>
+  </defs>
+  
+  <path d="M7 21h17l5 5h26v24a6 6 0 0 1-6 6H13a6 6 0 0 1-6-6z" fill="#60a5fa" stroke="#17233f" stroke-width="2.3" stroke-linejoin="round"/>
+  <rect x="15" y="11" width="36" height="34" rx="5" fill="#ffffff" stroke="#17233f" stroke-width="2.3"/>
+  <circle cx="30" cy="24" r="4.6" fill="#bfdbfe" stroke="#17233f" stroke-width="1.8"/>
+  <path d="M22 36h20M22 42h15" stroke="#6b7892" stroke-width="2.2" stroke-linecap="round"/>
+  <circle cx="48" cy="48" r="13" fill="#64748b" stroke="#ffffff" stroke-width="3"/>
+  <path d="M53 42l-8 6 8 6M45 48h11" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

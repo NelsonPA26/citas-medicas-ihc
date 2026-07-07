@@ -14,6 +14,13 @@ router.get(
 );
 
 router.get(
+  '/ayuda',
+  isAuthenticated,
+  allowRoles('paciente'),
+  pacienteController.ayuda
+);
+
+router.get(
   '/reservar-cita',
   isAuthenticated,
   allowRoles('paciente'),

@@ -14,6 +14,13 @@ router.get(
 );
 
 router.get(
+  '/ayuda',
+  isAuthenticated,
+  allowRoles('medico'),
+  medicoController.ayuda
+);
+
+router.get(
   '/citas',
   isAuthenticated,
   allowRoles('medico'),

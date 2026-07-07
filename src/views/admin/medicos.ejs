@@ -4,14 +4,18 @@
       <p>Consulta los médicos registrados en el sistema.</p>
     </div>
 
-    <a href="/admin/medicos/nuevo" class="btn-dark btn-header-action">
-      Registrar médico
+    <a href="/admin/medicos/nuevo" class="btn-dark btn-header-action icon-action" title="Registrar médico" aria-label="Registrar médico">
+      <img class="action-metaphor" src="/img/action-metaphors/administrador/medicos/registrar.png" alt="" aria-hidden="true">
+      <span class="visually-hidden">Registrar médico</span>
     </a>
   </div>
     <form action="/admin/medicos" method="GET" class="filter-card">
     <div class="filter-grid two-columns">
       <div class="form-group">
-        <label for="q">Buscar</label>
+        <label for="q" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-search"></use></svg>
+          <span>Buscar</span>
+        </label>
         <input
           type="text"
           id="q"
@@ -23,15 +27,24 @@
     </div>
 
     <div class="filter-actions">
-      <a href="/admin/medicos" class="btn-light">Limpiar filtros</a>
-      <button type="submit" class="btn-dark">Filtrar</button>
+      <a href="/admin/medicos" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
+        <img class="action-metaphor" src="/img/action-metaphors/administrador/medicos/limpiar.png" alt="" aria-hidden="true">
+        <span class="visually-hidden">Limpiar filtros</span>
+      </a>
+      <button type="submit" class="btn-dark icon-action" title="Filtrar" aria-label="Filtrar">
+        <img class="action-metaphor" src="/img/action-metaphors/administrador/medicos/filtrar.png" alt="" aria-hidden="true">
+        <span class="visually-hidden">Filtrar</span>
+      </button>
     </div>
   </form>
   <% if (medicos.length === 0) { %>
     <div class="empty-state">
       <h3>No hay médicos registrados</h3>
       <p>Registra médicos para que los pacientes puedan reservar citas.</p>
-      <a href="/admin/medicos/nuevo" class="btn-dark">Registrar médico</a>
+      <a href="/admin/medicos/nuevo" class="btn-dark icon-action" title="Registrar médico" aria-label="Registrar médico">
+        <img class="action-metaphor" src="/img/action-metaphors/administrador/medicos/registrar.png" alt="" aria-hidden="true">
+        <span class="visually-hidden">Registrar médico</span>
+      </a>
     </div>
   <% } else { %>
 
@@ -80,10 +93,13 @@
               <td>
                 <div class="table-actions">
                   <a
-                    class="btn-light btn-table-action"
+                    class="btn-light btn-table-action icon-action"
                     href="/admin/medicos/<%= medico.id_medico %>/editar"
+                    title="Editar médico"
+                    aria-label="Editar médico"
                   >
-                    Editar
+                    <img class="action-metaphor" src="/img/action-metaphors/administrador/medicos/editar.png" alt="" aria-hidden="true">
+                    <span class="visually-hidden">Editar</span>
                   </a>
 
                   <form
@@ -94,8 +110,9 @@
                     data-confirm-button="<%= medico.activo === 1 ? 'Desactivar' : 'Activar' %>"
                   >
                     <input type="hidden" name="accion" value="<%= medico.activo === 1 ? 'desactivar' : 'activar' %>">
-                    <button type="submit" class="<%= medico.activo === 1 ? 'btn-cancel' : 'btn-activate' %> btn-table-action">
-                      <%= medico.activo === 1 ? 'Desactivar' : 'Activar' %>
+                    <button type="submit" class="<%= medico.activo === 1 ? 'btn-cancel' : 'btn-activate' %> btn-table-action icon-action" title="<%= medico.activo === 1 ? 'Desactivar médico' : 'Activar médico' %>" aria-label="<%= medico.activo === 1 ? 'Desactivar médico' : 'Activar médico' %>">
+                      <img class="action-metaphor" src="/img/action-metaphors/administrador/medicos/<%= medico.activo === 1 ? 'desactivar.png' : 'activar.png' %>" alt="" aria-hidden="true">
+                      <span class="visually-hidden"><%= medico.activo === 1 ? 'Desactivar' : 'Activar' %></span>
                     </button>
                   </form>
 
@@ -107,7 +124,10 @@
                       data-confirm="Este médico no tiene citas asociadas. Se eliminará su ficha y su cuenta de acceso."
                       data-confirm-button="Eliminar"
                     >
-                      <button type="submit" class="btn-danger btn-table-action">Eliminar</button>
+                      <button type="submit" class="btn-danger btn-table-action icon-action" title="Eliminar médico" aria-label="Eliminar médico">
+                        <img class="action-metaphor" src="/img/action-metaphors/administrador/medicos/eliminar.png" alt="" aria-hidden="true">
+                        <span class="visually-hidden">Eliminar</span>
+                      </button>
                     </form>
                   <% } %>
                 </div>

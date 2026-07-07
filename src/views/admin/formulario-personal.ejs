@@ -35,19 +35,28 @@
       <!-- H4/H8: grid por grupos relacionados para lectura rapida y layout consistente. -->
       <div class="admin-form-grid three-columns">
         <div class="form-group">
-          <label for="nombres">Nombres</label>
+          <label for="nombres" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-user"></use></svg>
+            <span>Nombres</span>
+          </label>
           <input type="text" id="nombres" name="nombres" value="<%= values.nombres || '' %>" data-validate="letters" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]{2,80}" minlength="2" maxlength="80" autocomplete="given-name" required>
           <small class="field-message" data-for="nombres"></small>
         </div>
 
         <div class="form-group">
-          <label for="apellido_paterno">Apellido paterno</label>
+          <label for="apellido_paterno" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-user"></use></svg>
+            <span>Apellido paterno</span>
+          </label>
           <input type="text" id="apellido_paterno" name="apellido_paterno" value="<%= values.apellido_paterno || '' %>" data-validate="letters" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]{2,80}" minlength="2" maxlength="80" autocomplete="family-name" required>
           <small class="field-message" data-for="apellido_paterno"></small>
         </div>
 
         <div class="form-group">
-          <label for="apellido_materno">Apellido materno</label>
+          <label for="apellido_materno" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-user"></use></svg>
+            <span>Apellido materno</span>
+          </label>
           <input type="text" id="apellido_materno" name="apellido_materno" value="<%= values.apellido_materno || '' %>" data-validate="letters" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]{0,80}" maxlength="80" autocomplete="additional-name">
           <small class="field-message" data-for="apellido_materno"></small>
         </div>
@@ -55,20 +64,29 @@
 
       <div class="admin-form-grid three-columns">
         <div class="form-group">
-          <label for="dni">DNI</label>
+          <label for="dni" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+            <span>DNI</span>
+          </label>
           <!-- H5: readonly en edicion evita romper identificadores auditables y relaciones historicas. -->
           <input type="text" id="dni" name="dni" value="<%= values.dni || '' %>" data-validate="digits" pattern="[0-9]{8}" inputmode="numeric" maxlength="8" autocomplete="off" required>
           <small class="field-message" data-for="dni"></small>
         </div>
 
         <div class="form-group">
-          <label for="fecha_nacimiento">Fecha de nacimiento</label>
+          <label for="fecha_nacimiento" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-calendar"></use></svg>
+            <span>Fecha de nacimiento</span>
+          </label>
           <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="<%= values.fecha_nacimiento || '' %>" required>
           <small class="field-message" data-for="fecha_nacimiento"></small>
         </div>
 
         <div class="form-group">
-          <label for="sexo">Sexo</label>
+          <label for="sexo" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-user"></use></svg>
+            <span>Sexo</span>
+          </label>
           <select id="sexo" name="sexo" required>
             <option value="">Seleccione</option>
             <option value="Masculino" <%= values.sexo === 'Masculino' ? 'selected' : '' %>>Masculino</option>
@@ -86,7 +104,10 @@
 
       <div class="admin-form-grid three-columns">
         <div class="form-group">
-          <label for="correo">Correo de acceso</label>
+          <label for="correo" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-mail"></use></svg>
+            <span>Correo de acceso</span>
+          </label>
           <!-- H5: readonly en edicion evita romper credenciales UNIQUE en usuario/persona. -->
           <input type="email" id="correo" name="correo" value="<%= values.correo || '' %>" data-validate="email" maxlength="120" autocomplete="email" required>
           <small class="field-message" data-for="correo"></small>
@@ -94,13 +115,19 @@
         </div>
 
         <div class="form-group">
-          <label for="telefono">Teléfono</label>
+          <label for="telefono" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-phone"></use></svg>
+            <span>Teléfono</span>
+          </label>
           <input type="tel" id="telefono" name="telefono" value="<%= values.telefono || '' %>" data-validate="digits" pattern="[0-9]{7,15}" inputmode="numeric" maxlength="15" autocomplete="tel" required>
           <small class="field-message" data-for="telefono"></small>
         </div>
 
         <div class="form-group">
-          <label for="direccion">Dirección</label>
+          <label for="direccion" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-home"></use></svg>
+            <span>Dirección</span>
+          </label>
           <input type="text" id="direccion" name="direccion" value="<%= values.direccion || '' %>" maxlength="150" autocomplete="street-address">
           <small class="field-message" data-for="direccion"></small>
         </div>
@@ -113,16 +140,22 @@
       <% if (type === 'enfermera') { %>
         <div class="admin-form-grid three-columns">
           <div class="form-group">
-            <label for="area">Area</label>
+            <label for="area" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+              <span>Area</span>
+            </label>
             <input type="text" id="area" name="area" value="<%= values.area || 'Triaje' %>" data-validate="letters" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]{2,80}" minlength="2" maxlength="80" required>
             <small class="field-message" data-for="area"></small>
           </div>
 
           <div class="form-group">
-            <label for="turno">Turno</label>
+            <label for="turno" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-clock"></use></svg>
+              <span>Turno</span>
+            </label>
             <select id="turno" name="turno" required>
               <option value="">Seleccione</option>
-              <option value="mañana" <%= values.turno === 'mañana' ? 'selected' : '' %>>Manana</option>
+              <option value="mañana" <%= values.turno === 'mañana' ? 'selected' : '' %>>Mañana</option>
               <option value="tarde" <%= values.turno === 'tarde' ? 'selected' : '' %>>Tarde</option>
               <option value="completo" <%= values.turno === 'completo' ? 'selected' : '' %>>Completo</option>
             </select>
@@ -134,7 +167,10 @@
       <% } else { %>
         <div class="admin-form-grid three-columns">
           <div class="form-group">
-            <label for="especialidad">Especialidad</label>
+            <label for="especialidad" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-stethoscope"></use></svg>
+              <span>Especialidad</span>
+            </label>
             <select id="especialidad" name="especialidad" required>
               <option value="">Seleccione</option>
               <option value="Medicina General" <%= values.especialidad === 'Medicina General' || values.especialidad === 'Medicina general' ? 'selected' : '' %>>Medicina General</option>
@@ -145,16 +181,22 @@
           </div>
 
           <div class="form-group">
-            <label for="numero_colegiatura">Número de colegiatura</label>
+            <label for="numero_colegiatura" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+              <span>Número de colegiatura</span>
+            </label>
             <input type="text" id="numero_colegiatura" name="numero_colegiatura" value="<%= values.numero_colegiatura || '' %>" data-validate="code" pattern="[A-Za-z0-9-]{3,30}" maxlength="30" required>
             <small class="field-message" data-for="numero_colegiatura"></small>
           </div>
 
           <div class="form-group">
-            <label for="turno">Turno</label>
+            <label for="turno" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-clock"></use></svg>
+              <span>Turno</span>
+            </label>
             <select id="turno" name="turno" required>
               <option value="">Seleccione</option>
-              <option value="mañana" <%= values.turno === 'mañana' ? 'selected' : '' %>>Manana</option>
+              <option value="mañana" <%= values.turno === 'mañana' ? 'selected' : '' %>>Mañana</option>
               <option value="tarde" <%= values.turno === 'tarde' ? 'selected' : '' %>>Tarde</option>
               <option value="completo" <%= values.turno === 'completo' ? 'selected' : '' %>>Completo</option>
             </select>
@@ -171,8 +213,14 @@
     <% } %>
 
     <div class="form-actions">
-      <a href="<%= returnUrl %>" class="btn-light">Cancelar</a>
-      <button type="submit" class="btn-dark"><%= isEdit ? 'Actualizar' : 'Registrar' %></button>
+      <a href="<%= returnUrl %>" class="btn-light" title="Cancelar" aria-label="Cancelar">
+        <img class="action-metaphor" src="/img/action-metaphors/administrador/<%= type === 'enfermera' ? 'enfermeras' : 'medicos' %>/cancelar.png" alt="" aria-hidden="true">
+        <span>Cancelar</span>
+      </a>
+      <button type="submit" class="btn-dark icon-action" title="<%= isEdit ? 'Actualizar' : 'Registrar' %>" aria-label="<%= isEdit ? 'Actualizar' : 'Registrar' %>">
+        <img class="action-metaphor" src="/img/action-metaphors/administrador/<%= type === 'enfermera' ? 'enfermeras' : 'medicos' %>/<%= isEdit ? 'editar' : 'registrar' %>.png" alt="" aria-hidden="true">
+        <span class="visually-hidden"><%= isEdit ? 'Actualizar' : 'Registrar' %></span>
+      </button>
     </div>
   </form>
 </div>

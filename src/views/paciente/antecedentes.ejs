@@ -78,7 +78,10 @@
         </div>
 
         <div class="form-group">
-          <label for="alergias_detalle">Detalle de alergias</label>
+          <label for="alergias_detalle" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-heart"></use></svg>
+            <span>Detalle de alergias</span>
+          </label>
           <textarea id="alergias_detalle" name="alergias_detalle" maxlength="800" data-validate="medical-text" data-min="5" placeholder="Penicilina: genera ronchas y dificultad para respirar."><%= extraerDetalle(antecedentes.alergias) %></textarea>
           <span class="field-message" data-for="alergias_detalle"></span>
         </div>
@@ -108,7 +111,10 @@
         </div>
 
         <div class="form-group">
-          <label for="enfermedades_detalle">Detalle u otra enfermedad</label>
+          <label for="enfermedades_detalle" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-heart"></use></svg>
+            <span>Detalle u otra enfermedad</span>
+          </label>
           <textarea id="enfermedades_detalle" name="enfermedades_detalle" maxlength="800" data-validate="medical-text" data-min="5" placeholder="Asma diagnosticada en la niñez."><%= extraerDetalle(antecedentes.enfermedades_previas) %></textarea>
           <span class="field-message" data-for="enfermedades_detalle"></span>
         </div>
@@ -130,37 +136,55 @@
       <div class="conditional-fields" data-when="medicacion_estado:si">
         <div class="antecedentes-input-grid">
           <div class="form-group">
-            <label for="medicamento_nombre">Medicamento</label>
+            <label for="medicamento_nombre" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-pill"></use></svg>
+              <span>Medicamento</span>
+            </label>
             <input id="medicamento_nombre" name="medicamento_nombre" type="text" maxlength="120" data-validate="medical-text" data-min="3" placeholder="Losartan" value="<%= extraerCampo(antecedentes.medicacion_actual, 'Medicamento') %>">
             <span class="field-message" data-for="medicamento_nombre"></span>
           </div>
 
           <div class="form-group">
-            <label for="medicamento_dosis">Dosis</label>
+            <label for="medicamento_dosis" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-pill"></use></svg>
+              <span>Dosis</span>
+            </label>
             <input id="medicamento_dosis" name="medicamento_dosis" type="text" maxlength="80" data-validate="medical-text" data-min="2" placeholder="50 mg" value="<%= extraerCampo(antecedentes.medicacion_actual, 'Dosis') %>">
             <span class="field-message" data-for="medicamento_dosis"></span>
           </div>
 
           <div class="form-group">
-            <label for="medicamento_frecuencia">Frecuencia</label>
+            <label for="medicamento_frecuencia" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-clock"></use></svg>
+              <span>Frecuencia</span>
+            </label>
             <input id="medicamento_frecuencia" name="medicamento_frecuencia" type="text" maxlength="120" data-validate="medical-text" data-min="3" placeholder="1 vez al día" value="<%= extraerCampo(antecedentes.medicacion_actual, 'Frecuencia') %>">
             <span class="field-message" data-for="medicamento_frecuencia"></span>
           </div>
 
           <div class="form-group">
-            <label for="medicamento_motivo">Motivo</label>
+            <label for="medicamento_motivo" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+              <span>Motivo</span>
+            </label>
             <input id="medicamento_motivo" name="medicamento_motivo" type="text" maxlength="160" data-validate="medical-text" data-min="3" placeholder="Presión arterial" value="<%= extraerCampo(antecedentes.medicacion_actual, 'Motivo') %>">
             <span class="field-message" data-for="medicamento_motivo"></span>
           </div>
 
           <div class="form-group">
-            <label for="medicamento_desde">Desde cuando</label>
+            <label for="medicamento_desde" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-calendar"></use></svg>
+              <span>Desde cuando</span>
+            </label>
             <input id="medicamento_desde" name="medicamento_desde" type="text" maxlength="80" data-validate="medical-text" data-min="3" placeholder="2024" value="<%= extraerCampo(antecedentes.medicacion_actual, 'Desde') %>">
             <span class="field-message" data-for="medicamento_desde"></span>
           </div>
 
           <div class="form-group">
-            <label for="medicacion_detalle">Detalle adicional</label>
+            <label for="medicacion_detalle" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+              <span>Detalle adicional</span>
+            </label>
             <input id="medicacion_detalle" name="medicacion_detalle" type="text" maxlength="180" data-validate="medical-text" data-min="5" placeholder="Opcional" value="<%= extraerCampo(antecedentes.medicacion_actual, 'Detalle adicional') %>">
             <span class="field-message" data-for="medicacion_detalle"></span>
           </div>
@@ -183,19 +207,28 @@
       <div class="conditional-fields" data-when="cirugias_estado:si">
         <div class="antecedentes-input-grid">
           <div class="form-group">
-            <label for="cirugia_tipo">Tipo de cirugía</label>
+            <label for="cirugia_tipo" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-surgery"></use></svg>
+              <span>Tipo de cirugía</span>
+            </label>
             <input id="cirugia_tipo" name="cirugia_tipo" type="text" maxlength="160" data-validate="medical-text" data-min="5" placeholder="Apendicectomía" value="<%= extraerCampo(antecedentes.cirugias, 'Cirugías referidas') || extraerCampo(antecedentes.cirugias, 'Cirugias referidas') %>">
             <span class="field-message" data-for="cirugia_tipo"></span>
           </div>
 
           <div class="form-group">
-            <label for="cirugia_anio">Año aproximado</label>
+            <label for="cirugia_anio" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-calendar"></use></svg>
+              <span>Año aproximado</span>
+            </label>
             <input id="cirugia_anio" name="cirugia_anio" type="text" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="2019" value="<%= extraerCampo(antecedentes.cirugias, 'Año aproximado') || extraerCampo(antecedentes.cirugias, 'Ano aproximado') || extraerCampo(antecedentes.cirugias, 'Anio aproximado') || extraerCampo(antecedentes.cirugias, 'AÃ±o aproximado') %>">
             <span class="field-message" data-for="cirugia_anio"></span>
           </div>
 
           <div class="form-group">
-            <label for="cirugia_observaciones">Observaciones</label>
+            <label for="cirugia_observaciones" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+              <span>Observaciones</span>
+            </label>
             <input id="cirugia_observaciones" name="cirugia_observaciones" type="text" maxlength="180" data-validate="medical-text" data-min="5" placeholder="Sin complicaciones" value="<%= extraerCampo(antecedentes.cirugias, 'Observaciones') %>">
             <span class="field-message" data-for="cirugia_observaciones"></span>
           </div>
@@ -216,28 +249,35 @@
       </div>
 
       <div class="conditional-fields" data-when="familiares_estado:si">
-        <h4>Enfermedades presentes en la familia</h4>
-        <div class="checkbox-grid antecedentes-options">
-          <% ['Hipertensión', 'Diabetes', 'Cáncer', 'Enfermedad cardíaca', 'Enfermedad renal', 'Enfermedad mental', 'Otro'].forEach(item => { %>
-            <label class="checkbox-option">
-              <input type="checkbox" name="familiares_tipos[]" value="<%= item %>" <%= contiene(antecedentes.antecedentes_familiares, item) ? 'checked' : '' %>>
-              <span><%= item %></span>
-            </label>
-          <% }) %>
+        <div class="family-history-group">
+          <h4>Enfermedades presentes en la familia</h4>
+          <div class="checkbox-grid antecedentes-options family-history-options">
+            <% ['Hipertensión', 'Diabetes', 'Cáncer', 'Enfermedad cardíaca', 'Enfermedad renal', 'Enfermedad mental', 'Otro'].forEach(item => { %>
+              <label class="checkbox-option">
+                <input type="checkbox" name="familiares_tipos[]" value="<%= item %>" <%= contiene(antecedentes.antecedentes_familiares, item) ? 'checked' : '' %>>
+                <span><%= item %></span>
+              </label>
+            <% }) %>
+          </div>
         </div>
 
-        <h4>Familiar afectado</h4>
-        <div class="checkbox-grid antecedentes-options compact-options">
-          <% ['Padre', 'Madre', 'Abuelo/a', 'Hermano/a'].forEach(item => { %>
-            <label class="checkbox-option">
-              <input type="checkbox" name="familiares_parentesco[]" value="<%= item %>" <%= contiene(antecedentes.antecedentes_familiares, item) ? 'checked' : '' %>>
-              <span><%= item %></span>
-            </label>
-          <% }) %>
+        <div class="family-history-group">
+          <h4>Familiar afectado</h4>
+          <div class="checkbox-grid antecedentes-options compact-options family-history-options">
+            <% ['Padre', 'Madre', 'Abuelo/a', 'Hermano/a'].forEach(item => { %>
+              <label class="checkbox-option">
+                <input type="checkbox" name="familiares_parentesco[]" value="<%= item %>" <%= contiene(antecedentes.antecedentes_familiares, item) ? 'checked' : '' %>>
+                <span><%= item %></span>
+              </label>
+            <% }) %>
+          </div>
         </div>
 
         <div class="form-group">
-          <label for="familiares_detalle">Detalle familiar</label>
+          <label for="familiares_detalle" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-family"></use></svg>
+            <span>Detalle familiar</span>
+          </label>
           <textarea id="familiares_detalle" name="familiares_detalle" maxlength="800" data-validate="medical-text" data-min="5" placeholder="Padre: hipertensión arterial."><%= extraerDetalle(antecedentes.antecedentes_familiares) %></textarea>
           <span class="field-message" data-for="familiares_detalle"></span>
         </div>
@@ -251,7 +291,10 @@
       </div>
 
       <div class="form-group">
-        <label for="observaciones">Observaciones</label>
+        <label for="observaciones" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+          <span>Observaciones</span>
+        </label>
         <textarea id="observaciones" name="observaciones" maxlength="800" data-validate="medical-text" data-min="5" placeholder="Información adicional relevante para la atención."><%= antecedentes.observaciones || '' %></textarea>
         <span class="field-message" data-for="observaciones"></span>
       </div>
@@ -260,8 +303,14 @@
     <div id="antecedentesMessage" class="step-message hidden"></div>
 
     <div class="form-actions antecedentes-actions">
-      <button type="button" class="btn-light" id="resetAntecedentes">Cancelar cambios</button>
-      <button type="submit" class="btn-dark">Guardar antecedentes</button>
+      <button type="button" class="btn-light" id="resetAntecedentes" title="Cancelar cambios" aria-label="Cancelar cambios">
+        <img class="action-metaphor" src="/img/action-metaphors/paciente/antecedentes/cancelar.svg" alt="" aria-hidden="true">
+        <span>Cancelar cambios</span>
+      </button>
+      <button type="submit" class="btn-dark icon-action" title="Guardar antecedentes" aria-label="Guardar antecedentes">
+        <img class="action-metaphor" src="/img/action-metaphors/paciente/antecedentes/guardar.svg" alt="" aria-hidden="true">
+        <span class="visually-hidden">Guardar antecedentes</span>
+      </button>
     </div>
   </form>
 </div>
@@ -271,8 +320,14 @@
     <h3 id="leaveAntecedentesTitle">Abandonar antecedentes</h3>
     <p id="leaveAntecedentesText">Existen cambios sin guardar en tus antecedentes médicos. Si sales ahora, esos cambios se perderán.</p>
     <div class="modal-actions">
-      <button type="button" class="btn-light" id="stayAntecedentes">Permanecer editando</button>
-      <a href="#" class="btn-danger" id="confirmLeaveAntecedentes">Salir sin guardar</a>
+      <button type="button" class="btn-light icon-action" id="stayAntecedentes" title="Permanecer editando" aria-label="Permanecer editando">
+        <img class="action-metaphor" src="/img/action-metaphors/paciente/antecedentes/volver.svg" alt="" aria-hidden="true">
+        <span class="visually-hidden">Permanecer editando</span>
+      </button>
+      <a href="#" class="btn-danger" id="confirmLeaveAntecedentes" title="Salir sin guardar" aria-label="Salir sin guardar">
+        <img class="action-metaphor" src="/img/action-metaphors/paciente/antecedentes/cancelar.svg" alt="" aria-hidden="true">
+        <span>Salir sin guardar</span>
+      </a>
     </div>
   </div>
 </div>
@@ -353,7 +408,10 @@
     if (hasAntecedentesChanges()) {
       pendingAntecedentesHref = '';
       leaveAntecedentesModal.classList.remove('hidden');
-      confirmLeaveAntecedentes.textContent = 'Descartar cambios';
+      const discardText = confirmLeaveAntecedentes.querySelector('span');
+      if (discardText) discardText.textContent = 'Descartar cambios';
+      confirmLeaveAntecedentes.title = 'Descartar cambios';
+      confirmLeaveAntecedentes.setAttribute('aria-label', 'Descartar cambios');
       stayAntecedentes.focus();
       return;
     }
@@ -393,7 +451,8 @@
       if (!allowAntecedentesLeave && href && !isSamePageAnchor && hasAntecedentesChanges()) {
         event.preventDefault();
         pendingAntecedentesHref = link.href;
-        confirmLeaveAntecedentes.textContent = 'Salir sin guardar';
+        const confirmLeaveText = confirmLeaveAntecedentes.querySelector('span');
+        if (confirmLeaveText) confirmLeaveText.textContent = 'Salir sin guardar';
         leaveAntecedentesModal.classList.remove('hidden');
         stayAntecedentes.focus();
       }

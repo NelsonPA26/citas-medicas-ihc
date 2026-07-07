@@ -13,7 +13,10 @@
   <form action="/enfermera/historial-triajes" method="GET" class="filter-card js-role-validated-form" novalidate>
     <div class="filter-grid">
       <div class="form-group">
-        <label for="q">Buscar</label>
+        <label for="q" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-search"></use></svg>
+          <span>Buscar</span>
+        </label>
         <input
           type="text"
           id="q"
@@ -27,21 +30,33 @@
       </div>
 
       <div class="form-group">
-        <label for="desde">Desde</label>
+        <label for="desde" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-calendar"></use></svg>
+          <span>Desde</span>
+        </label>
         <input type="date" id="desde" name="desde" value="<%= filters.desde || '' %>" data-validate="date">
         <span class="field-message" data-for="desde"></span>
       </div>
 
       <div class="form-group">
-        <label for="hasta">Hasta</label>
+        <label for="hasta" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-calendar"></use></svg>
+          <span>Hasta</span>
+        </label>
         <input type="date" id="hasta" name="hasta" value="<%= filters.hasta || '' %>" data-validate="date">
         <span class="field-message" data-for="hasta"></span>
       </div>
     </div>
 
     <div class="filter-actions">
-      <a href="/enfermera/historial-triajes" class="btn-light">Limpiar filtros</a>
-      <button type="submit" class="btn-dark">Filtrar</button>
+      <a href="/enfermera/historial-triajes" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
+        <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/limpiar.png" alt="" aria-hidden="true">
+        <span class="visually-hidden">Limpiar filtros</span>
+      </a>
+      <button type="submit" class="btn-dark icon-action" title="Filtrar" aria-label="Filtrar">
+        <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/filtrar.png" alt="" aria-hidden="true">
+        <span class="visually-hidden">Filtrar</span>
+      </button>
     </div>
   </form>
 
@@ -50,7 +65,10 @@
       <h3>No hay triajes en historial</h3>
       <p>Los triajes apareceran aqui cuando la cita se complete o se cancele despues de registrar triaje.</p>
       <div class="empty-actions">
-        <a href="/enfermera/triajes" class="btn-dark">Ver triajes activos</a>
+        <a href="/enfermera/triajes" class="btn-dark icon-action" title="Ver triajes activos" aria-label="Ver triajes activos">
+          <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/buscar.png" alt="" aria-hidden="true">
+          <span class="visually-hidden">Ver triajes activos</span>
+        </a>
       </div>
     </div>
   <% } else { %>
@@ -79,7 +97,10 @@
               <td><%= triaje.especialidad %></td>
               <td><span class="status-badge status-<%= triaje.estado %>"><%= estadoHistorial[triaje.estado] || triaje.estado %></span></td>
               <td>
-                <a href="/enfermera/triajes/<%= triaje.id_cita %>/detalle?returnTo=historial" class="btn-table-primary">Ver detalle</a>
+                <a href="/enfermera/triajes/<%= triaje.id_cita %>/detalle?returnTo=historial" class="btn-table-primary icon-action" title="Ver detalle" aria-label="Ver detalle">
+                  <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/buscar.png" alt="" aria-hidden="true">
+                  <span class="visually-hidden">Ver detalle</span>
+                </a>
               </td>
             </tr>
           <% }) %>

@@ -4,14 +4,18 @@
       <p>Consulta el personal de enfermería registrado en el sistema.</p>
     </div>
 
-    <a href="/admin/enfermeras/nuevo" class="btn-dark btn-header-action">
-      Registrar enfermera
+    <a href="/admin/enfermeras/nuevo" class="btn-dark btn-header-action icon-action" title="Registrar enfermera" aria-label="Registrar enfermera">
+      <img class="action-metaphor" src="/img/action-metaphors/administrador/enfermeras/registrar.png" alt="" aria-hidden="true">
+      <span class="visually-hidden">Registrar enfermera</span>
     </a>
   </div>
     <form action="/admin/enfermeras" method="GET" class="filter-card">
     <div class="filter-grid two-columns">
       <div class="form-group">
-        <label for="q">Buscar</label>
+        <label for="q" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-search"></use></svg>
+          <span>Buscar</span>
+        </label>
         <input
           type="text"
           id="q"
@@ -23,15 +27,24 @@
     </div>
 
     <div class="filter-actions">
-      <a href="/admin/enfermeras" class="btn-light">Limpiar filtros</a>
-      <button type="submit" class="btn-dark">Filtrar</button>
+      <a href="/admin/enfermeras" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
+        <img class="action-metaphor" src="/img/action-metaphors/administrador/enfermeras/limpiar.png" alt="" aria-hidden="true">
+        <span class="visually-hidden">Limpiar filtros</span>
+      </a>
+      <button type="submit" class="btn-dark icon-action" title="Filtrar" aria-label="Filtrar">
+        <img class="action-metaphor" src="/img/action-metaphors/administrador/enfermeras/filtrar.png" alt="" aria-hidden="true">
+        <span class="visually-hidden">Filtrar</span>
+      </button>
     </div>
   </form>
   <% if (enfermeras.length === 0) { %>
     <div class="empty-state">
       <h3>No hay enfermeras registradas</h3>
       <p>Registra personal de enfermería para el proceso de triaje.</p>
-      <a href="/admin/enfermeras/nuevo" class="btn-dark">Registrar enfermera</a>
+      <a href="/admin/enfermeras/nuevo" class="btn-dark icon-action" title="Registrar enfermera" aria-label="Registrar enfermera">
+        <img class="action-metaphor" src="/img/action-metaphors/administrador/enfermeras/registrar.png" alt="" aria-hidden="true">
+        <span class="visually-hidden">Registrar enfermera</span>
+      </a>
     </div>
   <% } else { %>
 
@@ -78,10 +91,13 @@
               <td>
                 <div class="table-actions">
                   <a
-                    class="btn-light btn-table-action"
+                    class="btn-light btn-table-action icon-action"
                     href="/admin/enfermeras/<%= enfermera.id_enfermera %>/editar"
+                    title="Editar enfermera"
+                    aria-label="Editar enfermera"
                   >
-                    Editar
+                    <img class="action-metaphor" src="/img/action-metaphors/administrador/enfermeras/editar.png" alt="" aria-hidden="true">
+                    <span class="visually-hidden">Editar</span>
                   </a>
 
                   <form
@@ -92,8 +108,9 @@
                     data-confirm-button="<%= enfermera.activo === 1 ? 'Desactivar' : 'Activar' %>"
                   >
                     <input type="hidden" name="accion" value="<%= enfermera.activo === 1 ? 'desactivar' : 'activar' %>">
-                    <button type="submit" class="<%= enfermera.activo === 1 ? 'btn-cancel' : 'btn-activate' %> btn-table-action">
-                      <%= enfermera.activo === 1 ? 'Desactivar' : 'Activar' %>
+                    <button type="submit" class="<%= enfermera.activo === 1 ? 'btn-cancel' : 'btn-activate' %> btn-table-action icon-action" title="<%= enfermera.activo === 1 ? 'Desactivar enfermera' : 'Activar enfermera' %>" aria-label="<%= enfermera.activo === 1 ? 'Desactivar enfermera' : 'Activar enfermera' %>">
+                      <img class="action-metaphor" src="/img/action-metaphors/administrador/enfermeras/<%= enfermera.activo === 1 ? 'desactivar.png' : 'activar.png' %>" alt="" aria-hidden="true">
+                      <span class="visually-hidden"><%= enfermera.activo === 1 ? 'Desactivar' : 'Activar' %></span>
                     </button>
                   </form>
 
@@ -105,7 +122,10 @@
                       data-confirm="Esta enfermera no tiene triajes asociados. Se eliminará su ficha y su cuenta de acceso."
                       data-confirm-button="Eliminar"
                     >
-                      <button type="submit" class="btn-danger btn-table-action">Eliminar</button>
+                      <button type="submit" class="btn-danger btn-table-action icon-action" title="Eliminar enfermera" aria-label="Eliminar enfermera">
+                        <img class="action-metaphor" src="/img/action-metaphors/administrador/enfermeras/eliminar.png" alt="" aria-hidden="true">
+                        <span class="visually-hidden">Eliminar</span>
+                      </button>
                     </form>
                   <% } %>
                 </div>

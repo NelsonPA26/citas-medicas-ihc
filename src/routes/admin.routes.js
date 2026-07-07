@@ -14,6 +14,13 @@ router.get(
 );
 
 router.get(
+  '/ayuda',
+  isAuthenticated,
+  allowRoles('administrativo'),
+  adminController.ayuda
+);
+
+router.get(
   '/usuarios',
   isAuthenticated,
   allowRoles('administrativo'),

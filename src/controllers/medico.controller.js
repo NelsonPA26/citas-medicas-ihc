@@ -65,6 +65,13 @@ exports.dashboard = async (req, res) => {
   }
 };
 
+exports.ayuda = (req, res) => {
+  res.render('medico/ayuda', {
+    title: 'Ayuda del médico',
+    layout: 'layouts/dashboard'
+  });
+};
+
 exports.citasDelDia = async (req, res) => {
   try {
     const medico = await obtenerMedicoPorPersona(req.session.user.id_persona);

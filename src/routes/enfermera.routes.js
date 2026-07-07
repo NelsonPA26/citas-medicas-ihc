@@ -14,6 +14,13 @@ router.get(
 );
 
 router.get(
+  '/ayuda',
+  isAuthenticated,
+  allowRoles('enfermera'),
+  enfermeraController.ayuda
+);
+
+router.get(
   '/triaje-pendiente',
   isAuthenticated,
   allowRoles('enfermera'),

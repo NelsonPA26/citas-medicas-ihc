@@ -44,8 +44,9 @@
                 <% } %>
               </td>
               <td>
-                <a href="/medico/citas/<%= cita.id_cita %>/atender" class="btn-table-primary">
-                  <%= cita.estado === 'en_consulta' || cita.borrador === 1 ? 'Continuar' : 'Atender' %>
+                <a href="/medico/citas/<%= cita.id_cita %>/atender" class="btn-table-primary icon-action" title="<%= cita.estado === 'en_consulta' || cita.borrador === 1 ? 'Continuar consulta' : 'Atender cita' %>" aria-label="<%= cita.estado === 'en_consulta' || cita.borrador === 1 ? 'Continuar consulta' : 'Atender cita' %>">
+                  <img class="action-metaphor" src="/img/action-metaphors/medico/consultas/<%= cita.estado === 'en_consulta' || cita.borrador === 1 ? 'continuar.png' : 'atender.png' %>" alt="" aria-hidden="true">
+                  <span class="visually-hidden"><%= cita.estado === 'en_consulta' || cita.borrador === 1 ? 'Continuar' : 'Atender' %></span>
                 </a>
               </td>
             </tr>

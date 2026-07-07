@@ -16,6 +16,9 @@
     const digits = String(value || '').replace(/\D/g, '').slice(0, 9);
     return digits.replace(/(\d{3})(?=\d)/g, '$1 ').trim();
   }
+
+  const profileMetaphorFolder = 'perfil';
+  const profileMetaphorExt = 'png';
 %>
 
 <div class="module-card profile-card">
@@ -70,7 +73,10 @@
       <form action="/perfil/actualizar" method="POST" class="profile-form js-role-validated-form" id="profileForm" novalidate>
         <div class="profile-form-grid">
           <div class="form-group">
-            <label for="correo">Correo electrónico</label>
+            <label for="correo" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-mail"></use></svg>
+              <span>Correo electrónico</span>
+            </label>
             <input
               type="email"
               id="correo"
@@ -85,7 +91,10 @@
           </div>
 
           <div class="form-group">
-            <label for="telefono">Teléfono</label>
+            <label for="telefono" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-phone"></use></svg>
+              <span>Teléfono</span>
+            </label>
             <input
               type="text"
               inputmode="numeric"
@@ -102,7 +111,10 @@
           </div>
 
           <div class="form-group">
-            <label for="fecha_nacimiento">Fecha de nacimiento</label>
+            <label for="fecha_nacimiento" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-calendar"></use></svg>
+              <span>Fecha de nacimiento</span>
+            </label>
             <input
               type="date"
               id="fecha_nacimiento"
@@ -115,7 +127,10 @@
           </div>
 
           <div class="form-group">
-            <label for="sexo">Sexo</label>
+            <label for="sexo" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-user"></use></svg>
+              <span>Sexo</span>
+            </label>
             <select id="sexo" name="sexo" data-validate="select" required>
               <option value="">Seleccione una opción</option>
               <option value="Masculino" <%= profile.sexo === 'Masculino' ? 'selected' : '' %>>Masculino</option>
@@ -127,7 +142,10 @@
           </div>
 
           <div class="form-group profile-half-field">
-            <label for="direccion">Dirección</label>
+            <label for="direccion" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-home"></use></svg>
+              <span>Dirección</span>
+            </label>
             <input
               type="text"
               id="direccion"
@@ -142,8 +160,14 @@
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn-light" id="resetProfileForm">Cancelar cambios</button>
-          <button type="submit" class="btn-dark">Guardar cambios</button>
+          <button type="button" class="btn-light" id="resetProfileForm" title="Cancelar cambios" aria-label="Cancelar cambios">
+            <img class="action-metaphor" src="/img/action-metaphors/<%= profileMetaphorFolder %>/cancelar.<%= profileMetaphorExt %>" alt="" aria-hidden="true">
+            <span>Cancelar cambios</span>
+          </button>
+          <button type="submit" class="btn-dark icon-action" title="Guardar cambios" aria-label="Guardar cambios">
+            <img class="action-metaphor" src="/img/action-metaphors/<%= profileMetaphorFolder %>/guardar.<%= profileMetaphorExt %>" alt="" aria-hidden="true">
+            <span class="visually-hidden">Guardar cambios</span>
+          </button>
         </div>
       </form>
     </section>
@@ -222,7 +246,7 @@
 
     <section class="profile-section profile-security-form">
       <div class="profile-section-heading">
-        <h3>Cambiar contraseña</h3>
+        <h3>Actualizar contraseña</h3>
       </div>
 
       <p class="section-help">Usa una contraseña fuerte para proteger las funciones administrativas del sistema.</p>
@@ -230,7 +254,10 @@
       <form action="/perfil/cambiar-password" method="POST" class="profile-form js-role-validated-form" id="passwordForm" novalidate>
         <div class="profile-form-grid">
           <div class="form-group">
-            <label for="current_password">Contraseña actual</label>
+            <label for="current_password" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-lock"></use></svg>
+              <span>Contraseña actual</span>
+            </label>
             <input
               type="password"
               id="current_password"
@@ -243,7 +270,10 @@
           </div>
 
           <div class="form-group">
-            <label for="new_password">Nueva contraseña</label>
+            <label for="new_password" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-lock"></use></svg>
+              <span>Nueva contraseña</span>
+            </label>
             <input
               type="password"
               id="new_password"
@@ -261,7 +291,10 @@
           </div>
 
           <div class="form-group profile-half-field">
-            <label for="confirm_password">Confirmar nueva contraseña</label>
+            <label for="confirm_password" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-lock"></use></svg>
+              <span>Confirmar nueva contraseña</span>
+            </label>
             <input
               type="password"
               id="confirm_password"
@@ -276,8 +309,14 @@
         </div>
 
         <div class="form-actions">
-          <button type="reset" class="btn-light">Cancelar cambios</button>
-          <button type="submit" class="btn-dark">Cambiar contraseña</button>
+          <button type="reset" class="btn-light" title="Cancelar cambios" aria-label="Cancelar cambios">
+            <img class="action-metaphor" src="/img/action-metaphors/<%= profileMetaphorFolder %>/cancelar.<%= profileMetaphorExt %>" alt="" aria-hidden="true">
+            <span>Cancelar cambios</span>
+          </button>
+          <button type="submit" class="btn-dark password-update-action" title="Actualizar contraseña" aria-label="Actualizar contraseña">
+            <span class="button-symbol" aria-hidden="true">🔒</span>
+            <span>Actualizar contraseña</span>
+          </button>
         </div>
       </form>
     </section>

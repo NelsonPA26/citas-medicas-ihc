@@ -79,7 +79,10 @@
                 <td><%= consulta.diagnostico %></td>
                 <td><%= consulta.tratamiento %></td>
                 <td>
-                  <a href="/medico/pacientes/<%= paciente.id_paciente %>/historial/<%= consulta.id_consulta %>" class="btn-table-primary">Ver detalle</a>
+                  <a href="/medico/pacientes/<%= paciente.id_paciente %>/historial/<%= consulta.id_consulta %>" class="btn-table-primary icon-action" title="Ver detalle" aria-label="Ver detalle">
+                    <img class="action-metaphor" src="/img/action-metaphors/medico/historial/buscar.png" alt="" aria-hidden="true">
+                    <span class="visually-hidden">Ver detalle</span>
+                  </a>
                 </td>
               </tr>
             <% }) %>

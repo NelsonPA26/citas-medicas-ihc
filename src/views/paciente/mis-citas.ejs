@@ -15,7 +15,10 @@
   <form action="/paciente/mis-citas" method="GET" class="filter-card js-patient-validated-form" novalidate>
     <div class="filter-grid two-columns">
       <div class="form-group">
-        <label for="q">Buscar</label>
+        <label for="q" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-search"></use></svg>
+          <span>Buscar</span>
+        </label>
         <input
           type="text"
           id="q"
@@ -29,15 +32,24 @@
       </div>
 
       <div class="form-group">
-        <label for="fecha">Fecha</label>
+        <label for="fecha" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-calendar"></use></svg>
+          <span>Fecha</span>
+        </label>
         <input type="date" id="fecha" name="fecha" value="<%= filters.fecha || '' %>">
         <small class="field-message" data-for="fecha"></small>
       </div>
     </div>
 
     <div class="filter-actions">
-      <a href="/paciente/mis-citas" class="btn-light">Limpiar filtros</a>
-      <button type="submit" class="btn-dark">Filtrar</button>
+      <a href="/paciente/mis-citas" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
+        <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/limpiar.png" alt="" aria-hidden="true">
+        <span class="visually-hidden">Limpiar filtros</span>
+      </a>
+      <button type="submit" class="btn-dark icon-action" title="Filtrar" aria-label="Filtrar">
+        <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/filtrar.png" alt="" aria-hidden="true">
+        <span class="visually-hidden">Filtrar</span>
+      </button>
     </div>
   </form>
 
@@ -46,7 +58,10 @@
       <h3>No se encontraron citas</h3>
       <p>No hay resultados con los filtros seleccionados.</p>
       <div class="empty-actions">
-        <a href="/paciente/mis-citas" class="btn-light">Limpiar filtros</a>
+        <a href="/paciente/mis-citas" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
+          <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/limpiar.png" alt="" aria-hidden="true">
+          <span class="visually-hidden">Limpiar filtros</span>
+        </a>
       </div>
     </div>
   <% } else { %>
@@ -72,24 +87,36 @@
               <td><%= cita.especialidad %></td>
               <td><strong><%= cita.motivo %></strong></td>
               <td>
-                <span class="status-badge status-<%= cita.estado %>"><%= estadoTexto[cita.estado] || cita.estado %></span>
+                <span class="status-badge status-<%= cita.estado %>" title="Ver significado en Ayuda"><%= estadoTexto[cita.estado] || cita.estado %></span>
               </td>
               <td>
                 <% if (cita.estado === 'pendiente') { %>
                   <div class="table-actions">
-                    <a href="/paciente/mis-citas/<%= cita.id_cita %>/resumen" class="btn-table-secondary">Ver resumen</a>
-                    <a href="/paciente/mis-citas/<%= cita.id_cita %>/editar" class="btn-table-primary">Editar</a>
+                    <a href="/paciente/mis-citas/<%= cita.id_cita %>/resumen" class="btn-table-secondary icon-action" title="Ver resumen" aria-label="Ver resumen">
+                      <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/buscar.png" alt="" aria-hidden="true">
+                      <span class="visually-hidden">Ver resumen</span>
+                    </a>
+                    <a href="/paciente/mis-citas/<%= cita.id_cita %>/editar" class="btn-table-primary icon-action" title="Editar cita" aria-label="Editar cita">
+                      <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/editar.png" alt="" aria-hidden="true">
+                      <span class="visually-hidden">Editar</span>
+                    </a>
                     <button
                       type="button"
                       class="btn-cancel"
                       data-cancel-url="/paciente/mis-citas/<%= cita.id_cita %>/cancelar"
                       data-cita-info="<%= new Date(cita.fecha).toLocaleDateString('es-PE') %> a las <%= cita.hora %>"
+                      title="Cancelar cita"
+                      aria-label="Cancelar cita"
                     >
-                      Cancelar
+                      <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/cancelar.png" alt="" aria-hidden="true">
+                      <span>Cancelar</span>
                     </button>
                   </div>
                 <% } else { %>
-                  <a href="/paciente/mis-citas/<%= cita.id_cita %>/resumen" class="btn-table-primary">Ver resumen</a>
+                  <a href="/paciente/mis-citas/<%= cita.id_cita %>/resumen" class="btn-table-primary icon-action" title="Ver resumen" aria-label="Ver resumen">
+                    <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/buscar.png" alt="" aria-hidden="true">
+                    <span class="visually-hidden">Ver resumen</span>
+                  </a>
                 <% } %>
               </td>
             </tr>
@@ -109,9 +136,15 @@
     <h3 id="cancelModalTitle">Cancelar cita</h3>
     <p id="cancelModalText">Estás por cancelar esta cita. Esta acción cambiará su estado a cancelada.</p>
     <div class="modal-actions">
-      <button type="button" class="btn-light" id="closeCancelModal">Conservar cita</button>
+      <button type="button" class="btn-light icon-action" id="closeCancelModal" title="Conservar cita" aria-label="Conservar cita">
+        <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/volver.png" alt="" aria-hidden="true">
+        <span class="visually-hidden">Conservar cita</span>
+      </button>
       <form method="POST" id="cancelForm">
-        <button type="submit" class="btn-danger">Sí, cancelar</button>
+        <button type="submit" class="btn-danger" title="Sí, cancelar" aria-label="Sí, cancelar">
+          <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/cancelar.png" alt="" aria-hidden="true">
+          <span>Sí, cancelar</span>
+        </button>
       </form>
     </div>
   </div>

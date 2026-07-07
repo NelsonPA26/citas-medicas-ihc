@@ -11,7 +11,10 @@
 
     <div class="filter-grid admin-filter-row">
       <div class="form-group">
-        <label for="q">Buscar</label>
+        <label for="q" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-search"></use></svg>
+          <span>Buscar</span>
+        </label>
         <input
           type="text"
           id="q"
@@ -25,7 +28,10 @@
       </div>
 
       <div class="form-group">
-        <label for="rol">Rol</label>
+        <label for="rol" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-user"></use></svg>
+          <span>Rol</span>
+        </label>
         <select id="rol" name="rol">
           <option value="">Todos</option>
           <option value="paciente" <%= filters.rol === 'paciente' ? 'selected' : '' %>>Paciente</option>
@@ -36,7 +42,10 @@
       </div>
 
       <div class="form-group">
-        <label for="estado">Estado</label>
+        <label for="estado" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-activity"></use></svg>
+          <span>Estado</span>
+        </label>
         <select id="estado" name="estado">
           <option value="">Todos</option>
           <option value="activo" <%= filters.estado === 'activo' ? 'selected' : '' %>>Activo</option>
@@ -46,8 +55,14 @@
     </div>
 
     <div class="filter-actions">
-      <a href="/admin/usuarios" class="btn-light">Limpiar filtros</a>
-      <button type="submit" class="btn-dark">Filtrar</button>
+      <a href="/admin/usuarios" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
+        <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/limpiar.png" alt="" aria-hidden="true">
+        <span class="visually-hidden">Limpiar filtros</span>
+      </a>
+      <button type="submit" class="btn-dark icon-action" title="Filtrar" aria-label="Filtrar">
+        <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/filtrar.png" alt="" aria-hidden="true">
+        <span class="visually-hidden">Filtrar</span>
+      </button>
     </div>
   </form>
 
@@ -55,7 +70,10 @@
     <div class="empty-state">
       <h3>No se encontraron usuarios</h3>
       <p>No hay resultados con los filtros seleccionados.</p>
-      <a href="/admin/usuarios" class="btn-dark">Limpiar filtros</a>
+      <a href="/admin/usuarios" class="btn-dark icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
+        <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/limpiar.png" alt="" aria-hidden="true">
+        <span class="visually-hidden">Limpiar filtros</span>
+      </a>
     </div>
   <% } else { %>
     <div class="table-responsive">
@@ -118,7 +136,7 @@
                 <div class="table-actions">
                   <button
                     type="button"
-                    class="btn-light btn-table-action js-user-edit"
+                    class="btn-light btn-table-action icon-action js-user-edit"
                     data-url="/admin/usuarios/<%= usuario.id_usuario %>/editar"
                     data-id="<%= usuario.id_usuario %>"
                     data-self="<%= usuario.id_usuario === user.id_usuario ? '1' : '0' %>"
@@ -145,7 +163,8 @@
                     title="Editar acceso y rol"
                     aria-label="Editar acceso y rol"
                   >
-                    Editar acceso
+                    <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/editar.png" alt="" aria-hidden="true">
+                    <span class="visually-hidden">Editar acceso</span>
                   </button>
 
                   <% if (usuario.id_usuario === user.id_usuario) { %>
@@ -153,14 +172,15 @@
                     <% } else { %>
                       <button
                         type="button"
-                        class="<%= usuario.activo === 1 ? 'btn-cancel' : 'btn-activate' %> btn-table-action js-user-status"
+                        class="<%= usuario.activo === 1 ? 'btn-cancel' : 'btn-activate' %> btn-table-action icon-action js-user-status"
                         data-action="<%= usuario.activo === 1 ? 'desactivar' : 'activar' %>"
                         data-url="/admin/usuarios/<%= usuario.id_usuario %>/estado"
                         data-user="<%= nombreCompleto %>"
                         title="<%= usuario.activo === 1 ? 'Desactivar usuario' : 'Activar usuario' %>"
                         aria-label="<%= usuario.activo === 1 ? 'Desactivar usuario' : 'Activar usuario' %>"
                       >
-                        <%= usuario.activo === 1 ? 'Desactivar' : 'Activar' %>
+                        <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/<%= usuario.activo === 1 ? 'desactivar.png' : 'activar.png' %>" alt="" aria-hidden="true">
+                        <span class="visually-hidden"><%= usuario.activo === 1 ? 'Desactivar' : 'Activar' %></span>
                       </button>
 
                       <% if (relatedCount === 0) { %>
@@ -173,11 +193,12 @@
                         >
                           <button
                             type="submit"
-                            class="btn-danger btn-table-action"
+                            class="btn-danger btn-table-action icon-action"
                             title="Eliminar usuario"
                             aria-label="Eliminar usuario"
                           >
-                            Eliminar
+                            <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/eliminar.png" alt="" aria-hidden="true">
+                            <span class="visually-hidden">Eliminar</span>
                           </button>
                         </form>
                       <% } %>
@@ -245,13 +266,19 @@
 
         <div class="modal-form-grid auth-edit-grid">
           <div class="form-group">
-            <label for="editUsername">Correo de acceso</label>
+            <label for="editUsername" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-mail"></use></svg>
+              <span>Correo de acceso</span>
+            </label>
             <input type="email" id="editUsername" name="username" required>
             <small class="form-help">Se usará para iniciar sesión, recuperación e identificación de acceso.</small>
           </div>
 
           <div class="form-group">
-            <label for="editPassword">Nueva contraseña</label>
+            <label for="editPassword" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-lock"></use></svg>
+              <span>Nueva contraseña</span>
+            </label>
             <input
               type="password"
               id="editPassword"
@@ -269,7 +296,10 @@
 
         <div class="modal-form-grid modal-form-grid-single">
           <div class="form-group">
-            <label for="editRol">Rol de acceso</label>
+            <label for="editRol" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-user"></use></svg>
+              <span>Rol de acceso</span>
+            </label>
             <select id="editRol" name="rol" required>
               <option value="paciente">Paciente</option>
               <option value="medico">Médico</option>
@@ -297,7 +327,10 @@
 
         <div class="modal-form-grid">
           <div class="form-group">
-            <label for="editEspecialidad">Especialidad</label>
+            <label for="editEspecialidad" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-stethoscope"></use></svg>
+              <span>Especialidad</span>
+            </label>
             <select id="editEspecialidad" name="especialidad">
               <option value="">Seleccione</option>
               <option value="Medicina General">Medicina General</option>
@@ -307,12 +340,18 @@
           </div>
 
           <div class="form-group">
-            <label for="editColegiatura">Número de colegiatura</label>
+            <label for="editColegiatura" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+              <span>Número de colegiatura</span>
+            </label>
             <input type="text" id="editColegiatura" name="numero_colegiatura" maxlength="30">
           </div>
 
           <div class="form-group">
-            <label for="editTurnoMedico">Turno</label>
+            <label for="editTurnoMedico" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-clock"></use></svg>
+              <span>Turno</span>
+            </label>
             <select id="editTurnoMedico" name="turno_medico">
               <option value="">Seleccione</option>
               <option value="mañana">Mañana</option>
@@ -332,12 +371,18 @@
 
         <div class="modal-form-grid">
           <div class="form-group">
-            <label for="editArea">Área</label>
+            <label for="editArea" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+              <span>Área</span>
+            </label>
             <input type="text" id="editArea" name="area" maxlength="80">
           </div>
 
           <div class="form-group">
-            <label for="editTurnoEnfermera">Turno</label>
+            <label for="editTurnoEnfermera" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-clock"></use></svg>
+              <span>Turno</span>
+            </label>
             <select id="editTurnoEnfermera" name="turno_enfermera">
               <option value="">Seleccione</option>
               <option value="mañana">Mañana</option>
@@ -353,12 +398,18 @@
 
         <div class="modal-form-grid">
           <div class="form-group">
-            <label for="editCargo">Cargo</label>
+            <label for="editCargo" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+              <span>Cargo</span>
+            </label>
             <input type="text" id="editCargo" name="cargo" maxlength="80" value="Administrativo">
           </div>
 
           <div class="form-group">
-            <label for="editAnexo">Anexo</label>
+            <label for="editAnexo" class="field-label-with-icon">
+              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+              <span>Anexo</span>
+            </label>
             <input type="text" id="editAnexo" name="anexo" maxlength="20">
           </div>
         </div>
@@ -368,8 +419,14 @@
         Por seguridad, tu propia cuenta conserva el rol administrativo. Puedes cambiar el correo o la contraseña, pero no tu rol.
       </p>
       <div class="modal-actions">
-        <button type="button" class="btn-light" id="closeUserEditModal">Cancelar</button>
-        <button type="submit" class="btn-dark">Guardar cambios</button>
+        <button type="button" class="btn-light" id="closeUserEditModal" title="Cancelar" aria-label="Cancelar">
+          <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/cancelar.png" alt="" aria-hidden="true">
+          <span>Cancelar</span>
+        </button>
+        <button type="submit" class="btn-dark icon-action" title="Guardar cambios" aria-label="Guardar cambios">
+          <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/guardar.png" alt="" aria-hidden="true">
+          <span class="visually-hidden">Guardar cambios</span>
+        </button>
       </div>
     </form>
   </div>
@@ -381,12 +438,16 @@
     <p id="userStatusText">¿Estás seguro de realizar esta acción?</p>
 
     <div class="modal-actions">
-      <button type="button" class="btn-light" id="closeUserStatusModal">Cancelar</button>
+      <button type="button" class="btn-light" id="closeUserStatusModal" title="Cancelar" aria-label="Cancelar">
+        <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/cancelar.png" alt="" aria-hidden="true">
+        <span>Cancelar</span>
+      </button>
 
       <form method="POST" id="userStatusForm">
         <input type="hidden" name="accion" id="userStatusAction">
-        <button type="submit" class="btn-danger" id="userStatusConfirmButton">
-          Confirmar
+        <button type="submit" class="btn-danger icon-action" id="userStatusConfirmButton" title="Confirmar" aria-label="Confirmar">
+          <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/confirmar.png" alt="" aria-hidden="true">
+          <span class="visually-hidden">Confirmar</span>
         </button>
       </form>
     </div>
@@ -608,13 +669,19 @@
       if (action === 'desactivar') {
         userStatusTitle.textContent = 'Desactivar usuario';
         userStatusText.textContent = `¿Estás seguro de desactivar la cuenta de ${userName}? Esta persona no podrá iniciar sesión.`;
-        userStatusConfirmButton.textContent = 'Sí, desactivar';
-        userStatusConfirmButton.className = 'btn-danger';
+        userStatusConfirmButton.className = 'btn-danger icon-action';
+        userStatusConfirmButton.title = 'Sí, desactivar';
+        userStatusConfirmButton.setAttribute('aria-label', 'Sí, desactivar');
+        userStatusConfirmButton.querySelector('img').src = '/img/action-metaphors/administrador/usuarios/desactivar.png';
+        userStatusConfirmButton.querySelector('span').textContent = 'Sí, desactivar';
       } else {
         userStatusTitle.textContent = 'Activar usuario';
         userStatusText.textContent = `¿Deseas activar nuevamente la cuenta de ${userName}?`;
-        userStatusConfirmButton.textContent = 'Sí, activar';
-        userStatusConfirmButton.className = 'btn-success-action';
+        userStatusConfirmButton.className = 'btn-success-action icon-action';
+        userStatusConfirmButton.title = 'Sí, activar';
+        userStatusConfirmButton.setAttribute('aria-label', 'Sí, activar');
+        userStatusConfirmButton.querySelector('img').src = '/img/action-metaphors/administrador/usuarios/activar.png';
+        userStatusConfirmButton.querySelector('span').textContent = 'Sí, activar';
       }
 
       userStatusModal.classList.remove('hidden');

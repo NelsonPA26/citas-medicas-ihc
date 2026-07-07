@@ -236,6 +236,13 @@ exports.dashboard = async (req, res) => {
   }
 };
 
+exports.ayuda = (req, res) => {
+  res.render('paciente/ayuda', {
+    title: 'Ayuda del paciente',
+    layout: 'layouts/dashboard'
+  });
+};
+
 exports.showReservarCita = async (req, res) => {
   try {
     const [medicos] = await db.query(

@@ -2,10 +2,28 @@
   box-sizing: border-box;
 }
 
+html {
+  height: 100%;
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
   color: #0f172a;
+  overflow-x: hidden;
+}
+
+body.dashboard-body {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.field-icon-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
 }
 
 .auth-body {
@@ -313,11 +331,12 @@ body {
 }
 
 .dashboard-body {
-  height: 100vh;
-  display: flex;
+  min-height: 100vh;
+  display: block;
   background: #f3f4f6;
   color: #111827;
-  overflow: hidden;
+  overflow: visible;
+  padding-left: 250px;
 }
 
 .sidebar {
@@ -325,12 +344,16 @@ body {
   background: #2f2f32;
   color: #ffffff;
   height: 100vh;
-  flex-shrink: 0;
+  min-height: 100vh;
   padding: 24px 18px;
   display: flex;
   flex-direction: column;
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: hidden;
+  z-index: 30;
 }
 
 .sidebar-header h2 {
@@ -394,9 +417,11 @@ body {
 }
 
 .dashboard-main {
-  flex: 1;
-  height: 100vh;
-  overflow-y: auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: visible;
   padding: 22px 36px;
   max-width: 100%;
 }
@@ -449,15 +474,20 @@ body {
 
 @media (max-width: 800px) {
   .dashboard-body {
-    flex-direction: column;
+    min-height: 100vh;
+    overflow: visible;
+    padding-left: 250px;
   }
 
   .sidebar {
-    width: 100%;
-    min-height: auto;
+    width: 250px;
+    height: 100vh;
+    min-height: 100vh;
   }
 
   .dashboard-main {
+    min-height: 100vh;
+    overflow-y: visible;
     padding: 20px;
   }
 }
@@ -469,6 +499,7 @@ body {
   border-radius: 10px;
   padding: 28px 32px;
   max-width: 980px;
+  min-width: 0;
 }
 
 .module-header h2 {
@@ -605,6 +636,116 @@ body {
   background: #d4d4d4;
 }
 
+.form-actions .btn-light[aria-label*="cancelar" i] .action-metaphor,
+.modal-actions .btn-light[aria-label*="cancelar" i] .action-metaphor,
+.modal-actions .btn-danger[aria-label*="cancelar" i] .action-metaphor,
+.form-actions .btn-dark[aria-label*="guardar" i] .action-metaphor,
+.form-actions .btn-secondary-action[aria-label*="guardar" i] .action-metaphor {
+  display: none;
+}
+
+.form-actions .btn-light[aria-label*="cancelar" i]::before,
+.modal-actions .btn-light[aria-label*="cancelar" i]::before,
+.modal-actions .btn-danger[aria-label*="cancelar" i]::before {
+  content: "\00d7";
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.form-actions .btn-dark[aria-label*="guardar" i]::before,
+.form-actions .btn-secondary-action[aria-label*="guardar" i]::before {
+  content: "\1F4BE";
+  font-size: 17px;
+  line-height: 1;
+}
+
+.form-actions .btn-dark.icon-action[aria-label*="guardar" i],
+.form-actions .btn-secondary-action.icon-action[aria-label*="guardar" i] {
+  width: auto;
+  min-width: 120px;
+  height: auto;
+  min-height: 44px;
+  padding: 0 14px;
+  gap: 8px;
+}
+
+.form-actions .btn-dark[aria-label*="guardar" i] .visually-hidden,
+.form-actions .btn-secondary-action[aria-label*="guardar" i] .visually-hidden {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+.action-metaphor {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  object-fit: contain;
+  image-rendering: auto;
+}
+
+.btn-table-primary .action-metaphor,
+.btn-table-secondary .action-metaphor,
+.btn-table-action .action-metaphor,
+.btn-cancel .action-metaphor {
+  width: 38px;
+  height: 38px;
+  flex-basis: 38px;
+}
+
+.btn-dark,
+.btn-light,
+.btn-danger,
+.btn-cancel,
+.btn-activate,
+.btn-secondary-action,
+.btn-success-action,
+.btn-table-primary,
+.btn-table-secondary,
+.card-link {
+  gap: 8px;
+}
+
+.icon-action {
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  min-height: 42px;
+  padding: 0;
+  border-radius: 8px;
+}
+
+.table-actions .icon-action {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 .appointment-step {
   display: none;
@@ -667,6 +808,7 @@ body {
 .module-card {
   padding: 36px 42px;
   max-width: 1100px;
+  min-width: 0;
 }
 
 .module-header {
@@ -765,6 +907,62 @@ body {
   font-size: 15px;
 }
 
+.dashboard-topbar-flat {
+  background: transparent;
+  border-color: transparent;
+  border-radius: 0;
+  padding: 24px 28px 26px;
+}
+
+.dashboard-topbar-helpable {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.topbar-help-trigger {
+  border: none;
+  background: transparent;
+  color: #2563eb;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.topbar-help-trigger strong {
+  font-family: inherit;
+  font-weight: 600;
+}
+
+.topbar-help-trigger span {
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.topbar-help-trigger:hover strong {
+  text-decoration: underline;
+}
+
+.topbar-help-trigger:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
 /* Tarjeta de reservar cita más compacta */
 .module-card {
   background: #ffffff;
@@ -772,6 +970,7 @@ body {
   border-radius: 10px;
   padding: 28px 38px;
   max-width: 980px;
+  min-width: 0;
 }
 
 .module-header {
@@ -802,6 +1001,72 @@ body {
   font-size: 15px;
 }
 
+.step-indicator-labeled {
+  position: relative;
+  justify-content: space-between;
+  gap: 0;
+  margin: 8px 0 30px;
+}
+
+.step-indicator-labeled::before {
+  content: "";
+  position: absolute;
+  top: 14px;
+  left: calc(16.666% + 14px);
+  right: calc(16.666% + 14px);
+  height: 2px;
+  background: #d9dee7;
+  z-index: 0;
+}
+
+.step-indicator-labeled .step {
+  position: relative;
+  z-index: 1;
+  flex: 0 1 33.333%;
+  width: auto;
+  height: auto;
+  min-height: 50px;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: #64748b;
+  flex-direction: column;
+  gap: 7px;
+  text-align: center;
+}
+
+.step-indicator-labeled .step strong {
+  width: 30px;
+  height: 30px;
+  border: 2px solid #d9dee7;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.step-indicator-labeled .step small {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.step-indicator-labeled .step.active strong {
+  border-color: #5a5a5f;
+  background: #5a5a5f;
+  color: #ffffff;
+}
+
+.step-indicator-labeled .step.active small {
+  color: #111827;
+}
+
 /* Pasos más ordenados y compactos */
 .appointment-step {
   display: none;
@@ -817,6 +1082,34 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.field-label-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.field-icon {
+  width: 18px;
+  height: 18px;
+  color: #4f5d70;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: 0 0 auto;
+}
+
+.btn-dark:disabled,
+.btn-light:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.button-tooltip {
+  display: inline-flex;
 }
 
 .appointment-step .form-group label {
@@ -902,8 +1195,12 @@ body {
 }
 
 .table-responsive {
+  display: block;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  contain: inline-size;
 }
 
 .data-table {
@@ -990,12 +1287,14 @@ body {
 
 .btn-cancel {
   border: none;
-  background: #fee2e2;
   color: #991b1b;
   padding: 9px 12px;
   border-radius: 7px;
   font-weight: 700;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-cancel:hover {
@@ -1079,14 +1378,18 @@ body {
   min-height: 44px;
   border: none;
   border-radius: 7px;
-  background: #dc2626;
   color: #ffffff;
   font-weight: 700;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
 }
 
 .btn-danger:hover {
-  background: #b91c1c;
+  background: #fecaca;
 }
 
 @media (max-width: 900px) {
@@ -1396,7 +1699,6 @@ body {
   min-height: 36px;
   padding: 0 12px;
   border-radius: 7px;
-  background: #5a5a5f;
   color: #ffffff;
   text-decoration: none;
   font-size: 13px;
@@ -1405,7 +1707,7 @@ body {
 }
 
 .btn-table-primary:hover {
-  background: #46464a;
+  background: #fecaca;
 }
 
 .triaje-card {
@@ -1881,7 +2183,6 @@ body {
 
 .btn-activate {
   border: none;
-  background: #dcfce7;
   color: #166534;
   padding: 9px 12px;
   border-radius: 7px;
@@ -1890,7 +2191,7 @@ body {
 }
 
 .btn-activate:hover {
-  background: #bbf7d0;
+  background: #fecaca;
 }
 
 .user-actions,
@@ -2246,6 +2547,14 @@ body {
   margin-top: -4px;
 }
 
+.family-history-group h4 {
+  margin: 0 0 12px;
+}
+
+.family-history-options {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .saved-note {
   margin: 0;
   border-left: 4px solid #94a3b8;
@@ -2310,6 +2619,10 @@ body {
 
   .modal-form-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .family-history-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .module-header-row {
@@ -2807,6 +3120,7 @@ body {
 /* Consistencia global: cada modulo debajo del titulo usa el mismo ancho que la cabecera. */
 .dashboard-content {
   width: 100%;
+  min-width: 0;
 }
 
 .dashboard-topbar,
@@ -2942,15 +3256,20 @@ body {
 }
 
 .btn-table-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 36px;
   padding: 9px 14px;
   border-radius: 7px;
-  background: #e5e7eb;
-  border: 1px solid #cfd4dc;
   color: #111827;
   font-size: 13px;
   font-weight: 700;
   text-decoration: none;
+}
+
+.btn-table-secondary:hover {
+  background: #fecaca;
 }
 
 .modal-header {
@@ -3593,4 +3912,505 @@ body {
 .error-state-card p {
   color: var(--muted-text);
   line-height: 1.6;
+}
+
+.help-context-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  background: #f8fafc;
+  color: #374151;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.help-context-link:hover {
+  background: #eef2f7;
+}
+
+.help-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.antecedentes-meta.help-header-actions {
+  flex-direction: row;
+}
+
+.help-card {
+  display: grid;
+  gap: 24px;
+}
+
+.help-hero {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 24px;
+}
+
+.help-hero h2 {
+  margin: 6px 0 8px;
+  font-size: 28px;
+  color: #111827;
+}
+
+.help-hero p,
+.help-section-heading p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.55;
+}
+
+.help-eyebrow {
+  display: inline-flex;
+  color: #52647f;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.help-section-heading {
+  margin-bottom: 14px;
+}
+
+.help-section-heading h3 {
+  margin: 0 0 6px;
+  font-size: 21px;
+}
+
+.help-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.help-choice-card {
+  min-height: 118px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 18px;
+  color: #111827;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  font-family: inherit;
+}
+
+.help-choice-card:hover {
+  background: #f9fafb;
+  border-color: #cfd6e0;
+}
+
+.help-choice-card:focus {
+  outline: 2px solid #4f5d70;
+  outline-offset: 2px;
+}
+
+.help-choice-card strong {
+  font-size: 16px;
+}
+
+.help-choice-card span {
+  color: #64748b;
+  line-height: 1.45;
+  font-size: 14px;
+}
+
+.help-section {
+  scroll-margin-top: 24px;
+}
+
+.help-section h3 {
+  margin: 0 0 14px;
+  font-size: 21px;
+}
+
+.help-section > p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.6;
+  max-width: 920px;
+}
+
+.help-section details {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+  padding: 16px;
+}
+
+.help-section details p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.help-section details {
+  margin-bottom: 10px;
+}
+
+.help-faq-list {
+  display: grid;
+  gap: 10px;
+}
+
+.help-section summary {
+  cursor: pointer;
+  color: #111827;
+  font-weight: 700;
+}
+
+.help-section details p {
+  margin-top: 10px;
+}
+
+.help-modal {
+  width: min(560px, calc(100vw - 32px));
+  max-width: 560px;
+  border-radius: 10px;
+}
+
+.help-modal .modal-header {
+  align-items: flex-start;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+}
+
+.help-modal .modal-header h3 {
+  margin: 4px 0 6px;
+}
+
+.help-modal .modal-header p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.help-modal-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 20px;
+  color: #111827;
+  line-height: 1.5;
+}
+
+.help-modal-list li {
+  padding-left: 4px;
+}
+
+.help-modal-note {
+  margin-top: 18px;
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid #2563eb;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1e3a8a;
+  padding: 12px 14px;
+  line-height: 1.45;
+  font-size: 14px;
+}
+
+@media (max-width: 900px) {
+  .help-choice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .help-header-actions {
+    justify-content: flex-start;
+  }
+}
+
+.btn-dark.icon-action,
+.btn-light.icon-action,
+.btn-danger.icon-action,
+.btn-cancel.icon-action,
+.btn-activate.icon-action,
+.btn-secondary-action.icon-action,
+.btn-success-action.icon-action,
+.btn-table-primary.icon-action,
+.btn-table-secondary.icon-action,
+.btn-table-action.icon-action,
+.btn-header-action.icon-action {
+  width: 62px;
+  min-width: 62px;
+  height: 62px;
+  min-height: 62px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.table-actions .icon-action {
+  width: 58px;
+  min-width: 58px;
+  height: 58px;
+  min-height: 58px;
+}
+
+.icon-action .action-metaphor {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+}
+
+.form-actions .btn-dark.icon-action[aria-label*="guardar" i],
+.form-actions .btn-secondary-action.icon-action[aria-label*="guardar" i] {
+  width: auto;
+  min-width: 120px;
+  height: auto;
+  min-height: 44px;
+  padding: 0 14px;
+  gap: 8px;
+}
+
+.password-update-action {
+  min-height: 44px;
+  padding: 0 14px;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.button-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.profile-security-form .form-actions .btn-light,
+.profile-security-form .form-actions .btn-dark {
+  min-height: 44px;
+}
+
+/* Metaphor buttons: table actions are icon-only and filter/register controls stay visually clean. */
+.table-actions .btn-dark,
+.table-actions .btn-light,
+.table-actions .btn-danger,
+.table-actions .btn-cancel,
+.table-actions .btn-activate,
+.table-actions .btn-secondary-action,
+.table-actions .btn-success-action,
+.table-actions .btn-table-primary,
+.table-actions .btn-table-secondary,
+.table-actions .btn-table-action,
+td .btn-table-primary.icon-action,
+td .btn-table-secondary.icon-action,
+td .btn-table-action,
+.filter-actions .icon-action,
+.module-header-row .btn-header-action.icon-action,
+.empty-actions .icon-action {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.table-actions .btn-dark,
+.table-actions .btn-light,
+.table-actions .btn-danger,
+.table-actions .btn-cancel,
+.table-actions .btn-activate,
+.table-actions .btn-secondary-action,
+.table-actions .btn-success-action,
+.table-actions .btn-table-primary,
+.table-actions .btn-table-secondary,
+.table-actions .btn-table-action,
+td .btn-table-primary.icon-action,
+td .btn-table-secondary.icon-action,
+td .btn-table-action {
+  width: 62px;
+  min-width: 62px;
+  height: 62px;
+  min-height: 62px;
+  padding: 0;
+  color: inherit;
+}
+
+.table-actions .btn-dark:hover,
+.table-actions .btn-light:hover,
+.table-actions .btn-danger:hover,
+.table-actions .btn-cancel:hover,
+.table-actions .btn-activate:hover,
+.table-actions .btn-secondary-action:hover,
+.table-actions .btn-success-action:hover,
+.table-actions .btn-table-primary:hover,
+.table-actions .btn-table-secondary:hover,
+.table-actions .btn-table-action:hover,
+td .btn-table-primary.icon-action:hover,
+td .btn-table-secondary.icon-action:hover,
+td .btn-table-action:hover {
+  background: #fecaca;
+}
+
+.table-actions .btn-dark > span:not(.visually-hidden),
+.table-actions .btn-light > span:not(.visually-hidden),
+.table-actions .btn-danger > span:not(.visually-hidden),
+.table-actions .btn-cancel > span:not(.visually-hidden),
+.table-actions .btn-activate > span:not(.visually-hidden),
+.table-actions .btn-secondary-action > span:not(.visually-hidden),
+.table-actions .btn-success-action > span:not(.visually-hidden),
+.table-actions .btn-table-primary > span:not(.visually-hidden),
+.table-actions .btn-table-secondary > span:not(.visually-hidden),
+.table-actions .btn-table-action > span:not(.visually-hidden),
+td .btn-table-primary.icon-action > span:not(.visually-hidden),
+td .btn-table-secondary.icon-action > span:not(.visually-hidden),
+td .btn-table-action > span:not(.visually-hidden) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.filter-actions .icon-action,
+.module-header-row .btn-header-action.icon-action,
+.empty-actions .icon-action {
+  color: inherit;
+}
+
+.filter-actions .icon-action:hover,
+.module-header-row .btn-header-action.icon-action:hover,
+.empty-actions .icon-action:hover {
+  background: #fecaca;
+}
+
+.table-actions .action-metaphor,
+td .btn-table-primary.icon-action .action-metaphor,
+td .btn-table-secondary.icon-action .action-metaphor,
+td .btn-table-action .action-metaphor,
+.filter-actions .action-metaphor,
+.module-header-row .btn-header-action .action-metaphor,
+.empty-actions .action-metaphor {
+  mix-blend-mode: multiply;
+}
+
+.table-actions .action-metaphor,
+td .btn-table-action .action-metaphor {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+}
+
+/* Form and modal buttons use text labels only; metaphors stay available for tables. */
+.form-actions .action-metaphor,
+.modal-actions .action-metaphor,
+.password-update-action .button-symbol {
+  display: none !important;
+}
+
+.form-actions .btn-light::before,
+.form-actions .btn-dark::before,
+.form-actions .btn-danger::before,
+.form-actions .btn-secondary-action::before,
+.form-actions .btn-success-action::before,
+.modal-actions .btn-light::before,
+.modal-actions .btn-dark::before,
+.modal-actions .btn-danger::before,
+.modal-actions .btn-secondary-action::before,
+.modal-actions .btn-success-action::before {
+  content: none !important;
+  display: none !important;
+}
+
+.form-actions .btn-dark.icon-action,
+.form-actions .btn-light.icon-action,
+.form-actions .btn-danger.icon-action,
+.form-actions .btn-secondary-action.icon-action,
+.form-actions .btn-success-action.icon-action,
+.modal-actions .btn-dark.icon-action,
+.modal-actions .btn-light.icon-action,
+.modal-actions .btn-danger.icon-action,
+.modal-actions .btn-secondary-action.icon-action,
+.modal-actions .btn-success-action.icon-action {
+  width: auto;
+  min-width: 132px;
+  height: auto;
+  min-height: 44px;
+  padding: 0 16px;
+  gap: 8px;
+}
+
+.form-actions .visually-hidden,
+.modal-actions .visually-hidden {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  border: 0;
+}
+
+.form-actions .btn-dark,
+.modal-actions .btn-dark {
+  border: none;
+  background: #5a5a5f;
+  color: #ffffff;
+}
+
+.form-actions .btn-dark:hover,
+.modal-actions .btn-dark:hover {
+  background: #46464a;
+}
+
+.form-actions .btn-light,
+.modal-actions .btn-light {
+  border: 1px solid #c4c4c4;
+  background: #e5e5e5;
+  color: #111827;
+}
+
+.form-actions .btn-light:hover,
+.modal-actions .btn-light:hover {
+  background: #d4d4d4;
+}
+
+.form-actions .btn-danger,
+.modal-actions .btn-danger {
+  border: none;
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.form-actions .btn-danger:hover,
+.modal-actions .btn-danger:hover {
+  background: #b91c1c;
+}
+
+.form-actions .btn-success-action,
+.modal-actions .btn-success-action {
+  border: none;
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.form-actions .btn-success-action:hover,
+.modal-actions .btn-success-action:hover {
+  background: #15803d;
 }

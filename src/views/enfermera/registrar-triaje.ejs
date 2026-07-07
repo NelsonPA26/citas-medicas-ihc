@@ -81,29 +81,44 @@
 
     <div class="triaje-grid">
       <div class="form-group">
-        <label for="temperatura">Temperatura (°C)</label>
+        <label for="temperatura" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-thermometer"></use></svg>
+          <span>Temperatura (°C)</span>
+        </label>
         <input type="text" inputmode="decimal" id="temperatura" name="temperatura" value="<%= triaje.temperatura || '' %>" placeholder="36.8" min="30" max="45" data-validate="decimal" <%= esModoDetalle ? 'readonly' : 'required' %>>
         <span class="field-message" data-for="temperatura"></span>
       </div>
       <div class="form-group">
-        <label for="presion_arterial">Presión arterial</label>
+        <label for="presion_arterial" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-activity"></use></svg>
+          <span>Presión arterial</span>
+        </label>
         <input type="text" inputmode="numeric" id="presion_arterial" name="presion_arterial" value="<%= triaje.presion_arterial || '' %>" placeholder="120/80" maxlength="7" data-validate="blood-pressure" <%= esModoDetalle ? 'readonly' : 'required' %>>
         <span class="field-message" data-for="presion_arterial"></span>
       </div>
       <div class="form-group">
-        <label for="frecuencia_cardiaca">Frecuencia cardíaca</label>
+        <label for="frecuencia_cardiaca" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-heart"></use></svg>
+          <span>Frecuencia cardíaca</span>
+        </label>
         <input type="text" inputmode="numeric" id="frecuencia_cardiaca" name="frecuencia_cardiaca" value="<%= triaje.frecuencia_cardiaca || '' %>" placeholder="75" min="30" max="220" maxlength="3" data-validate="digits" <%= esModoDetalle ? 'readonly' : 'required' %>>
         <span class="field-message" data-for="frecuencia_cardiaca"></span>
       </div>
       <div class="form-group">
-        <label for="saturacion">Saturación O2 (%)</label>
+        <label for="saturacion" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-activity"></use></svg>
+          <span>Saturación O2 (%)</span>
+        </label>
         <input type="text" inputmode="numeric" id="saturacion" name="saturacion" value="<%= triaje.saturacion || '' %>" placeholder="98" min="50" max="100" maxlength="3" data-validate="digits" <%= esModoDetalle ? 'readonly' : 'required' %>>
         <span class="field-message" data-for="saturacion"></span>
       </div>
     </div>
 
     <div class="form-group">
-      <label>Síntomas verificados por enfermería</label>
+      <label class="field-label-with-icon">
+        <svg class="field-icon" aria-hidden="true"><use href="#field-icon-heart"></use></svg>
+        <span>Síntomas verificados por enfermería</span>
+      </label>
       <small class="form-help">Selecciona los síntomas que el paciente refiere durante el triaje.</small>
       <div class="symptom-category-grid symptom-category-grid-four">
         <% gruposTriaje.forEach(grupo => { %>
@@ -126,7 +141,10 @@
       </div>
 
       <div class="form-group symptom-other-field <%= otroTriajeGuardado ? '' : 'hidden' %>" id="triajeOtherSymptomGroup">
-        <label for="sintomas_otro">Otro síntoma verificado</label>
+        <label for="sintomas_otro" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+          <span>Otro síntoma verificado</span>
+        </label>
         <input
           type="text"
           id="sintomas_otro"
@@ -143,7 +161,10 @@
     </div>
 
     <div class="form-group">
-      <label for="observaciones">Observaciones</label>
+      <label for="observaciones" class="field-label-with-icon">
+        <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+        <span>Observaciones</span>
+      </label>
       <textarea id="observaciones" name="observaciones" placeholder="Opcional: paciente llega acompañado, ansioso, requiere prioridad, no colabora con la toma de signos, se deriva a médico." maxlength="800" data-validate="clinical-text" data-min="5" <%= esModoDetalle ? 'readonly' : '' %>><%= triaje.observaciones || '' %></textarea>
       <span class="field-message" data-for="observaciones"></span>
     </div>
@@ -156,10 +177,16 @@
           href="<%= modoEdicion ? '/enfermera/triajes' : '/enfermera/triaje-pendiente' %>"
           class="btn-light js-cancel-triaje"
           data-cancel-message="<%= modoEdicion ? 'Si cancelas, se perderán los cambios no guardados del triaje.' : 'Si cancelas, no se guardará el triaje de esta cita.' %>"
+          title="Cancelar"
+          aria-label="Cancelar"
         >
-          Cancelar
+          <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/cancelar.png" alt="" aria-hidden="true">
+          <span>Cancelar</span>
         </a>
-        <button type="submit" class="btn-dark"><%= modoEdicion ? 'Actualizar triaje' : 'Guardar triaje' %></button>
+        <button type="submit" class="btn-dark icon-action" title="<%= modoEdicion ? 'Actualizar triaje' : 'Guardar triaje' %>" aria-label="<%= modoEdicion ? 'Actualizar triaje' : 'Guardar triaje' %>">
+          <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/<%= modoEdicion ? 'editar.png' : 'guardar.png' %>" alt="" aria-hidden="true">
+          <span class="visually-hidden"><%= modoEdicion ? 'Actualizar triaje' : 'Guardar triaje' %></span>
+        </button>
       <% } %>
     </div>
   </form>
@@ -170,8 +197,14 @@
     <h3 id="cancelTriajeTitle">Cancelar cambios</h3>
     <p id="cancelTriajeText">¿Seguro que deseas cancelar?</p>
     <div class="modal-actions">
-      <button type="button" class="btn-light" id="closeCancelTriajeModal">Seguir editando</button>
-      <a href="#" class="btn-danger" id="confirmCancelTriaje">Sí, cancelar</a>
+      <button type="button" class="btn-light icon-action" id="closeCancelTriajeModal" title="Seguir editando" aria-label="Seguir editando">
+        <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/volver.png" alt="" aria-hidden="true">
+        <span class="visually-hidden">Seguir editando</span>
+      </button>
+      <a href="#" class="btn-danger" id="confirmCancelTriaje" title="Sí, cancelar" aria-label="Sí, cancelar">
+        <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/cancelar.png" alt="" aria-hidden="true">
+        <span>Sí, cancelar</span>
+      </a>
     </div>
   </div>
 </div>

@@ -129,6 +129,13 @@ exports.dashboard = async (req, res) => {
   }
 };
 
+exports.ayuda = (req, res) => {
+  res.render('enfermera/ayuda', {
+    title: 'Ayuda de enfermería',
+    layout: 'layouts/dashboard'
+  });
+};
+
 exports.triajePendiente = async (req, res) => {
   try {
     const [citas] = await db.query(

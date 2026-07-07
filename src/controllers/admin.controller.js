@@ -29,6 +29,13 @@ exports.dashboard = async (req, res) => {
   }
 };
 
+exports.ayuda = (req, res) => {
+  res.render('admin/ayuda', {
+    title: 'Ayuda administrativa',
+    layout: 'layouts/dashboard'
+  });
+};
+
 const ROLES_PERMITIDOS = ['paciente', 'medico', 'enfermera', 'administrativo'];
 const ESPECIALIDADES_MEDICAS = ['Medicina General', 'Odontología', 'Psicología'];
 

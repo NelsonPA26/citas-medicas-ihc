@@ -6,7 +6,10 @@
   <form action="/medico/pacientes" method="GET" class="filter-card js-role-validated-form" novalidate>
   <div class="filter-grid two-columns">
     <div class="form-group">
-      <label for="q">Buscar</label>
+      <label for="q" class="field-label-with-icon">
+        <svg class="field-icon" aria-hidden="true"><use href="#field-icon-search"></use></svg>
+        <span>Buscar</span>
+      </label>
       <input
         type="text"
         id="q"
@@ -21,8 +24,14 @@
   </div>
 
   <div class="filter-actions">
-    <a href="/medico/pacientes" class="btn-light">Limpiar filtros</a>
-    <button type="submit" class="btn-dark">Filtrar</button>
+    <a href="/medico/pacientes" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
+      <img class="action-metaphor" src="/img/action-metaphors/medico/pacientes/limpiar.png" alt="" aria-hidden="true">
+      <span class="visually-hidden">Limpiar filtros</span>
+    </a>
+    <button type="submit" class="btn-dark icon-action" title="Filtrar" aria-label="Filtrar">
+      <img class="action-metaphor" src="/img/action-metaphors/medico/pacientes/filtrar.png" alt="" aria-hidden="true">
+      <span class="visually-hidden">Filtrar</span>
+    </button>
   </div>
 </form>
 
@@ -31,8 +40,14 @@
       <h3>No se encontraron pacientes</h3>
       <p>No hay resultados con los filtros seleccionados.</p>
       <div class="empty-actions">
-        <a href="/medico/pacientes" class="btn-light">Limpiar filtros</a>
-        <a href="/medico/citas" class="btn-dark">Ver citas por atender</a>
+        <a href="/medico/pacientes" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
+          <img class="action-metaphor" src="/img/action-metaphors/medico/pacientes/limpiar.png" alt="" aria-hidden="true">
+          <span class="visually-hidden">Limpiar filtros</span>
+        </a>
+        <a href="/medico/citas" class="btn-dark icon-action" title="Ver citas por atender" aria-label="Ver citas por atender">
+          <img class="action-metaphor" src="/img/action-metaphors/medico/consultas/ver.png" alt="" aria-hidden="true">
+          <span class="visually-hidden">Ver citas por atender</span>
+        </a>
       </div>
     </div>
   <% } else { %>
@@ -59,7 +74,10 @@
               <td><span class="status-badge status-completada"><%= paciente.consultas_completadas || 0 %></span></td>
               <td><%= paciente.ultima_atencion ? new Date(paciente.ultima_atencion).toLocaleDateString('es-PE') : 'Sin atención completada' %></td>
               <td>
-                <a href="/medico/pacientes/<%= paciente.id_paciente %>/historial" class="btn-table-primary">Ver historial</a>
+                <a href="/medico/pacientes/<%= paciente.id_paciente %>/historial" class="btn-table-primary icon-action" title="Ver historial" aria-label="Ver historial">
+                  <img class="action-metaphor" src="/img/action-metaphors/medico/historial/buscar.png" alt="" aria-hidden="true">
+                  <span class="visually-hidden">Ver historial</span>
+                </a>
               </td>
             </tr>
           <% }) %>

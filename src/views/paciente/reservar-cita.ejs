@@ -3,10 +3,19 @@
     <p><%= modoEdicion ? 'Actualiza los datos de tu reserva mientras sigue pendiente de triaje.' : 'Completa los pasos para reservar una atención médica.' %></p>
   </div>
 
-  <div class="step-indicator">
-    <span class="step active" data-step-indicator="1">1</span>
-    <span class="step" data-step-indicator="2">2</span>
-    <span class="step" data-step-indicator="3">3</span>
+  <div class="step-indicator step-indicator-labeled" aria-label="Progreso de la reserva">
+    <span class="step active" data-step-indicator="1">
+      <strong>1</strong>
+      <small>Especialidad y médico</small>
+    </span>
+    <span class="step" data-step-indicator="2">
+      <strong>2</strong>
+      <small>Fecha y motivo</small>
+    </span>
+    <span class="step" data-step-indicator="3">
+      <strong>3</strong>
+      <small>Confirmación</small>
+    </span>
   </div>
 
   <form action="<%= actionUrl %>" method="POST" class="appointment-form js-patient-validated-form" id="appointmentForm" novalidate>
@@ -14,7 +23,10 @@
 
     <section class="appointment-step active" data-step="1">
       <div class="form-group">
-        <label for="especialidad">Seleccionar especialidad</label>
+        <label for="especialidad" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-stethoscope"></use></svg>
+          <span>Seleccionar especialidad</span>
+        </label>
         <select id="especialidad" name="especialidad" required>
           <option value="">Seleccione una especialidad</option>
           <% especialidades.forEach(especialidad => { %>
@@ -26,7 +38,10 @@
       </div>
 
       <div class="form-group">
-        <label for="id_medico">Seleccionar médico</label>
+        <label for="id_medico" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-user"></use></svg>
+          <span>Seleccionar médico</span>
+        </label>
         <select id="id_medico" name="id_medico" required <%= modoEdicion ? '' : 'disabled' %>>
           <option value="">Seleccione un médico</option>
           <% medicos.forEach(medico => { %>
@@ -48,24 +63,37 @@
           href="<%= modoEdicion ? '/paciente/mis-citas' : '/paciente/dashboard' %>"
           class="btn-light js-cancel-appointment"
           data-cancel-message="<%= modoEdicion ? 'Si cancelas, se perderán los cambios no guardados de la reserva.' : 'Si cancelas, no se registrará la cita.' %>"
+          title="Cancelar cambios"
+          aria-label="Cancelar cambios"
         >
-          Cancelar
+          <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/cancelar.png" alt="" aria-hidden="true">
+          <span>Cancelar</span>
         </a>
-        <button type="button" class="btn-dark" id="nextStep1">Siguiente</button>
+        <span class="button-tooltip" title="Selecciona una especialidad y un médico para continuar.">
+          <button type="button" class="btn-dark" id="nextStep1" disabled title="Selecciona una especialidad y un médico para continuar.">
+            Siguiente
+          </button>
+        </span>
       </div>
     </section>
 
     <section class="appointment-step" data-step="2">
       <div class="appointment-date-grid">
         <div class="form-group">
-          <label for="fecha">Seleccionar fecha</label>
+          <label for="fecha" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-calendar"></use></svg>
+            <span>Seleccionar fecha</span>
+          </label>
           <input type="date" id="fecha" name="fecha" value="<%= modoEdicion ? cita.fecha : '' %>" required>
           <small class="field-message" data-for="fecha"></small>
           <small class="form-help">Solo se permiten fechas de lunes a viernes.</small>
         </div>
 
         <div class="form-group">
-          <label for="hora">Seleccionar hora disponible</label>
+          <label for="hora" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-clock"></use></svg>
+            <span>Seleccionar hora disponible</span>
+          </label>
           <select id="hora" name="hora" required <%= modoEdicion ? '' : 'disabled' %>>
             <% if (modoEdicion) { %>
               <option value="<%= cita.hora %>" selected><%= cita.hora.substring(0, 5) %></option>
@@ -79,7 +107,10 @@
       </div>
 
       <div class="form-group symptom-section">
-        <label>Síntomas frecuentes</label>
+        <label class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-heart"></use></svg>
+          <span>Síntomas frecuentes</span>
+        </label>
         <small class="form-help">Selecciona uno o más síntomas si aplica. Esta información será revisada durante el triaje.</small>
         <%
           const sintomasSeleccionados = modoEdicion && cita.sintomas
@@ -116,7 +147,10 @@
         </div>
 
         <div class="form-group symptom-other-field <%= otroSintomaGuardado ? '' : 'hidden' %>" id="appointmentOtherSymptomGroup">
-          <label for="sintomas_otro">Otro síntoma</label>
+          <label for="sintomas_otro" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+            <span>Otro síntoma</span>
+          </label>
           <input
             type="text"
             id="sintomas_otro"
@@ -133,7 +167,10 @@
       </div>
 
       <div class="form-group">
-        <label for="motivo">Motivo de consulta</label>
+        <label for="motivo" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+          <span>Motivo de consulta</span>
+        </label>
         <textarea
           id="motivo"
           name="motivo"
@@ -152,8 +189,14 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn-light" id="backStep2">Atrás</button>
-        <button type="button" class="btn-dark" id="nextStep2">Siguiente</button>
+        <button type="button" class="btn-light" id="backStep2">
+          Atrás
+        </button>
+        <span class="button-tooltip" title="Completa fecha, hora y motivo para continuar.">
+          <button type="button" class="btn-dark" id="nextStep2" disabled title="Completa fecha, hora y motivo para continuar.">
+            Siguiente
+          </button>
+        </span>
       </div>
     </section>
 
@@ -173,8 +216,13 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn-light" id="backStep3">Atrás</button>
-        <button type="submit" class="btn-dark"><%= modoEdicion ? 'Actualizar reserva' : 'Confirmar cita' %></button>
+        <button type="button" class="btn-light" id="backStep3">
+          Atrás
+        </button>
+        <button type="submit" class="btn-dark icon-action" title="<%= modoEdicion ? 'Actualizar reserva' : 'Confirmar cita' %>" aria-label="<%= modoEdicion ? 'Actualizar reserva' : 'Confirmar cita' %>">
+          <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/<%= modoEdicion ? 'editar.png' : 'confirmar.png' %>" alt="" aria-hidden="true">
+          <span class="visually-hidden"><%= modoEdicion ? 'Actualizar reserva' : 'Confirmar cita' %></span>
+        </button>
       </div>
     </section>
   </form>
@@ -185,8 +233,14 @@
     <h3 id="cancelAppointmentTitle">Cancelar cambios</h3>
     <p id="cancelAppointmentText">¿Seguro que deseas cancelar?</p>
     <div class="modal-actions">
-      <button type="button" class="btn-light" id="closeCancelAppointmentModal">Seguir editando</button>
-      <a href="#" class="btn-danger" id="confirmCancelAppointment">Sí, cancelar</a>
+      <button type="button" class="btn-light icon-action" id="closeCancelAppointmentModal" title="Seguir editando" aria-label="Seguir editando">
+        <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/volver.png" alt="" aria-hidden="true">
+        <span class="visually-hidden">Seguir editando</span>
+      </button>
+      <a href="#" class="btn-danger" id="confirmCancelAppointment" title="Sí, cancelar" aria-label="Sí, cancelar">
+        <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/cancelar.png" alt="" aria-hidden="true">
+        <span>Sí, cancelar</span>
+      </a>
     </div>
   </div>
 </div>
@@ -247,11 +301,22 @@
   }
 
   [especialidadSelect, medicoSelect, fechaInput, horaSelect, motivoInput].forEach(input => {
-    input.addEventListener('input', clearInlineMessage);
-    input.addEventListener('change', clearInlineMessage);
+    input.addEventListener('input', () => {
+      clearInlineMessage();
+      updateStep1State();
+      updateStep2State();
+    });
+    input.addEventListener('change', () => {
+      clearInlineMessage();
+      updateStep1State();
+      updateStep2State();
+    });
   });
 
-  otherSymptomInput.addEventListener('input', clearInlineMessage);
+  otherSymptomInput.addEventListener('input', () => {
+    clearInlineMessage();
+    updateStep2State();
+  });
 
   fechaInput.min = new Date().toISOString().split('T')[0];
 
@@ -277,6 +342,47 @@
     document.querySelectorAll('.field-error').forEach(input => input.classList.remove('field-error'));
   }
 
+  function setNextButtonState(button, enabled, message) {
+    button.disabled = !enabled;
+    button.title = enabled ? 'Puedes continuar.' : message;
+    if (button.parentElement && button.parentElement.classList.contains('button-tooltip')) {
+      button.parentElement.title = button.title;
+    }
+  }
+
+  function updateStep1State(showDoctorMessage = false) {
+    const hasSpecialty = Boolean(especialidadSelect.value);
+    const hasDoctor = Boolean(medicoSelect.value);
+    const doctorMessage = document.querySelector('.field-message[data-for="id_medico"]');
+    const message = hasSpecialty ? 'Selecciona un médico para continuar.' : 'Selecciona una especialidad para continuar.';
+
+    setNextButtonState(nextStep1, hasSpecialty && hasDoctor, message);
+
+    if (doctorMessage) {
+      const visibleMessage = hasSpecialty && !hasDoctor && showDoctorMessage
+        ? 'Selecciona un médico disponible para continuar.'
+        : '';
+      doctorMessage.textContent = visibleMessage;
+      doctorMessage.classList.toggle('is-visible', Boolean(visibleMessage));
+      medicoSelect.classList.toggle('field-error', Boolean(visibleMessage));
+      medicoSelect.setAttribute('aria-invalid', visibleMessage ? 'true' : 'false');
+    }
+  }
+
+  function updateStep2State() {
+    const hasDate = Boolean(fechaInput.value);
+    const hasHour = Boolean(horaSelect.value);
+    const hasReason = motivoInput.value.trim().length >= 5;
+    const otherRequired = Array.from(symptomChecks).some(input => input.value === 'Otro' && input.checked);
+    const otherOk = !otherRequired || otherSymptomInput.value.trim().length >= 5;
+
+    setNextButtonState(
+      nextStep2,
+      hasDate && hasHour && hasReason && otherOk,
+      'Completa fecha, hora y motivo para continuar.'
+    );
+  }
+
   function closeAppointmentCancelModal() {
     cancelAppointmentModal.classList.add('hidden');
   }
@@ -296,14 +402,20 @@
     medicoSelect.value = '';
     horaSelect.innerHTML = '<option value="">Primero selecciona médico y fecha</option>';
     horaSelect.disabled = true;
+    updateStep1State(true);
+    updateStep2State();
   });
 
   async function cargarHorasDisponibles() {
     const idMedico = medicoSelect.value;
     const fecha = fechaInput.value;
-    if (!idMedico || !fecha) return;
+    if (!idMedico || !fecha) {
+      updateStep2State();
+      return;
+    }
     horaSelect.disabled = true;
     horaSelect.innerHTML = '<option value="">Cargando horas disponibles...</option>';
+    updateStep2State();
 
     try {
       const params = new URLSearchParams({ id_medico: idMedico, fecha });
@@ -313,11 +425,13 @@
 
       if (!data.ok) {
         horaSelect.innerHTML = `<option value="">${data.mensaje}</option>`;
+        updateStep2State();
         return;
       }
 
       if (data.horas.length === 0) {
         horaSelect.innerHTML = '<option value="">No hay horas disponibles</option>';
+        updateStep2State();
         return;
       }
 
@@ -330,12 +444,17 @@
         horaSelect.appendChild(option);
       });
       horaSelect.disabled = false;
+      updateStep2State();
     } catch (error) {
       horaSelect.innerHTML = '<option value="">Error al cargar horas</option>';
+      updateStep2State();
     }
   }
 
-  medicoSelect.addEventListener('change', cargarHorasDisponibles);
+  medicoSelect.addEventListener('change', () => {
+    updateStep1State(true);
+    cargarHorasDisponibles();
+  });
   fechaInput.addEventListener('change', cargarHorasDisponibles);
 
   function updateOtherSymptomField() {
@@ -343,20 +462,24 @@
     otherSymptomGroup.classList.toggle('hidden', !checked);
     otherSymptomInput.disabled = !checked;
     if (!checked) otherSymptomInput.value = '';
+    updateStep2State();
   }
 
   symptomChecks.forEach(input => input.addEventListener('change', () => {
     clearInlineMessage();
     updateOtherSymptomField();
+    updateStep2State();
   }));
 
   nextStep1.addEventListener('click', () => {
+    updateStep1State(true);
     if (!especialidadSelect.value) return showInlineMessage('Selecciona una especialidad para continuar.', especialidadSelect);
     if (!medicoSelect.value) return showInlineMessage('Selecciona un médico disponible para continuar.', medicoSelect);
     showStep(2);
   });
 
   nextStep2.addEventListener('click', () => {
+    updateStep2State();
     if (!fechaInput.value) return showInlineMessage('Selecciona una fecha para la cita.', fechaInput);
     const fechaSeleccionada = new Date(`${fechaInput.value}T00:00:00`);
     const dia = fechaSeleccionada.getDay();
@@ -410,4 +533,6 @@
   filtrarMedicos();
   updateOtherSymptomField();
   if (modoEdicion) cargarHorasDisponibles();
+  updateStep1State(false);
+  updateStep2State();
 </script>
