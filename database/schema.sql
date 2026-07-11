@@ -117,6 +117,12 @@ CREATE TABLE cita (
   ) DEFAULT 'pendiente',
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  slot_activo TINYINT GENERATED ALWAYS AS (
+    CASE
+      WHEN estado = 'cancelada' THEN NULL
+      ELSE 1
+    END
+  ) STORED,
 
   CONSTRAINT fk_cita_paciente
     FOREIGN KEY (id_paciente)
@@ -128,8 +134,8 @@ CREATE TABLE cita (
     REFERENCES medico(id_medico)
     ON DELETE RESTRICT,
 
-  CONSTRAINT uq_medico_fecha_hora
-    UNIQUE (id_medico, fecha, hora),
+  CONSTRAINT uq_cita_horario_activo
+    UNIQUE (id_medico, fecha, hora, slot_activo),
 
   INDEX idx_cita_paciente (id_paciente),
   INDEX idx_cita_medico_fecha (id_medico, fecha),
@@ -199,6 +205,12 @@ CREATE TABLE consulta (
   borrador TINYINT(1) DEFAULT 1,
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  slot_activo TINYINT GENERATED ALWAYS AS (
+    CASE
+      WHEN estado = 'cancelada' THEN NULL
+      ELSE 1
+    END
+  ) STORED,
 
   CONSTRAINT fk_consulta_cita
     FOREIGN KEY (id_cita)

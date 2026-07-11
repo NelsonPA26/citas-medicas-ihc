@@ -70,6 +70,10 @@
       <h3>Información editable</h3>
       <p class="section-help">Puedes actualizar estos datos cuando sea necesario.</p>
 
+      <div class="form-guidance" role="note">
+        <strong>Recomendación:</strong> usa un correo vigente y un teléfono de 9 dígitos para que el personal pueda comunicarse contigo.
+      </div>
+
       <form action="/perfil/actualizar" method="POST" class="profile-form js-role-validated-form" id="profileForm" novalidate>
         <div class="profile-form-grid">
           <div class="form-group">
@@ -120,7 +124,7 @@
               id="fecha_nacimiento"
               name="fecha_nacimiento"
               value="<%= profile.fecha_nacimiento || '' %>"
-              data-validate="date-not-future"
+              data-validate="birth-date"
               required
             >
             <span class="field-message" data-for="fecha_nacimiento"></span>
@@ -166,7 +170,7 @@
           </button>
           <button type="submit" class="btn-dark icon-action" title="Guardar cambios" aria-label="Guardar cambios">
             <img class="action-metaphor" src="/img/action-metaphors/<%= profileMetaphorFolder %>/guardar.<%= profileMetaphorExt %>" alt="" aria-hidden="true">
-            <span class="visually-hidden">Guardar cambios</span>
+            <span>Guardar cambios</span>
           </button>
         </div>
       </form>
@@ -332,14 +336,13 @@
   const newPassword = document.getElementById('new_password');
   const strengthBox = document.querySelector('.password-strength');
 
-  function yesterdayISO() {
-    const date = new Date();
-    date.setDate(date.getDate() - 1);
-    return date.toISOString().split('T')[0];
+  function maxBirthDateISO() {
+    const today = new Date();
+    return `${today.getFullYear() - 1}-12-31`;
   }
 
   if (fechaNacimientoInput) {
-    fechaNacimientoInput.max = yesterdayISO();
+    fechaNacimientoInput.max = maxBirthDateISO();
   }
 
   if (resetProfileForm && profileForm) {

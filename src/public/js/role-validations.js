@@ -2,6 +2,7 @@ window.RoleValidation = (() => {
   const TEXT_PATTERN = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,;:()\/\-\n]+$/;
   const SEARCH_PATTERN = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,;:()\/-]+$/;
   const ADDRESS_PATTERN = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,#;:()\/-]+$/;
+  const PERSONAL_NAME_PATTERN = /^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$/;
 
   function normalizeSpaces(value) {
     return value.replace(/\s{2,}/g, ' ');
@@ -27,6 +28,11 @@ window.RoleValidation = (() => {
       .trim();
   }
 
+  function maxBirthDateISO() {
+    const today = new Date();
+    return `${today.getFullYear() - 1}-12-31`;
+  }
+
   function sanitize(field) {
     const type = field.dataset.validate;
 
@@ -38,8 +44,14 @@ window.RoleValidation = (() => {
       field.value = normalizeSpaces(field.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,;:()\/\-\n]/g, ''));
     }
 
-    if (type === 'digits') {
-      field.value = field.value.replace(/\D/g, '');
+    if (type === 'personal-name') {
+      field.value = normalizeSpaces(field.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ ]/g, ''));
+    }
+
+    if (type === 'digits' || type === 'dni') {
+      const maxLength = type === 'dni' ? 8 : Number(field.dataset.maxLength || field.maxLength || 0);
+      const digits = field.value.replace(/\D/g, '');
+      field.value = maxLength > 0 ? digits.slice(0, maxLength) : digits;
     }
 
     if (type === 'phone-pe') {
@@ -78,6 +90,7 @@ window.RoleValidation = (() => {
     const type = field.dataset.validate;
     const value = field.value.trim();
 
+    if (field.disabled) return '';
     if (field.required && !value) return 'Este campo es obligatorio.';
     if (!field.required && !value) return '';
 
@@ -89,6 +102,16 @@ window.RoleValidation = (() => {
       const min = Number(field.dataset.min || field.minLength || 5);
       if (value.length < min) return `Ingresa al menos ${min} caracteres.`;
       if (!TEXT_PATTERN.test(value)) return 'Usa solo texto, números y puntuación básica.';
+    }
+
+    if (type === 'personal-name') {
+      const min = Number(field.dataset.min || field.minLength || 2);
+      if (value.length < min) return `Ingresa al menos ${min} letras.`;
+      if (!PERSONAL_NAME_PATTERN.test(value)) return 'Ingresa solo letras y espacios.';
+    }
+
+    if (type === 'dni') {
+      if (!/^\d{8}$/.test(value)) return 'El DNI debe tener exactamente 8 números.';
     }
 
     if (type === 'digits') {
@@ -105,7 +128,7 @@ window.RoleValidation = (() => {
 
     if (type === 'phone-pe') {
       const digits = value.replace(/\D/g, '');
-      if (digits.length !== 9) return 'El teléfono debe tener exactamente 9 dígitos.';
+      if (digits.length !== 9) return 'El teléfono debe tener exactamente 9 números.';
       if (!/^\d{3} \d{3} \d{3}$/.test(value)) return 'Usa el formato 987 654 321.';
     }
 
@@ -140,6 +163,16 @@ window.RoleValidation = (() => {
       today.setHours(0, 0, 0, 0);
       if (Number.isNaN(date.getTime())) return 'Selecciona una fecha válida.';
       if (date >= today) return 'La fecha debe ser anterior a la fecha actual.';
+    }
+
+    if (type === 'birth-date') {
+      const date = new Date(`${value}T00:00:00`);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (Number.isNaN(date.getTime())) return 'Selecciona una fecha válida.';
+      if (date >= today || date.getFullYear() === today.getFullYear()) {
+        return 'La fecha de nacimiento no puede ser de hoy, futura ni del año actual.';
+      }
     }
 
     if (type === 'address' && !ADDRESS_PATTERN.test(value)) {
@@ -207,7 +240,12 @@ window.RoleValidation = (() => {
   document.querySelectorAll('.js-role-validated-form').forEach(form => {
     const fields = Array.from(form.querySelectorAll('input, select, textarea'));
 
+    form.querySelectorAll('[data-validate="birth-date"]').forEach(field => {
+      field.max = maxBirthDateISO();
+    });
+
     fields.forEach(field => {
+      sanitize(field);
       field.addEventListener('input', () => validateField(field));
       field.addEventListener('change', () => validateField(field));
     });

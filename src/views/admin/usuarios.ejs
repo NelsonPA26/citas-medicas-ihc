@@ -1,8 +1,20 @@
 <div class="module-card usuarios-card">
-  <div class="module-header module-header-row">
-    <div>
+  <div class="module-header module-header-row admin-users-header">
+    <div class="module-header-copy">
       <p>Administra datos, roles y acceso de los usuarios registrados en el sistema.</p>
     </div>
+
+    <div class="admin-user-primary-action" aria-label="Acción principal del módulo">
+  <a
+    href="/admin/usuarios/nuevo"
+    class="btn-admin-register-clean"
+    title="Registrar usuario"
+    aria-label="Registrar usuario"
+  >
+    <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/registrar.png" alt="" aria-hidden="true">
+    <span>Registrar usuario</span>
+  </a>
+</div>
   </div>
 
   <form action="/admin/usuarios" method="GET" class="filter-card js-role-validated-form" novalidate>
@@ -57,11 +69,11 @@
     <div class="filter-actions">
       <a href="/admin/usuarios" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
         <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/limpiar.png" alt="" aria-hidden="true">
-        <span class="visually-hidden">Limpiar filtros</span>
+        <span>Limpiar</span>
       </a>
       <button type="submit" class="btn-dark icon-action" title="Filtrar" aria-label="Filtrar">
         <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/filtrar.png" alt="" aria-hidden="true">
-        <span class="visually-hidden">Filtrar</span>
+        <span>Filtrar</span>
       </button>
     </div>
   </form>
@@ -70,9 +82,9 @@
     <div class="empty-state">
       <h3>No se encontraron usuarios</h3>
       <p>No hay resultados con los filtros seleccionados.</p>
-      <a href="/admin/usuarios" class="btn-dark icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
+      <a href="/admin/usuarios" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
         <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/limpiar.png" alt="" aria-hidden="true">
-        <span class="visually-hidden">Limpiar filtros</span>
+        <span>Limpiar</span>
       </a>
     </div>
   <% } else { %>
@@ -134,38 +146,15 @@
 
               <td>
                 <div class="table-actions">
-                  <button
-                    type="button"
-                    class="btn-light btn-table-action icon-action js-user-edit"
-                    data-url="/admin/usuarios/<%= usuario.id_usuario %>/editar"
-                    data-id="<%= usuario.id_usuario %>"
-                    data-self="<%= usuario.id_usuario === user.id_usuario ? '1' : '0' %>"
-                    data-nombres="<%= usuario.nombres %>"
-                    data-apellido-paterno="<%= usuario.apellido_paterno %>"
-                    data-apellido-materno="<%= usuario.apellido_materno || '' %>"
-                    data-dni="<%= usuario.dni || '' %>"
-                    data-correo="<%= usuario.correo %>"
-                    data-telefono="<%= usuario.telefono || '' %>"
-                    data-username="<%= usuario.username %>"
-                    data-rol="<%= usuario.rol %>"
-                    data-activo="<%= usuario.activo %>"
-                    data-has-paciente="<%= usuario.id_paciente ? '1' : '0' %>"
-                    data-has-medico="<%= usuario.id_medico ? '1' : '0' %>"
-                    data-medico-especialidad="<%= usuario.medico_especialidad || '' %>"
-                    data-medico-colegiatura="<%= usuario.medico_colegiatura || '' %>"
-                    data-medico-turno="<%= usuario.medico_turno || '' %>"
-                    data-has-enfermera="<%= usuario.id_enfermera ? '1' : '0' %>"
-                    data-enfermera-area="<%= usuario.enfermera_area || '' %>"
-                    data-enfermera-turno="<%= usuario.enfermera_turno || '' %>"
-                    data-has-administrativo="<%= usuario.id_administrativo ? '1' : '0' %>"
-                    data-administrativo-cargo="<%= usuario.administrativo_cargo || 'Administrativo' %>"
-                    data-administrativo-anexo="<%= usuario.administrativo_anexo || '' %>"
-                    title="Editar acceso y rol"
-                    aria-label="Editar acceso y rol"
+                  <a
+                    href="/admin/usuarios/<%= usuario.id_usuario %>/editar"
+                    class="btn-light btn-table-action icon-action"
+                    title="Editar usuario"
+                    aria-label="Editar usuario"
                   >
                     <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/editar.png" alt="" aria-hidden="true">
-                    <span class="visually-hidden">Editar acceso</span>
-                  </button>
+                    <span class="visually-hidden">Editar usuario</span>
+                  </a>
 
                   <% if (usuario.id_usuario === user.id_usuario) { %>
                       <span class="text-muted user-action-note">Cuenta actual</span>
@@ -193,12 +182,12 @@
                         >
                           <button
                             type="submit"
-                            class="btn-danger btn-table-action icon-action"
+                            class="btn-table-action icon-action btn-table-delete"
                             title="Eliminar usuario"
                             aria-label="Eliminar usuario"
                           >
                             <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/eliminar.png" alt="" aria-hidden="true">
-                            <span class="visually-hidden">Eliminar</span>
+                            <span class="visually-hidden">Eliminar usuario</span>
                           </button>
                         </form>
                       <% } %>
@@ -250,188 +239,6 @@
   <% } %>
 </div>
 
-<div class="modal-overlay hidden" id="userEditModal">
-  <div class="confirm-modal user-edit-modal user-edit-modal-polished">
-    <div class="modal-header">
-      <div>
-       <h3>Editar acceso y rol de usuario</h3>
-<p id="editUserSubtitle">Usuario seleccionado:</p>
-      </div>
-    </div>
-
-    <form method="POST" id="userEditForm" class="modal-form">
-      <div id="userEditMessage" class="step-message hidden"></div>
-      <section class="modal-form-section">
-        <h4>Acceso</h4>
-
-        <div class="modal-form-grid auth-edit-grid">
-          <div class="form-group">
-            <label for="editUsername" class="field-label-with-icon">
-              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-mail"></use></svg>
-              <span>Correo de acceso</span>
-            </label>
-            <input type="email" id="editUsername" name="username" required>
-            <small class="form-help">Se usará para iniciar sesión, recuperación e identificación de acceso.</small>
-          </div>
-
-          <div class="form-group">
-            <label for="editPassword" class="field-label-with-icon">
-              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-lock"></use></svg>
-              <span>Nueva contraseña</span>
-            </label>
-            <input
-              type="password"
-              id="editPassword"
-              name="password"
-              placeholder="Dejar vacío para conservar"
-              minlength="8"
-            >
-            <small class="form-help">Opcional. Si la cambias, debe tener mayúscula, minúscula, número y símbolo.</small>
-          </div>
-        </div>
-      </section>
-
-      <section class="modal-form-section">
-        <h4>Permisos</h4>
-
-        <div class="modal-form-grid modal-form-grid-single">
-          <div class="form-group">
-            <label for="editRol" class="field-label-with-icon">
-              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-user"></use></svg>
-              <span>Rol de acceso</span>
-            </label>
-            <select id="editRol" name="rol" required>
-              <option value="paciente">Paciente</option>
-              <option value="medico">Médico</option>
-              <option value="enfermera">Enfermera</option>
-              <option value="administrativo">Administrativo</option>
-            </select>
-            <small class="form-help">
-              Si cambias el rol a Médico o Enfermera y no existe una ficha asociada, deberás completar los datos mínimos requeridos.
-            </small>
-
-            <div class="role-change-note">
-              <strong>Importante:</strong>
-              El cambio de rol modifica el acceso al sistema, pero no elimina registros históricos asociados.
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="modal-form-section hidden" id="medicoRoleFields">
-        <h4>Ficha mínima de médico</h4>
-
-        <div class="notice-box">
-          Estos datos solo se solicitan porque el usuario aún no tiene ficha médica registrada.
-        </div>
-
-        <div class="modal-form-grid">
-          <div class="form-group">
-            <label for="editEspecialidad" class="field-label-with-icon">
-              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-stethoscope"></use></svg>
-              <span>Especialidad</span>
-            </label>
-            <select id="editEspecialidad" name="especialidad">
-              <option value="">Seleccione</option>
-              <option value="Medicina General">Medicina General</option>
-              <option value="Odontología">Odontología</option>
-              <option value="Psicología">Psicología</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="editColegiatura" class="field-label-with-icon">
-              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
-              <span>Número de colegiatura</span>
-            </label>
-            <input type="text" id="editColegiatura" name="numero_colegiatura" maxlength="30">
-          </div>
-
-          <div class="form-group">
-            <label for="editTurnoMedico" class="field-label-with-icon">
-              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-clock"></use></svg>
-              <span>Turno</span>
-            </label>
-            <select id="editTurnoMedico" name="turno_medico">
-              <option value="">Seleccione</option>
-              <option value="mañana">Mañana</option>
-              <option value="tarde">Tarde</option>
-              <option value="completo">Completo</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      <section class="modal-form-section hidden" id="enfermeraRoleFields">
-        <h4>Ficha mínima de enfermería</h4>
-
-        <div class="notice-box">
-          Estos datos solo se solicitan porque el usuario aún no tiene ficha de enfermería registrada.
-        </div>
-
-        <div class="modal-form-grid">
-          <div class="form-group">
-            <label for="editArea" class="field-label-with-icon">
-              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
-              <span>Área</span>
-            </label>
-            <input type="text" id="editArea" name="area" maxlength="80">
-          </div>
-
-          <div class="form-group">
-            <label for="editTurnoEnfermera" class="field-label-with-icon">
-              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-clock"></use></svg>
-              <span>Turno</span>
-            </label>
-            <select id="editTurnoEnfermera" name="turno_enfermera">
-              <option value="">Seleccione</option>
-              <option value="mañana">Mañana</option>
-              <option value="tarde">Tarde</option>
-              <option value="completo">Completo</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      <section class="modal-form-section hidden" id="adminRoleFields">
-        <h4>Ficha administrativa</h4>
-
-        <div class="modal-form-grid">
-          <div class="form-group">
-            <label for="editCargo" class="field-label-with-icon">
-              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
-              <span>Cargo</span>
-            </label>
-            <input type="text" id="editCargo" name="cargo" maxlength="80" value="Administrativo">
-          </div>
-
-          <div class="form-group">
-            <label for="editAnexo" class="field-label-with-icon">
-              <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
-              <span>Anexo</span>
-            </label>
-            <input type="text" id="editAnexo" name="anexo" maxlength="20">
-          </div>
-        </div>
-      </section>
-
-      <p class="form-help hidden" id="editSelfHelp">
-        Por seguridad, tu propia cuenta conserva el rol administrativo. Puedes cambiar el correo o la contraseña, pero no tu rol.
-      </p>
-      <div class="modal-actions">
-        <button type="button" class="btn-light" id="closeUserEditModal" title="Cancelar" aria-label="Cancelar">
-          <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/cancelar.png" alt="" aria-hidden="true">
-          <span>Cancelar</span>
-        </button>
-        <button type="submit" class="btn-dark icon-action" title="Guardar cambios" aria-label="Guardar cambios">
-          <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/guardar.png" alt="" aria-hidden="true">
-          <span class="visually-hidden">Guardar cambios</span>
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <div class="modal-overlay hidden" id="userStatusModal">
   <div class="confirm-modal">
     <h3 id="userStatusTitle">Confirmar acción</h3>
@@ -455,199 +262,6 @@
 </div>
 
 <script>
-  const userEditButtons = document.querySelectorAll('.js-user-edit');
-  const userEditModal = document.getElementById('userEditModal');
-  const userEditForm = document.getElementById('userEditForm');
-  const closeUserEditModal = document.getElementById('closeUserEditModal');
-  const editSelfHelp = document.getElementById('editSelfHelp');
-  const userEditMessage = document.getElementById('userEditMessage');
-  const medicoRoleFields = document.getElementById('medicoRoleFields');
-  const enfermeraRoleFields = document.getElementById('enfermeraRoleFields');
-  const adminRoleFields = document.getElementById('adminRoleFields');
-
-  let selectedUserButton = null;
-
-  const editFields = {
-    username: document.getElementById('editUsername'),
-    password: document.getElementById('editPassword'),
-    rol: document.getElementById('editRol'),
-
-    especialidad: document.getElementById('editEspecialidad'),
-    colegiatura: document.getElementById('editColegiatura'),
-    turnoMedico: document.getElementById('editTurnoMedico'),
-
-    area: document.getElementById('editArea'),
-    turnoEnfermera: document.getElementById('editTurnoEnfermera'),
-
-    cargo: document.getElementById('editCargo'),
-    anexo: document.getElementById('editAnexo')
-  };
-
-  function setRequired(section, required) {
-    section.querySelectorAll('input, select').forEach(input => {
-      input.required = required;
-    });
-  }
-
-  function hideRoleSections() {
-    medicoRoleFields.classList.add('hidden');
-    enfermeraRoleFields.classList.add('hidden');
-    adminRoleFields.classList.add('hidden');
-
-    setRequired(medicoRoleFields, false);
-    setRequired(enfermeraRoleFields, false);
-    setRequired(adminRoleFields, false);
-  }
-  function showUserEditMessage(message, field = null) {
-  userEditMessage.textContent = message;
-  userEditMessage.classList.remove('hidden');
-
-  if (field) {
-    field.classList.add('field-error');
-    field.focus();
-  }
-}
-
-  function clearUserEditMessage() {
-    userEditMessage.textContent = '';
-    userEditMessage.classList.add('hidden');
-    Object.values(editFields).forEach(field => {
-      if (field && field.classList) field.classList.remove('field-error');
-    });
-  }
-  function updateRoleFields() {
-    hideRoleSections();
-
-    if (!selectedUserButton) return;
-
-    const selectedRole = editFields.rol.value;
-    const isSelf = selectedUserButton.dataset.self === '1';
-
-    if (isSelf) {
-      return;
-    }
-
-    if (selectedRole === 'medico') {
-      const needsMedicoData =
-        selectedUserButton.dataset.hasMedico !== '1' ||
-        !selectedUserButton.dataset.medicoEspecialidad ||
-        !selectedUserButton.dataset.medicoColegiatura ||
-        !selectedUserButton.dataset.medicoTurno;
-
-      if (needsMedicoData) {
-        medicoRoleFields.classList.remove('hidden');
-        setRequired(medicoRoleFields, true);
-      }
-    }
-
-    if (selectedRole === 'enfermera') {
-      const needsEnfermeraData =
-        selectedUserButton.dataset.hasEnfermera !== '1' ||
-        !selectedUserButton.dataset.enfermeraArea ||
-        !selectedUserButton.dataset.enfermeraTurno;
-
-      if (needsEnfermeraData) {
-        enfermeraRoleFields.classList.remove('hidden');
-        setRequired(enfermeraRoleFields, true);
-      }
-    }
-
-    if (selectedRole === 'administrativo') {
-      const needsAdminData =
-        selectedUserButton.dataset.hasAdministrativo !== '1' ||
-        !selectedUserButton.dataset.administrativoCargo;
-
-      if (needsAdminData) {
-        adminRoleFields.classList.remove('hidden');
-        editFields.cargo.required = true;
-      }
-    }
-  }
-
-  userEditButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      selectedUserButton = button;
-
-      userEditForm.action = button.dataset.url;
-
-      editFields.username.value = button.dataset.correo || button.dataset.username;
-      editFields.password.value = '';
-      editFields.rol.value = button.dataset.rol;
-
-      editFields.especialidad.value = button.dataset.medicoEspecialidad || '';
-      editFields.colegiatura.value = button.dataset.medicoColegiatura || '';
-      editFields.turnoMedico.value = button.dataset.medicoTurno || '';
-
-      editFields.area.value = button.dataset.enfermeraArea || '';
-      editFields.turnoEnfermera.value = button.dataset.enfermeraTurno || '';
-
-      editFields.cargo.value = button.dataset.administrativoCargo || 'Administrativo';
-      editFields.anexo.value = button.dataset.administrativoAnexo || '';
-
-     const selectedUserFullName =
-        `${button.dataset.nombres} ${button.dataset.apellidoPaterno} ${button.dataset.apellidoMaterno || ''}`.trim();
-
-      document.getElementById('editUserSubtitle').textContent =
-        `Usuario seleccionado: ${selectedUserFullName}`;
-      const isSelf = button.dataset.self === '1';
-
-      editFields.rol.disabled = isSelf;
-      editSelfHelp.classList.toggle('hidden', !isSelf);
-
-      if (isSelf) {
-        const hiddenRole = document.createElement('input');
-        hiddenRole.type = 'hidden';
-        hiddenRole.name = 'rol';
-        hiddenRole.value = button.dataset.rol;
-        hiddenRole.id = 'hiddenSelfRole';
-
-        const oldHidden = document.getElementById('hiddenSelfRole');
-        if (oldHidden) oldHidden.remove();
-
-        userEditForm.appendChild(hiddenRole);
-      } else {
-        const oldHidden = document.getElementById('hiddenSelfRole');
-        if (oldHidden) oldHidden.remove();
-      }
-
-      updateRoleFields();
-      userEditModal.classList.remove('hidden');
-    });
-  });
-
-  editFields.rol.addEventListener('change', updateRoleFields);
-
-  closeUserEditModal.addEventListener('click', () => {
-    userEditModal.classList.add('hidden');
-  });
-
-  userEditModal.addEventListener('click', event => {
-    if (event.target === userEditModal) {
-      userEditModal.classList.add('hidden');
-    }
-  });
-
-  userEditForm.addEventListener('submit', event => {
-    const password = editFields.password.value.trim();
-
-    if (password) {
-      const strong =
-        password.length >= 8 &&
-        /[A-Z]/.test(password) &&
-        /[a-z]/.test(password) &&
-        /\d/.test(password) &&
-        /[^A-Za-z0-9]/.test(password);
-
-      if (!strong) {
-        event.preventDefault();
-        showUserEditMessage('La nueva contraseña debe tener mínimo 8 caracteres, mayúscula, minúscula, número y símbolo.',
-          editFields.password
-        );
-        return;
-      }
-    }
-  });
-
   const userStatusButtons = document.querySelectorAll('.js-user-status');
   const userStatusModal = document.getElementById('userStatusModal');
   const userStatusForm = document.getElementById('userStatusForm');

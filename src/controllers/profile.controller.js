@@ -120,7 +120,7 @@ exports.showProfile = async (req, res) => {
     const data = await getProfileByUser(req.session.user);
 
     if (!data) {
-      req.session.error = 'No se encontró la información de tu perfil.';
+      req.session.error = 'No se encontró la información de tu perfil. Vuelve a ingresar o solicita apoyo a administración.';
       return res.redirect(getDashboardByRole(req.session.user.rol));
     }
 
@@ -132,7 +132,7 @@ exports.showProfile = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar tu perfil.';
+    req.session.error = 'No se pudo cargar tu perfil. Actualiza la página o vuelve a iniciar sesión si el problema continúa.';
     return res.redirect(getDashboardByRole(req.session.user.rol));
   }
 };
@@ -168,8 +168,12 @@ exports.updateProfile = async (req, res) => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
-    if (Number.isNaN(fechaNacimiento.getTime()) || fechaNacimiento >= hoy) {
-      req.session.error = 'La fecha de nacimiento debe ser anterior a la fecha actual.';
+    if (
+      Number.isNaN(fechaNacimiento.getTime())
+      || fechaNacimiento >= hoy
+      || fechaNacimiento.getFullYear() === hoy.getFullYear()
+    ) {
+      req.session.error = 'La fecha de nacimiento no puede ser de hoy, futura ni del año actual.';
       return res.redirect('/perfil');
     }
 
@@ -262,7 +266,7 @@ exports.updateProfile = async (req, res) => {
     return res.redirect('/perfil');
   } catch (error) {
     console.error(error);
-    req.session.error = 'Ocurrió un error al actualizar tu perfil.';
+    req.session.error = 'No se pudo actualizar tu perfil. Revisa correo, teléfono, fecha de nacimiento y sexo antes de intentarlo nuevamente.';
     return res.redirect('/perfil');
   }
 };
@@ -343,7 +347,7 @@ exports.changePassword = async (req, res) => {
     return res.redirect('/perfil');
   } catch (error) {
     console.error(error);
-    req.session.error = 'Ocurrió un error al cambiar la contraseña.';
+    req.session.error = 'No se pudo cambiar la contraseña. Verifica la contraseña actual y que la nueva cumpla los requisitos.';
     return res.redirect('/perfil');
   }
 };

@@ -1,11 +1,16 @@
 <%
   const esModoDetalle = typeof modoDetalle !== 'undefined' && modoDetalle;
+  const esModoEdicion = typeof modoEdicion !== 'undefined' && modoEdicion;
+  const triajeSeguro = typeof triaje !== 'undefined' && triaje ? triaje : {};
+  const citaSegura = typeof cita !== 'undefined' && cita ? cita : {};
+  const actionUrlSeguro = typeof actionUrl !== 'undefined' ? actionUrl : '#';
+  const backUrlSeguro = typeof backUrl !== 'undefined' ? backUrl : '/enfermera/triajes';
   const normalizarSintomaGuardadoTriaje = item => ({
     'Congestion nasal': 'Congestión nasal',
     'Nauseas': 'Náuseas',
     'Vomitos': 'Vómitos'
   }[item] || item);
-  const sintomasGuardados = triaje.sintomas ? triaje.sintomas.split(',').map(item => {
+  const sintomasGuardados = triajeSeguro.sintomas ? triajeSeguro.sintomas.split(',').map(item => {
     const sintoma = item.trim();
     return sintoma.startsWith('Otro:') ? sintoma : normalizarSintomaGuardadoTriaje(sintoma);
   }) : [];
@@ -18,12 +23,12 @@
     { titulo: 'Neurológicos / otros', items: ['Dolor de cabeza', 'Mareos', 'Ansiedad', 'Otro'] }
   ];
   const antecedentesClinicos = [
-    { etiqueta: 'Alergias', valor: cita.alergias },
-    { etiqueta: 'Enfermedades previas', valor: cita.enfermedades_previas },
-    { etiqueta: 'Medicación actual', valor: cita.medicacion_actual },
-    { etiqueta: 'Cirugías', valor: cita.cirugias },
-    { etiqueta: 'Antecedentes familiares', valor: cita.antecedentes_familiares },
-    { etiqueta: 'Observaciones', valor: cita.antecedentes_observaciones }
+    { etiqueta: 'Alergias', valor: citaSegura.alergias },
+    { etiqueta: 'Enfermedades previas', valor: citaSegura.enfermedades_previas },
+    { etiqueta: 'Medicación actual', valor: citaSegura.medicacion_actual },
+    { etiqueta: 'Cirugías', valor: citaSegura.cirugias },
+    { etiqueta: 'Antecedentes familiares', valor: citaSegura.antecedentes_familiares },
+    { etiqueta: 'Observaciones', valor: citaSegura.antecedentes_observaciones }
   ].filter(item => item.valor && String(item.valor).trim() !== '');
 %>
 
@@ -32,7 +37,7 @@
     <p>
       <% if (esModoDetalle) { %>
         Revisa la información registrada durante el triaje. Los campos se muestran en modo lectura.
-      <% } else if (modoEdicion) { %>
+      <% } else if (esModoEdicion) { %>
         Actualiza los signos vitales antes de que el médico inicie la consulta.
       <% } else { %>
         Registra signos vitales y síntomas verificados durante el triaje.
@@ -43,19 +48,19 @@
   <div class="clinical-overview">
     <section class="patient-summary clinical-panel">
       <h3>Resumen del paciente</h3>
-      <div><span>Paciente</span><strong><%= cita.paciente_nombres %> <%= cita.paciente_apellido_paterno %> <%= cita.paciente_apellido_materno || '' %></strong></div>
-      <div><span>DNI</span><strong><%= cita.paciente_dni || 'No registrado' %></strong></div>
-      <div><span>Edad</span><strong><%= cita.paciente_edad !== null ? cita.paciente_edad + ' años' : 'No registrada' %></strong></div>
-      <div><span>Sexo</span><strong><%= cita.paciente_sexo || 'No registrado' %></strong></div>
-      <div><span>Fecha y hora</span><strong><%= new Date(cita.fecha).toLocaleDateString('es-PE') %> - <%= cita.hora %></strong></div>
-      <div><span>Especialidad</span><strong><%= cita.especialidad %></strong></div>
-      <% if (cita.medico_nombres) { %>
-        <div class="full-row"><span>Médico</span><strong>Dr(a). <%= cita.medico_nombres %> <%= cita.medico_apellido_paterno %> <%= cita.medico_apellido_materno || '' %></strong></div>
+      <div><span>Paciente</span><strong><%= citaSegura.paciente_nombres %> <%= citaSegura.paciente_apellido_paterno %> <%= citaSegura.paciente_apellido_materno || '' %></strong></div>
+      <div><span>DNI</span><strong><%= citaSegura.paciente_dni || 'No registrado' %></strong></div>
+      <div><span>Edad</span><strong><%= citaSegura.paciente_edad !== null ? citaSegura.paciente_edad + ' años' : 'No registrada' %></strong></div>
+      <div><span>Sexo</span><strong><%= citaSegura.paciente_sexo || 'No registrado' %></strong></div>
+      <div><span>Fecha y hora</span><strong><%= citaSegura.fecha ? new Date(citaSegura.fecha).toLocaleDateString('es-PE') : 'No registrada' %> - <%= citaSegura.hora || 'Sin hora' %></strong></div>
+      <div><span>Especialidad</span><strong><%= citaSegura.especialidad %></strong></div>
+      <% if (citaSegura.medico_nombres) { %>
+        <div class="full-row"><span>Médico</span><strong>Dr(a). <%= citaSegura.medico_nombres %> <%= citaSegura.medico_apellido_paterno %> <%= citaSegura.medico_apellido_materno || '' %></strong></div>
       <% } %>
-      <div class="full-row"><span>Motivo de consulta</span><strong><%= cita.motivo %></strong></div>
+      <div class="full-row"><span>Motivo de consulta</span><strong><%= citaSegura.motivo %></strong></div>
       <div class="full-row">
         <span>Síntomas declarados por el paciente</span>
-        <strong><%= cita.sintomas_paciente || 'No declarados por el paciente' %></strong>
+        <strong><%= citaSegura.sintomas_paciente || 'No declarados por el paciente' %></strong>
       </div>
     </section>
 
@@ -76,7 +81,7 @@
     </section>
   </div>
 
-  <form action="<%= actionUrl %>" method="POST" class="triaje-form js-role-validated-form <%= esModoDetalle ? 'readonly-clinical-form' : '' %>" id="triajeForm" novalidate>
+  <form action="<%= actionUrlSeguro %>" method="POST" class="triaje-form js-role-validated-form <%= esModoDetalle ? 'readonly-clinical-form' : '' %>" id="triajeForm" novalidate>
     <div id="triajeMessage" class="step-message hidden"></div>
 
     <div class="triaje-grid">
@@ -85,7 +90,7 @@
           <svg class="field-icon" aria-hidden="true"><use href="#field-icon-thermometer"></use></svg>
           <span>Temperatura (°C)</span>
         </label>
-        <input type="text" inputmode="decimal" id="temperatura" name="temperatura" value="<%= triaje.temperatura || '' %>" placeholder="36.8" min="30" max="45" data-validate="decimal" <%= esModoDetalle ? 'readonly' : 'required' %>>
+        <input type="text" inputmode="decimal" id="temperatura" name="temperatura" value="<%= triajeSeguro.temperatura || '' %>" placeholder="36.8" min="30" max="45" data-validate="decimal" <%= esModoDetalle ? 'readonly' : 'required' %>>
         <span class="field-message" data-for="temperatura"></span>
       </div>
       <div class="form-group">
@@ -93,7 +98,7 @@
           <svg class="field-icon" aria-hidden="true"><use href="#field-icon-activity"></use></svg>
           <span>Presión arterial</span>
         </label>
-        <input type="text" inputmode="numeric" id="presion_arterial" name="presion_arterial" value="<%= triaje.presion_arterial || '' %>" placeholder="120/80" maxlength="7" data-validate="blood-pressure" <%= esModoDetalle ? 'readonly' : 'required' %>>
+        <input type="text" inputmode="numeric" id="presion_arterial" name="presion_arterial" value="<%= triajeSeguro.presion_arterial || '' %>" placeholder="120/80" maxlength="7" data-validate="blood-pressure" <%= esModoDetalle ? 'readonly' : 'required' %>>
         <span class="field-message" data-for="presion_arterial"></span>
       </div>
       <div class="form-group">
@@ -101,7 +106,7 @@
           <svg class="field-icon" aria-hidden="true"><use href="#field-icon-heart"></use></svg>
           <span>Frecuencia cardíaca</span>
         </label>
-        <input type="text" inputmode="numeric" id="frecuencia_cardiaca" name="frecuencia_cardiaca" value="<%= triaje.frecuencia_cardiaca || '' %>" placeholder="75" min="30" max="220" maxlength="3" data-validate="digits" <%= esModoDetalle ? 'readonly' : 'required' %>>
+        <input type="text" inputmode="numeric" id="frecuencia_cardiaca" name="frecuencia_cardiaca" value="<%= triajeSeguro.frecuencia_cardiaca || '' %>" placeholder="75" min="30" max="220" maxlength="3" data-validate="digits" <%= esModoDetalle ? 'readonly' : 'required' %>>
         <span class="field-message" data-for="frecuencia_cardiaca"></span>
       </div>
       <div class="form-group">
@@ -109,7 +114,7 @@
           <svg class="field-icon" aria-hidden="true"><use href="#field-icon-activity"></use></svg>
           <span>Saturación O2 (%)</span>
         </label>
-        <input type="text" inputmode="numeric" id="saturacion" name="saturacion" value="<%= triaje.saturacion || '' %>" placeholder="98" min="50" max="100" maxlength="3" data-validate="digits" <%= esModoDetalle ? 'readonly' : 'required' %>>
+        <input type="text" inputmode="numeric" id="saturacion" name="saturacion" value="<%= triajeSeguro.saturacion || '' %>" placeholder="98" min="50" max="100" maxlength="3" data-validate="digits" <%= esModoDetalle ? 'readonly' : 'required' %>>
         <span class="field-message" data-for="saturacion"></span>
       </div>
     </div>
@@ -165,27 +170,27 @@
         <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
         <span>Observaciones</span>
       </label>
-      <textarea id="observaciones" name="observaciones" placeholder="Opcional: paciente llega acompañado, ansioso, requiere prioridad, no colabora con la toma de signos, se deriva a médico." maxlength="800" data-validate="clinical-text" data-min="5" <%= esModoDetalle ? 'readonly' : '' %>><%= triaje.observaciones || '' %></textarea>
+      <textarea id="observaciones" name="observaciones" placeholder="Opcional: paciente llega acompañado, ansioso, requiere prioridad, no colabora con la toma de signos, se deriva a médico." maxlength="800" data-validate="clinical-text" data-min="5" <%= esModoDetalle ? 'readonly' : '' %>><%= triajeSeguro.observaciones || '' %></textarea>
       <span class="field-message" data-for="observaciones"></span>
     </div>
 
     <div class="form-actions">
       <% if (esModoDetalle) { %>
-        <a href="<%= typeof backUrl !== 'undefined' ? backUrl : '/enfermera/triajes' %>" class="btn-light">Volver</a>
+        <a href="<%= backUrlSeguro %>" class="btn-light">Volver</a>
       <% } else { %>
         <a
-          href="<%= modoEdicion ? '/enfermera/triajes' : '/enfermera/triaje-pendiente' %>"
+          href="<%= esModoEdicion ? '/enfermera/triajes' : '/enfermera/triaje-pendiente' %>"
           class="btn-light js-cancel-triaje"
-          data-cancel-message="<%= modoEdicion ? 'Si cancelas, se perderán los cambios no guardados del triaje.' : 'Si cancelas, no se guardará el triaje de esta cita.' %>"
+         data-cancel-message="<%= esModoEdicion ? 'Si cancelas, se perderán los cambios no guardados del triaje.' : 'Si cancelas, no se guardará el triaje de esta cita.' %>"
           title="Cancelar"
           aria-label="Cancelar"
         >
           <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/cancelar.png" alt="" aria-hidden="true">
           <span>Cancelar</span>
         </a>
-        <button type="submit" class="btn-dark icon-action" title="<%= modoEdicion ? 'Actualizar triaje' : 'Guardar triaje' %>" aria-label="<%= modoEdicion ? 'Actualizar triaje' : 'Guardar triaje' %>">
-          <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/<%= modoEdicion ? 'editar.png' : 'guardar.png' %>" alt="" aria-hidden="true">
-          <span class="visually-hidden"><%= modoEdicion ? 'Actualizar triaje' : 'Guardar triaje' %></span>
+        <button type="submit" class="btn-dark icon-action" title="<%= esModoEdicion ? 'Actualizar triaje' : 'Guardar triaje' %>" aria-label="<%= esModoEdicion ? 'Actualizar triaje' : 'Guardar triaje' %>">
+          <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/<%= esModoEdicion ? 'editar.png' : 'guardar.png' %>" alt="" aria-hidden="true">
+          <span><%= esModoEdicion ? 'Actualizar triaje' : 'Guardar triaje' %></span>
         </button>
       <% } %>
     </div>
@@ -199,7 +204,7 @@
     <div class="modal-actions">
       <button type="button" class="btn-light icon-action" id="closeCancelTriajeModal" title="Seguir editando" aria-label="Seguir editando">
         <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/volver.png" alt="" aria-hidden="true">
-        <span class="visually-hidden">Seguir editando</span>
+        <span>Seguir editando</span>
       </button>
       <a href="#" class="btn-danger" id="confirmCancelTriaje" title="Sí, cancelar" aria-label="Sí, cancelar">
         <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/cancelar.png" alt="" aria-hidden="true">
@@ -227,7 +232,7 @@
   const closeCancelTriajeModal = document.getElementById('closeCancelTriajeModal');
   const confirmCancelTriaje = document.getElementById('confirmCancelTriaje');
   const isTriajeReadOnly = <%= esModoDetalle ? 'true' : 'false' %>;
-  const isTriajeEditMode = <%= modoEdicion ? 'true' : 'false' %>;
+  const isTriajeEditMode = <%= esModoEdicion ? 'true' : 'false' %>;
   const observacionesInput = document.getElementById('observaciones');
   const initialTriajeState = {
     temperatura: temperaturaInput.value,

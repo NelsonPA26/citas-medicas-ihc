@@ -83,7 +83,7 @@ exports.dashboard = async (req, res) => {
     const enfermera = await obtenerEnfermeraPorPersona(req.session.user.id_persona);
 
     if (!enfermera) {
-      req.session.error = 'No se encontró el perfil de enfermería.';
+      req.session.error = 'No se encontró tu perfil de enfermería. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/login');
     }
 
@@ -124,7 +124,7 @@ exports.dashboard = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar el panel de enfermería.';
+    req.session.error = 'No se pudo cargar el panel de enfermería. Actualiza la página o vuelve a iniciar sesión si continúa el problema.';
     return res.redirect('/login');
   }
 };
@@ -186,7 +186,7 @@ exports.triajePendiente = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudieron cargar las citas pendientes de triaje.';
+    req.session.error = 'No se pudieron cargar las citas pendientes de triaje. Actualiza la página o intenta nuevamente en unos segundos.';
     return res.redirect('/enfermera/dashboard');
   }
 };
@@ -238,7 +238,7 @@ exports.showRegistrarTriaje = async (req, res) => {
     );
 
     if (rows.length === 0) {
-      req.session.error = 'La cita no está disponible para registrar triaje.';
+      req.session.error = 'La cita no está disponible para registrar triaje. Puede estar cancelada, ya atendida o con triaje registrado.';
       return res.redirect('/enfermera/triaje-pendiente');
     }
 
@@ -253,7 +253,7 @@ exports.showRegistrarTriaje = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar el formulario de triaje.';
+    req.session.error = 'No se pudo cargar el formulario de triaje. Vuelve a Triaje pendiente e inténtalo nuevamente.';
     return res.redirect('/enfermera/triaje-pendiente');
   }
 };
@@ -318,7 +318,7 @@ exports.storeRegistrarTriaje = async (req, res) => {
     const enfermera = await obtenerEnfermeraPorPersona(req.session.user.id_persona);
 
     if (!enfermera) {
-      req.session.error = 'No se encontró el perfil de enfermería.';
+      req.session.error = 'No se encontró tu perfil de enfermería. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/enfermera/dashboard');
     }
 
@@ -337,13 +337,13 @@ exports.storeRegistrarTriaje = async (req, res) => {
 
     if (citaRows.length === 0) {
       await connection.rollback();
-      req.session.error = 'La cita seleccionada no existe.';
+      req.session.error = 'La cita seleccionada no existe o ya fue modificada. Actualiza la lista e inténtalo nuevamente.';
       return res.redirect('/enfermera/triaje-pendiente');
     }
 
     if (citaRows[0].estado !== 'pendiente') {
       await connection.rollback();
-      req.session.error = 'Esta cita ya no está pendiente de triaje.';
+      req.session.error = 'Esta cita ya no está pendiente de triaje. Actualiza la lista antes de continuar.';
       return res.redirect('/enfermera/triaje-pendiente');
     }
 
@@ -359,7 +359,7 @@ exports.storeRegistrarTriaje = async (req, res) => {
 
     if (triajeExistente.length > 0) {
       await connection.rollback();
-      req.session.error = 'Esta cita ya tiene triaje registrado.';
+      req.session.error = 'Esta cita ya tiene triaje registrado. Actualiza la lista para ver su estado actual.';
       return res.redirect('/enfermera/triaje-pendiente');
     }
 
@@ -406,11 +406,11 @@ exports.storeRegistrarTriaje = async (req, res) => {
     console.error(error);
 
     if (error.code === 'ER_DUP_ENTRY') {
-      req.session.error = 'Esta cita ya tiene triaje registrado.';
+      req.session.error = 'Esta cita ya tiene triaje registrado. Actualiza la lista para ver su estado actual.';
       return res.redirect('/enfermera/triaje-pendiente');
     }
 
-    req.session.error = 'Ocurrió un error al registrar el triaje.';
+    req.session.error = 'No se pudo registrar el triaje. Revisa los signos vitales y síntomas antes de intentarlo nuevamente.';
     return res.redirect('/enfermera/triaje-pendiente');
   } finally {
     connection.release();
@@ -423,7 +423,7 @@ exports.showEditarTriaje = async (req, res) => {
     const enfermera = await obtenerEnfermeraPorPersona(req.session.user.id_persona);
 
     if (!enfermera) {
-      req.session.error = 'No se encontró el perfil de enfermería.';
+      req.session.error = 'No se encontró tu perfil de enfermería. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/enfermera/dashboard');
     }
 
@@ -494,7 +494,7 @@ exports.showEditarTriaje = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar el triaje seleccionado.';
+    req.session.error = 'No se pudo cargar el triaje seleccionado. Vuelve a Triajes activos e inténtalo nuevamente.';
     return res.redirect('/enfermera/triajes');
   }
 };
@@ -508,7 +508,7 @@ exports.showDetalleTriaje = async (req, res) => {
     const enfermera = await obtenerEnfermeraPorPersona(req.session.user.id_persona);
 
     if (!enfermera) {
-      req.session.error = 'No se encontró el perfil de enfermería.';
+      req.session.error = 'No se encontró tu perfil de enfermería. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/enfermera/dashboard');
     }
 
@@ -580,7 +580,7 @@ exports.showDetalleTriaje = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar el detalle del triaje.';
+    req.session.error = 'No se pudo cargar el detalle del triaje. Vuelve a la lista e inténtalo nuevamente.';
     return res.redirect('/enfermera/triajes');
   }
 };
@@ -638,7 +638,7 @@ exports.updateTriaje = async (req, res) => {
     const enfermera = await obtenerEnfermeraPorPersona(req.session.user.id_persona);
 
     if (!enfermera) {
-      req.session.error = 'No se encontró el perfil de enfermería.';
+      req.session.error = 'No se encontró tu perfil de enfermería. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/enfermera/dashboard');
     }
 
@@ -670,7 +670,7 @@ exports.updateTriaje = async (req, res) => {
     );
 
     if (result.affectedRows === 0) {
-      req.session.error = 'No se pudo editar: la cita ya pasó a consulta médica o no te pertenece.';
+      req.session.error = 'No se pudo editar el triaje porque la cita ya pasó a consulta médica o no pertenece a tu atención. Actualiza la lista antes de continuar.';
       return res.redirect('/enfermera/triajes');
     }
 
@@ -678,7 +678,7 @@ exports.updateTriaje = async (req, res) => {
     return res.redirect('/enfermera/triajes');
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo actualizar el triaje.';
+    req.session.error = 'No se pudo actualizar el triaje. Revisa los signos vitales y observaciones antes de intentarlo nuevamente.';
     return res.redirect(`/enfermera/triajes/${req.params.id_cita}/editar`);
   }
 };
@@ -688,7 +688,7 @@ exports.triajesRealizados = async (req, res) => {
     const enfermera = await obtenerEnfermeraPorPersona(req.session.user.id_persona);
 
     if (!enfermera) {
-      req.session.error = 'No se encontró el perfil de enfermería.';
+      req.session.error = 'No se encontró tu perfil de enfermería. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/enfermera/dashboard');
     }
 
@@ -800,7 +800,7 @@ exports.triajesRealizados = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudieron cargar los triajes activos.';
+    req.session.error = 'No se pudieron cargar los triajes activos. Actualiza la página o intenta nuevamente en unos segundos.';
     return res.redirect('/enfermera/dashboard');
   }
 };
@@ -810,7 +810,7 @@ exports.historialTriajes = async (req, res) => {
     const enfermera = await obtenerEnfermeraPorPersona(req.session.user.id_persona);
 
     if (!enfermera) {
-      req.session.error = 'No se encontró el perfil de enfermería.';
+      req.session.error = 'No se encontró tu perfil de enfermería. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/enfermera/dashboard');
     }
 
@@ -889,7 +889,7 @@ exports.historialTriajes = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar el historial de triajes.';
+    req.session.error = 'No se pudo cargar el historial de triajes. Actualiza la página o intenta nuevamente en unos segundos.';
     return res.redirect('/enfermera/dashboard');
   }
 };

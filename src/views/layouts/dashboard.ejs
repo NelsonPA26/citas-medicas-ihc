@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -170,18 +170,6 @@
           <%- icons.citas %>
           <span>Citas</span>
         </a>
-
-        <a href="/admin/medicos" class="<%= currentPath.startsWith('/admin/medicos') ? 'active' : '' %>">
-          <%- icons.medico %>
-          <span>Médicos</span>
-        </a>
-
-        <a href="/admin/enfermeras" class="<%= currentPath.startsWith('/admin/enfermeras') ? 'active' : '' %>">
-          <%- icons.triaje %>
-          <span>Enfermeras</span>
-        </a>
-
-
         <a href="/perfil" class="<%= currentPath === '/perfil' ? 'active' : '' %>">
           <%- icons.perfil %>
           <span>Mi perfil</span>
@@ -233,13 +221,7 @@
       }
 
       if (user && user.rol === 'administrativo') {
-        if (currentPath === '/admin/usuarios') roleTopbarHelp = 'admin-usuarios';
-        if (currentPath === '/admin/medicos') roleTopbarHelp = 'admin-medicos';
-        if (currentPath.startsWith('/admin/medicos/') && currentPath.includes('/editar')) roleTopbarHelp = 'admin-form-personal';
-        if (currentPath === '/admin/medicos/nuevo') roleTopbarHelp = 'admin-form-personal';
-        if (currentPath === '/admin/enfermeras') roleTopbarHelp = 'admin-enfermeras';
-        if (currentPath.startsWith('/admin/enfermeras/') && currentPath.includes('/editar')) roleTopbarHelp = 'admin-form-personal';
-        if (currentPath === '/admin/enfermeras/nuevo') roleTopbarHelp = 'admin-form-personal';
+        if (currentPath.startsWith('/admin/usuarios')) roleTopbarHelp = 'admin-usuarios';
         if (currentPath === '/admin/citas') roleTopbarHelp = 'admin-citas';
         if (currentPath.startsWith('/admin/citas/')) roleTopbarHelp = 'admin-detalle-cita';
         if (currentPath === '/perfil') roleTopbarHelp = 'admin-perfil';
@@ -294,7 +276,7 @@
         </button>
         <button type="button" class="btn-danger icon-action" id="globalConfirmAccept" title="Confirmar" aria-label="Confirmar">
           <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/confirmar.png" alt="" aria-hidden="true">
-          <span class="visually-hidden">Confirmar</span>
+          <span>Confirmar</span>
         </button>
       </div>
     </div>
@@ -318,6 +300,8 @@
       </div>
     </div>
   <% } %>
+
+  <script src="/js/ui-feedback.js"></script>
 
   <script>
   const autoDismissAlerts = document.querySelectorAll('.auto-dismiss');
@@ -725,48 +709,17 @@ function moveRowsByStatusPriority(tbody) {
         note: 'Un perfil actualizado facilita la comunicación del equipo.'
       },
       'admin-usuarios': {
-        title: 'Gestión de usuarios',
-        intro: 'Administra acceso, roles y estado de las cuentas del sistema.',
+        title: 'Gestion de usuarios',
+        intro: 'Administra datos, acceso, roles y estado de todas las cuentas del sistema.',
         items: [
           'Usa filtros para buscar por nombre, DNI, correo, rol o estado.',
-          'Edita acceso para cambiar correo, contraseña o rol.',
+          'Registra usuarios nuevos desde este modulo y elige el rol que corresponde.',
+          'Edita datos personales, acceso, contrasena o rol cuando sea necesario.',
+          'Completa los datos profesionales solo cuando el rol sea medico, enfermera o administrativo.',
           'Desactiva cuentas cuando no deban ingresar.',
-          'Elimina solo usuarios sin registros históricos asociados.'
+          'Elimina solo usuarios sin registros historicos asociados.'
         ],
-        note: 'Evita cambiar roles sin confirmar que exista la ficha correspondiente.'
-      },
-      'admin-medicos': {
-        title: 'Gestión de médicos',
-        intro: 'Registra, edita o controla el estado del personal médico.',
-        items: [
-          'Busca por nombre, DNI, correo o colegiatura.',
-          'Registra médicos para que puedan atender citas.',
-          'Desactiva un médico si no debe aparecer operativo.',
-          'Edita datos profesionales si hubo error o actualización.'
-        ],
-        note: 'La especialidad afecta la reserva de citas del paciente.'
-      },
-      'admin-enfermeras': {
-        title: 'Gestión de enfermeras',
-        intro: 'Registra y administra personal de enfermería.',
-        items: [
-          'Busca por nombre, DNI, correo o área.',
-          'Registra enfermeras para habilitar el flujo de triaje.',
-          'Desactiva una cuenta si no debe operar temporalmente.',
-          'Edita área o turno cuando cambie la asignación.'
-        ],
-        note: 'El personal activo puede acceder a funciones de triaje.'
-      },
-      'admin-form-personal': {
-        title: 'Formulario de personal',
-        intro: 'Completa datos personales, contacto y datos profesionales.',
-        items: [
-          'Verifica DNI, nombres y correo antes de registrar.',
-          'El correo será el usuario de acceso.',
-          'Para médicos registra especialidad, colegiatura y turno.',
-          'Para enfermería registra área y turno.'
-        ],
-        note: 'La contraseña temporal inicial es UNT12345* para nuevos registros.'
+        note: 'La contrasena temporal inicial es UNT12345* cuando no se escribe una contrasena propia.'
       },
       'admin-citas': {
         title: 'Citas generales',
@@ -860,8 +813,9 @@ function moveRowsByStatusPriority(tbody) {
     const getConfirmObjectFolder = form => {
       const text = `${form.dataset.confirmTitle || ''} ${form.dataset.confirm || ''} ${window.location.pathname}`.toLowerCase();
 
+      if (window.location.pathname.includes('/admin/usuarios')) return 'administrador/usuarios';
       if (text.includes('enfermera')) return 'administrador/enfermeras';
-      if (text.includes('médico') || text.includes('medico') || window.location.pathname.includes('/admin/medicos')) return 'administrador/medicos';
+      if (text.includes('médico') || text.includes('medico')) return 'administrador/medicos';
       if (text.includes('cita') || window.location.pathname.includes('/admin/citas')) return 'administrador/citas';
       return 'administrador/usuarios';
     };
@@ -888,8 +842,8 @@ function moveRowsByStatusPriority(tbody) {
         const confirmAction = getConfirmActionIcon(confirmLabel);
         const confirmAcceptText = globalConfirmAccept.querySelector('span');
         confirmAcceptText.textContent = confirmLabel;
-        confirmAcceptText.classList.toggle('visually-hidden', confirmAction !== 'cancelar');
-        globalConfirmAccept.classList.toggle('icon-action', confirmAction !== 'cancelar');
+        confirmAcceptText.classList.remove('visually-hidden');
+        globalConfirmAccept.classList.add('icon-action');
         const confirmFolder = getConfirmObjectFolder(form);
         globalConfirmAccept.querySelector('img').src = `/img/action-metaphors/${confirmFolder}/${confirmAction}.png`;
         globalConfirmModal.classList.remove('hidden');
@@ -903,6 +857,12 @@ function moveRowsByStatusPriority(tbody) {
 
     globalConfirmAccept.addEventListener('click', () => {
       if (pendingConfirmForm) {
+        if (typeof window.saveCurrentFormDraft === 'function') {
+          window.saveCurrentFormDraft(pendingConfirmForm);
+        }
+        if (typeof window.showPageLoading === 'function') {
+          window.showPageLoading('Procesando acción...');
+        }
         pendingConfirmForm.submit();
       }
     });

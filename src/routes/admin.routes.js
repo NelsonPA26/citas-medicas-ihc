@@ -27,6 +27,27 @@ router.get(
   adminController.usuarios
 );
 
+router.get(
+  '/usuarios/nuevo',
+  isAuthenticated,
+  allowRoles('administrativo'),
+  adminController.nuevoUsuario
+);
+
+router.post(
+  '/usuarios/nuevo',
+  isAuthenticated,
+  allowRoles('administrativo'),
+  adminController.storeUsuario
+);
+
+router.get(
+  '/usuarios/:id_usuario/editar',
+  isAuthenticated,
+  allowRoles('administrativo'),
+  adminController.formEditarUsuario
+);
+
 router.post(
   '/usuarios/:id_usuario/editar',
   isAuthenticated,
@@ -46,102 +67,103 @@ router.post(
   allowRoles('administrativo'),
   adminController.eliminarUsuario
 );
+
 router.get(
   '/medicos',
   isAuthenticated,
   allowRoles('administrativo'),
-  adminController.medicos
+  (req, res) => res.redirect('/admin/usuarios?rol=medico')
 );
 
 router.get(
   '/medicos/nuevo',
   isAuthenticated,
   allowRoles('administrativo'),
-  adminController.showNuevoMedico
+  (req, res) => res.redirect('/admin/usuarios?rol=medico')
 );
 
 router.post(
   '/medicos/nuevo',
   isAuthenticated,
   allowRoles('administrativo'),
-  adminController.storeNuevoMedico
+  (req, res) => res.redirect('/admin/usuarios?rol=medico')
 );
 
 router.get(
   '/medicos/:id_medico/editar',
   isAuthenticated,
   allowRoles('administrativo'),
-  adminController.showEditarMedico
+  (req, res) => res.redirect('/admin/usuarios?rol=medico')
 );
 
 router.post(
   '/medicos/:id_medico/editar',
   isAuthenticated,
   allowRoles('administrativo'),
-  adminController.updateMedico
+  (req, res) => res.redirect('/admin/usuarios?rol=medico')
 );
 
 router.post(
   '/medicos/:id_medico/estado',
   isAuthenticated,
   allowRoles('administrativo'),
-  adminController.cambiarEstadoMedico
+  (req, res) => res.redirect('/admin/usuarios?rol=medico')
 );
 
 router.post(
   '/medicos/:id_medico/eliminar',
   isAuthenticated,
   allowRoles('administrativo'),
-  adminController.eliminarMedico
+  (req, res) => res.redirect('/admin/usuarios?rol=medico')
 );
 
 router.get(
   '/enfermeras',
   isAuthenticated,
   allowRoles('administrativo'),
-  adminController.enfermeras
+  (req, res) => res.redirect('/admin/usuarios?rol=enfermera')
 );
 
 router.get(
   '/enfermeras/nuevo',
   isAuthenticated,
   allowRoles('administrativo'),
-  adminController.showNuevaEnfermera
+  (req, res) => res.redirect('/admin/usuarios?rol=enfermera')
 );
 
 router.post(
   '/enfermeras/nuevo',
   isAuthenticated,
   allowRoles('administrativo'),
-  adminController.storeNuevaEnfermera
+  (req, res) => res.redirect('/admin/usuarios?rol=enfermera')
 );
 
 router.get(
   '/enfermeras/:id_enfermera/editar',
   isAuthenticated,
   allowRoles('administrativo'),
-  adminController.showEditarEnfermera
+  (req, res) => res.redirect('/admin/usuarios?rol=enfermera')
 );
 
 router.post(
   '/enfermeras/:id_enfermera/editar',
   isAuthenticated,
   allowRoles('administrativo'),
-  adminController.updateEnfermera
+  (req, res) => res.redirect('/admin/usuarios?rol=enfermera')
 );
 
 router.post(
   '/enfermeras/:id_enfermera/estado',
   isAuthenticated,
   allowRoles('administrativo'),
-  adminController.cambiarEstadoEnfermera
+  (req, res) => res.redirect('/admin/usuarios?rol=enfermera')
 );
 
 router.post(
   '/enfermeras/:id_enfermera/eliminar',
   isAuthenticated,
   allowRoles('administrativo'),
-  adminController.eliminarEnfermera
+  (req, res) => res.redirect('/admin/usuarios?rol=enfermera')
 );
 
 router.get(

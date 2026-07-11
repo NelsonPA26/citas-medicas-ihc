@@ -35,7 +35,7 @@ exports.dashboard = async (req, res) => {
     const medico = await obtenerMedicoPorPersona(req.session.user.id_persona);
 
     if (!medico) {
-      req.session.error = 'No se encontró el perfil del médico.';
+      req.session.error = 'No se encontró tu perfil médico. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/login');
     }
 
@@ -60,7 +60,7 @@ exports.dashboard = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar el panel del médico.';
+    req.session.error = 'No se pudo cargar el panel médico. Actualiza la página o vuelve a iniciar sesión si continúa el problema.';
     return res.redirect('/login');
   }
 };
@@ -77,7 +77,7 @@ exports.citasDelDia = async (req, res) => {
     const medico = await obtenerMedicoPorPersona(req.session.user.id_persona);
 
     if (!medico) {
-      req.session.error = 'No se encontró el perfil del médico.';
+      req.session.error = 'No se encontró tu perfil médico. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/medico/dashboard');
     }
 
@@ -123,7 +123,7 @@ exports.citasDelDia = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudieron cargar las citas del médico.';
+    req.session.error = 'No se pudieron cargar tus citas. Actualiza la página o intenta nuevamente en unos segundos.';
     return res.redirect('/medico/dashboard');
   }
 };
@@ -135,7 +135,7 @@ exports.showAtenderCita = async (req, res) => {
     const medico = await obtenerMedicoPorPersona(req.session.user.id_persona);
 
     if (!medico) {
-      req.session.error = 'No se encontró el perfil del médico.';
+      req.session.error = 'No se encontró tu perfil médico. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/medico/dashboard');
     }
 
@@ -195,7 +195,7 @@ exports.showAtenderCita = async (req, res) => {
     );
 
     if (rows.length === 0) {
-      req.session.error = 'La cita no está disponible para atención médica.';
+      req.session.error = 'La cita no está disponible para atención médica. Puede estar cancelada, completada o aún pendiente de triaje.';
       return res.redirect('/medico/citas');
     }
 
@@ -206,7 +206,7 @@ exports.showAtenderCita = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar la cita seleccionada.';
+    req.session.error = 'No se pudo cargar la cita seleccionada. Vuelve a Citas por atender e inténtalo nuevamente.';
     return res.redirect('/medico/citas');
   }
 };
@@ -264,7 +264,7 @@ exports.storeAtenderCita = async (req, res) => {
     const medico = await obtenerMedicoPorPersona(req.session.user.id_persona);
 
     if (!medico) {
-      req.session.error = 'No se encontró el perfil del médico.';
+      req.session.error = 'No se encontró tu perfil médico. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/medico/dashboard');
     }
 
@@ -292,7 +292,7 @@ exports.storeAtenderCita = async (req, res) => {
 
     if (citaRows.length === 0) {
       await connection.rollback();
-      req.session.error = 'La cita seleccionada no existe o no te pertenece.';
+      req.session.error = 'La cita seleccionada no existe o no pertenece a tu cuenta. Actualiza la lista e inténtalo nuevamente.';
       return res.redirect('/medico/citas');
     }
 
@@ -409,7 +409,7 @@ exports.storeAtenderCita = async (req, res) => {
     await connection.rollback();
     console.error(error);
 
-    req.session.error = 'Ocurrió un error al registrar la consulta.';
+    req.session.error = 'No se pudo registrar la consulta. Revisa diagnóstico, tratamiento y acción seleccionada antes de intentarlo nuevamente.';
     return res.redirect(`/medico/citas/${req.params.id_cita}/atender`);
   } finally {
     connection.release();
@@ -421,7 +421,7 @@ exports.pacientes = async (req, res) => {
     const medico = await obtenerMedicoPorPersona(req.session.user.id_persona);
 
     if (!medico) {
-      req.session.error = 'No se encontró el perfil del médico.';
+      req.session.error = 'No se encontró tu perfil médico. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/medico/dashboard');
     }
 
@@ -492,7 +492,7 @@ exports.pacientes = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudieron cargar los pacientes.';
+    req.session.error = 'No se pudieron cargar los pacientes. Actualiza la página o intenta nuevamente en unos segundos.';
     return res.redirect('/medico/dashboard');
   }
 };
@@ -505,7 +505,7 @@ exports.historialPaciente = async (req, res) => {
     const medico = await obtenerMedicoPorPersona(req.session.user.id_persona);
 
     if (!medico) {
-      req.session.error = 'No se encontró el perfil del médico.';
+      req.session.error = 'No se encontró tu perfil médico. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/medico/dashboard');
     }
 
@@ -590,7 +590,7 @@ exports.historialPaciente = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar el historial del paciente.';
+    req.session.error = 'No se pudo cargar el historial del paciente. Vuelve a la lista e inténtalo nuevamente.';
     return res.redirect('/medico/pacientes');
   }
 };
@@ -601,7 +601,7 @@ exports.detalleConsultaPaciente = async (req, res) => {
     const medico = await obtenerMedicoPorPersona(req.session.user.id_persona);
 
     if (!medico) {
-      req.session.error = 'No se encontró el perfil del médico.';
+      req.session.error = 'No se encontró tu perfil médico. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/medico/dashboard');
     }
 
@@ -661,7 +661,7 @@ exports.detalleConsultaPaciente = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar el detalle de la consulta.';
+    req.session.error = 'No se pudo cargar el detalle de la consulta. Vuelve al historial e inténtalo nuevamente.';
     return res.redirect('/medico/pacientes');
   }
 };

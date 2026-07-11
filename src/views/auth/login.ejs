@@ -9,7 +9,9 @@
     <div class="alert alert-success"><%= success %></div>
   <% } %>
 
-  <form action="/login" method="POST" class="auth-form">
+  <p class="form-guidance" role="note"><strong>Consejo:</strong> escribe tu correo o usuario sin espacios. Después de varios intentos fallidos, la cuenta se bloquea temporalmente por seguridad.</p>
+
+  <form action="/login" method="POST" class="auth-form js-auth-validated-form" novalidate>
     <div class="form-group">
       <label for="identificador">Correo institucional/Usuario</label>
       <input 
@@ -17,8 +19,10 @@
         id="identificador" 
         name="identificador" 
         placeholder="ejemplo@unt.edu.pe"
+        data-validate="login-identifier"
         required
       >
+      <small class="field-message" data-for="identificador"></small>
     </div>
 
     <div class="form-group">

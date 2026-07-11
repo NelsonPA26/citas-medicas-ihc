@@ -51,23 +51,23 @@
     <div class="filter-actions">
       <a href="/enfermera/historial-triajes" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
         <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/limpiar.png" alt="" aria-hidden="true">
-        <span class="visually-hidden">Limpiar filtros</span>
+        <span>Limpiar</span>
       </a>
       <button type="submit" class="btn-dark icon-action" title="Filtrar" aria-label="Filtrar">
         <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/filtrar.png" alt="" aria-hidden="true">
-        <span class="visually-hidden">Filtrar</span>
+        <span>Filtrar</span>
       </button>
     </div>
   </form>
 
   <% if (triajes.length === 0) { %>
     <div class="empty-state">
-      <h3>No hay triajes en historial</h3>
-      <p>Los triajes apareceran aqui cuando la cita se complete o se cancele despues de registrar triaje.</p>
+      <h3>No se encontraron triajes</h3>
+      <p>No hay resultados con los filtros seleccionados.</p>
       <div class="empty-actions">
-        <a href="/enfermera/triajes" class="btn-dark icon-action" title="Ver triajes activos" aria-label="Ver triajes activos">
-          <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/buscar.png" alt="" aria-hidden="true">
-          <span class="visually-hidden">Ver triajes activos</span>
+        <a href="/enfermera/historial-triajes" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
+          <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/limpiar.png" alt="" aria-hidden="true">
+          <span>Limpiar</span>
         </a>
       </div>
     </div>

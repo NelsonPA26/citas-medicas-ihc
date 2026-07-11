@@ -5,46 +5,56 @@
     <div class="alert alert-error"><%= error %></div>
   <% } %>
 
-  <form action="/register" method="POST" class="auth-form">
+  <p class="form-guidance" role="note"><strong>Antes de crear tu cuenta:</strong> usa solo letras en nombres, DNI de 8 dígitos y teléfono de 9 dígitos.</p>
+
+  <form action="/register" method="POST" class="auth-form js-auth-validated-form" novalidate>
     <div class="form-group">
       <label for="nombres">Nombre</label>
-      <input type="text" id="nombres" name="nombres" value="<%= old.nombres || '' %>" minlength="2" maxlength="80" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ .'-]{2,80}" autocomplete="given-name" required>
+      <input type="text" id="nombres" name="nombres" value="<%= old.nombres || '' %>" minlength="2" maxlength="80" data-validate="personal-name" autocomplete="given-name" required>
+      <small class="field-message" data-for="nombres"></small>
     </div>
 
     <div class="form-group">
       <label for="apellido_paterno">Apellido Paterno</label>
-      <input type="text" id="apellido_paterno" name="apellido_paterno" value="<%= old.apellido_paterno || '' %>" minlength="2" maxlength="80" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ .'-]{2,80}" autocomplete="family-name" required>
+      <input type="text" id="apellido_paterno" name="apellido_paterno" value="<%= old.apellido_paterno || '' %>" minlength="2" maxlength="80" data-validate="personal-name" autocomplete="family-name" required>
+      <small class="field-message" data-for="apellido_paterno"></small>
     </div>
 
     <div class="form-group">
       <label for="apellido_materno">Apellido Materno</label>
-      <input type="text" id="apellido_materno" name="apellido_materno" value="<%= old.apellido_materno || '' %>" maxlength="80" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ .'-]{0,80}" autocomplete="additional-name">
+      <input type="text" id="apellido_materno" name="apellido_materno" value="<%= old.apellido_materno || '' %>" maxlength="80" data-validate="personal-name" autocomplete="additional-name">
+      <small class="field-message" data-for="apellido_materno"></small>
     </div>
 
     <div class="form-group">
       <label for="dni">DNI</label>
-      <input type="text" id="dni" name="dni" inputmode="numeric" pattern="[0-9]{8}" maxlength="8" value="<%= old.dni || '' %>" autocomplete="off" title="El DNI debe tener exactamente 8 dígitos." required>
+      <input type="text" id="dni" name="dni" inputmode="numeric" maxlength="8" data-validate="dni" value="<%= old.dni || '' %>" autocomplete="off" required>
+      <small class="field-message" data-for="dni"></small>
     </div>
 
     <div class="form-group">
       <label for="correo">Correo Electrónico</label>
-      <input type="email" id="correo" name="correo" value="<%= old.correo || '' %>" maxlength="120" autocomplete="email" required>
+      <input type="email" id="correo" name="correo" value="<%= old.correo || '' %>" maxlength="120" data-validate="email" autocomplete="email" required>
+      <small class="field-message" data-for="correo"></small>
     </div>
 
     <div class="form-group">
       <label for="telefono">Número Telefónico</label>
-      <input type="text" id="telefono" name="telefono" value="<%= old.telefono || '' %>" inputmode="numeric" pattern="[0-9]{7,15}" maxlength="15" autocomplete="tel" title="El teléfono debe tener entre 7 y 15 dígitos." required>
+      <input type="text" id="telefono" name="telefono" value="<%= old.telefono || '' %>" inputmode="numeric" maxlength="11" data-validate="phone-pe" autocomplete="tel" placeholder="987 654 321" required>
+      <small class="field-message" data-for="telefono"></small>
     </div>
 
     <div class="form-group">
       <label for="password">Contraseña</label>
-      <input type="password" id="password" name="password" minlength="8" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}" autocomplete="new-password" title="Mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo." required>
+      <input type="password" id="password" name="password" minlength="8" data-validate="strong-password" autocomplete="new-password" required>
       <small class="form-help">Mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.</small>
+      <small class="field-message" data-for="password"></small>
     </div>
 
     <div class="form-group">
       <label for="confirm_password">Repetir Contraseña</label>
-      <input type="password" id="confirm_password" name="confirm_password" minlength="8" autocomplete="new-password" required>
+      <input type="password" id="confirm_password" name="confirm_password" minlength="8" data-validate="password-confirm" data-match="password" autocomplete="new-password" required>
+      <small class="field-message" data-for="confirm_password"></small>
     </div>
 
     <button type="submit" class="btn btn-primary">Crear Cuenta</button>
@@ -52,23 +62,3 @@
 
   <a href="/login" class="auth-link center-link">Ya tengo una cuenta</a>
 </div>
-
-<script>
-  const registerPassword = document.getElementById('password');
-  const registerConfirmPassword = document.getElementById('confirm_password');
-
-  function validateRegisterPasswordMatch() {
-    if (!registerPassword || !registerConfirmPassword) return;
-
-    registerConfirmPassword.setCustomValidity(
-      registerConfirmPassword.value && registerPassword.value !== registerConfirmPassword.value
-        ? 'Las contraseñas no coinciden.'
-        : ''
-    );
-  }
-
-  if (registerPassword && registerConfirmPassword) {
-    registerPassword.addEventListener('input', validateRegisterPasswordMatch);
-    registerConfirmPassword.addEventListener('input', validateRegisterPasswordMatch);
-  }
-</script>

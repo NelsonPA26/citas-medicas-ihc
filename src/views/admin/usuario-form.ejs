@@ -1,0 +1,361 @@
+<%
+  const isEdit = modo === 'editar';
+  const formIntro = isEdit
+    ? 'Actualiza solo los datos necesarios del usuario seleccionado.'
+    : 'Completa los datos personales, acceso y rol para crear una nueva cuenta.';
+
+  const selectedRole = usuario.rol || 'paciente';
+
+  const especialidades = ['Medicina General', 'Odontología', 'Psicología'];
+  const turnos = [
+    { value: 'mañana', label: 'Mañana' },
+    { value: 'tarde', label: 'Tarde' },
+    { value: 'completo', label: 'Completo' }
+  ];
+  const areasEnfermeria = ['Triaje', 'Control de signos vitales', 'Vacunación', 'Curaciones', 'Admisión clínica'];
+  const cargosAdministrativos = ['Administrativo', 'Recepción', 'Admisión', 'Caja', 'Reportes'];
+
+  const selectedArea = usuario.enfermera_area || '';
+  const selectedCargo = usuario.administrativo_cargo || 'Administrativo';
+  const areaNoListada = selectedArea && !areasEnfermeria.includes(selectedArea);
+  const cargoNoListado = selectedCargo && !cargosAdministrativos.includes(selectedCargo);
+%>
+
+<div class="module-card admin-user-form-card">
+  <div class="module-header admin-user-form-intro">
+    <p><%= formIntro %></p>
+  </div>
+
+  <div class="form-guidance" role="note">
+    <strong>Antes de guardar:</strong> verifica DNI, correo, teléfono y rol. El sistema validará los datos para evitar cuentas duplicadas o incompletas.
+  </div>
+
+  <form action="<%= actionUrl %>" method="POST" class="admin-user-form js-role-validated-form" id="adminUserForm" novalidate>
+    <div class="form-section-card">
+      <div class="form-section-heading">
+        <h3>Datos personales</h3>
+        <p>Registra información clara para identificar al usuario dentro del sistema.</p>
+      </div>
+
+      <div class="admin-user-form-grid">
+        <div class="form-group">
+          <label for="nombres" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-user"></use></svg>
+            <span>Nombres</span>
+          </label>
+          <input type="text" id="nombres" name="nombres" value="<%= usuario.nombres || '' %>" maxlength="80" data-validate="personal-name" data-min="2" autocomplete="given-name" required>
+          <small class="field-message" data-for="nombres"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="apellido_paterno" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-user"></use></svg>
+            <span>Apellido paterno</span>
+          </label>
+          <input type="text" id="apellido_paterno" name="apellido_paterno" value="<%= usuario.apellido_paterno || '' %>" maxlength="80" data-validate="personal-name" data-min="2" autocomplete="family-name" required>
+          <small class="field-message" data-for="apellido_paterno"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="apellido_materno" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-user"></use></svg>
+            <span>Apellido materno</span>
+          </label>
+          <input type="text" id="apellido_materno" name="apellido_materno" value="<%= usuario.apellido_materno || '' %>" maxlength="80" data-validate="personal-name" data-min="2" autocomplete="additional-name">
+          <small class="field-message" data-for="apellido_materno"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="dni" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+            <span>DNI</span>
+          </label>
+          <input type="text" id="dni" name="dni" value="<%= usuario.dni || '' %>" maxlength="8" inputmode="numeric" data-validate="dni" autocomplete="off" required>
+          <small class="field-message" data-for="dni"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="fecha_nacimiento" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-calendar"></use></svg>
+            <span>Fecha de nacimiento</span>
+          </label>
+          <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="<%= usuario.fecha_nacimiento || '' %>" data-validate="birth-date" required>
+          <small class="field-message" data-for="fecha_nacimiento"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="sexo" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-user"></use></svg>
+            <span>Sexo</span>
+          </label>
+          <select id="sexo" name="sexo" required>
+            <option value="">Seleccione</option>
+            <option value="Masculino" <%= usuario.sexo === 'Masculino' ? 'selected' : '' %>>Masculino</option>
+            <option value="Femenino" <%= usuario.sexo === 'Femenino' ? 'selected' : '' %>>Femenino</option>
+            <option value="Otro" <%= usuario.sexo === 'Otro' ? 'selected' : '' %>>Otro</option>
+            <option value="No especifica" <%= usuario.sexo === 'No especifica' ? 'selected' : '' %>>No especifica</option>
+          </select>
+          <small class="field-message" data-for="sexo"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="telefono" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-phone"></use></svg>
+            <span>Teléfono</span>
+          </label>
+          <input type="text" id="telefono" name="telefono" value="<%= usuario.telefono || '' %>" maxlength="11" inputmode="numeric" data-validate="phone-pe" autocomplete="tel" placeholder="987 654 321" required>
+          <small class="field-message" data-for="telefono"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="direccion" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+            <span>Dirección</span>
+          </label>
+          <input type="text" id="direccion" name="direccion" value="<%= usuario.direccion || '' %>" maxlength="120" data-validate="address" autocomplete="street-address">
+          <small class="field-message" data-for="direccion"></small>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section-card">
+      <div class="form-section-heading">
+        <h3>Acceso y permisos</h3>
+        <p>Define el correo de acceso y el rol con el que ingresará al sistema.</p>
+      </div>
+
+      <div class="admin-user-form-grid admin-user-access-grid">
+        <div class="form-group">
+          <label for="username" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-mail"></use></svg>
+            <span>Correo de acceso</span>
+          </label>
+          <input type="email" id="username" name="username" value="<%= usuario.username || usuario.correo || '' %>" maxlength="120" data-validate="email" autocomplete="email" required>
+          <small class="field-message" data-for="username"></small>
+          <small class="form-help">Este correo se usará para iniciar sesión y recuperar la contraseña.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-lock"></use></svg>
+            <span><%= isEdit ? 'Nueva contraseña' : 'Contraseña inicial' %></span>
+          </label>
+          <input type="password" id="password" name="password" minlength="8" data-validate="strong-password" autocomplete="new-password" placeholder="<%= isEdit ? 'Opcional: dejar vacío para conservar' : 'Opcional: se usará UNT12345*' %>">
+          <small class="field-message" data-for="password"></small>
+          <small class="form-help">Opcional. Si la escribes, debe tener mayúscula, minúscula, número y símbolo.</small>
+        </div>
+
+        <div class="form-group admin-user-role-field">
+          <label for="rol" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-user"></use></svg>
+            <span>Rol de acceso</span>
+          </label>
+          <select id="rol" name="rol" <%= isSelf ? 'disabled' : '' %> required>
+            <option value="paciente" <%= selectedRole === 'paciente' ? 'selected' : '' %>>Paciente</option>
+            <option value="medico" <%= selectedRole === 'medico' ? 'selected' : '' %>>Médico</option>
+            <option value="enfermera" <%= selectedRole === 'enfermera' ? 'selected' : '' %>>Enfermera</option>
+            <option value="administrativo" <%= selectedRole === 'administrativo' ? 'selected' : '' %>>Administrativo</option>
+          </select>
+          <% if (isSelf) { %>
+            <input type="hidden" name="rol" value="<%= selectedRole %>">
+            <small class="form-help">Por seguridad, tu propia cuenta conserva el rol administrativo.</small>
+          <% } else { %>
+            <small class="form-help" id="roleHelp">El rol determina qué módulo principal podrá usar la cuenta.</small>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="role-change-note" id="roleChangeNote">
+        <strong>Importante:</strong>
+        Cambiar el rol modifica el acceso al sistema, pero no elimina registros históricos asociados.
+      </div>
+    </div>
+
+    <div class="form-section-card role-extra-section" id="medicoFields" data-role-section="medico">
+      <div class="form-section-heading">
+        <h3>Ficha de médico</h3>
+        <p>Estos campos son obligatorios solo cuando el rol seleccionado es Médico.</p>
+      </div>
+
+      <div class="admin-user-form-grid">
+        <div class="form-group">
+          <label for="especialidad" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-stethoscope"></use></svg>
+            <span>Especialidad</span>
+          </label>
+          <select id="especialidad" name="especialidad">
+            <option value="">Seleccione</option>
+            <% especialidades.forEach(function(especialidad) { %>
+              <option value="<%= especialidad %>" <%= usuario.medico_especialidad === especialidad ? 'selected' : '' %>><%= especialidad %></option>
+            <% }) %>
+          </select>
+          <small class="field-message" data-for="especialidad"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="numero_colegiatura" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+            <span>Número de colegiatura</span>
+          </label>
+          <input type="text" id="numero_colegiatura" name="numero_colegiatura" value="<%= usuario.medico_colegiatura || '' %>" maxlength="30" data-validate="search" placeholder="Ejemplo: CMP-10005">
+          <small class="field-message" data-for="numero_colegiatura"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="turno_medico" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-clock"></use></svg>
+            <span>Turno</span>
+          </label>
+          <select id="turno_medico" name="turno_medico">
+            <option value="">Seleccione</option>
+            <% turnos.forEach(function(turno) { %>
+              <option value="<%= turno.value %>" <%= usuario.medico_turno === turno.value ? 'selected' : '' %>><%= turno.label %></option>
+            <% }) %>
+          </select>
+          <small class="field-message" data-for="turno_medico"></small>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section-card role-extra-section" id="enfermeraFields" data-role-section="enfermera">
+      <div class="form-section-heading">
+        <h3>Ficha de enfermería</h3>
+        <p>Estos campos son obligatorios solo cuando el rol seleccionado es Enfermera.</p>
+      </div>
+
+      <div class="admin-user-form-grid">
+        <div class="form-group">
+          <label for="area" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+            <span>Área</span>
+          </label>
+          <select id="area" name="area">
+            <option value="">Seleccione</option>
+            <% if (areaNoListada) { %>
+              <option value="<%= selectedArea %>" selected><%= selectedArea %></option>
+            <% } %>
+            <% areasEnfermeria.forEach(function(area) { %>
+              <option value="<%= area %>" <%= selectedArea === area ? 'selected' : '' %>><%= area %></option>
+            <% }) %>
+          </select>
+          <small class="field-message" data-for="area"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="turno_enfermera" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-clock"></use></svg>
+            <span>Turno</span>
+          </label>
+          <select id="turno_enfermera" name="turno_enfermera">
+            <option value="">Seleccione</option>
+            <% turnos.forEach(function(turno) { %>
+              <option value="<%= turno.value %>" <%= usuario.enfermera_turno === turno.value ? 'selected' : '' %>><%= turno.label %></option>
+            <% }) %>
+          </select>
+          <small class="field-message" data-for="turno_enfermera"></small>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section-card role-extra-section" id="administrativoFields" data-role-section="administrativo">
+      <div class="form-section-heading">
+        <h3>Ficha administrativa</h3>
+        <p>Estos campos son obligatorios solo cuando el rol seleccionado es Administrativo.</p>
+      </div>
+
+      <div class="admin-user-form-grid">
+        <div class="form-group">
+          <label for="cargo" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
+            <span>Cargo</span>
+          </label>
+          <select id="cargo" name="cargo">
+            <% if (cargoNoListado) { %>
+              <option value="<%= selectedCargo %>" selected><%= selectedCargo %></option>
+            <% } %>
+            <% cargosAdministrativos.forEach(function(cargo) { %>
+              <option value="<%= cargo %>" <%= selectedCargo === cargo ? 'selected' : '' %>><%= cargo %></option>
+            <% }) %>
+          </select>
+          <small class="field-message" data-for="cargo"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="anexo" class="field-label-with-icon">
+            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-phone"></use></svg>
+            <span>Anexo</span>
+          </label>
+          <input type="text" id="anexo" name="anexo" value="<%= usuario.administrativo_anexo || '' %>" maxlength="20" inputmode="numeric" data-validate="digits" placeholder="Opcional">
+          <small class="field-message" data-for="anexo"></small>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions admin-user-form-actions">
+      <a href="<%= backUrl %>" class="btn-light" title="Cancelar" aria-label="Cancelar y volver a usuarios">
+        <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/cancelar.png" alt="" aria-hidden="true">
+        <span>Cancelar</span>
+      </a>
+
+      <button type="submit" class="btn-dark icon-action" title="Guardar usuario" aria-label="Guardar usuario">
+        <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/guardar.png" alt="" aria-hidden="true">
+        <span>Guardar usuario</span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  const roleSelect = document.getElementById('rol');
+  const roleSections = document.querySelectorAll('[data-role-section]');
+  const fechaNacimientoInput = document.getElementById('fecha_nacimiento');
+  const roleHelp = document.getElementById('roleHelp');
+  const roleChangeNote = document.getElementById('roleChangeNote');
+
+  const roleHelpText = {
+    paciente: 'Paciente: podrá reservar citas, revisar historial y gestionar sus datos personales.',
+    medico: 'Médico: podrá atender citas, consultar pacientes y registrar atenciones médicas.',
+    enfermera: 'Enfermera: podrá registrar triaje y revisar datos clínicos previos.',
+    administrativo: 'Administrativo: tendrá acceso a la gestión del sistema. Asígnalo solo a personal autorizado.'
+  };
+
+  if (fechaNacimientoInput) {
+    const hoy = new Date();
+    fechaNacimientoInput.max = `${hoy.getFullYear() - 1}-12-31`;
+  }
+
+  function setSectionEnabled(section, enabled) {
+    section.classList.toggle('hidden', !enabled);
+
+    section.querySelectorAll('input, select').forEach(field => {
+      field.disabled = !enabled;
+      field.required = enabled && field.id !== 'anexo';
+    });
+  }
+
+  function updateRoleSections() {
+    const selectedRole = roleSelect ? roleSelect.value : '<%= selectedRole %>';
+
+    roleSections.forEach(section => {
+      setSectionEnabled(section, section.dataset.roleSection === selectedRole);
+    });
+
+    if (roleHelp) {
+      roleHelp.textContent = roleHelpText[selectedRole] || 'El rol determina qué módulo principal podrá usar la cuenta.';
+    }
+
+    if (roleChangeNote) {
+      roleChangeNote.classList.toggle('is-warning', selectedRole === 'administrativo');
+      roleChangeNote.innerHTML = selectedRole === 'administrativo'
+        ? '<strong>Atención:</strong> El rol Administrativo permite gestionar usuarios, citas y configuración del sistema. Úsalo solo para personal autorizado.'
+        : '<strong>Importante:</strong> Cambiar el rol modifica el acceso al sistema, pero no elimina registros históricos asociados.';
+    }
+  }
+
+  if (roleSelect) {
+    roleSelect.addEventListener('change', updateRoleSections);
+  }
+
+  updateRoleSections();
+</script>
+<script src="/js/role-validations.js"></script>

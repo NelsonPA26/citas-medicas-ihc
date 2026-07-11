@@ -185,7 +185,7 @@ exports.dashboard = async (req, res) => {
     const paciente = await obtenerPacientePorPersona(req.session.user.id_persona);
 
     if (!paciente) {
-      req.session.error = 'No se encontró el perfil del paciente.';
+      req.session.error = 'No se encontró tu perfil de paciente. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/login');
     }
 
@@ -231,7 +231,7 @@ exports.dashboard = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar el panel del paciente.';
+    req.session.error = 'No se pudo cargar el panel del paciente. Actualiza la página o vuelve a iniciar sesión si continúa el problema.';
     return res.redirect('/login');
   }
 };
@@ -276,7 +276,7 @@ exports.showReservarCita = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar el formulario de reserva.';
+    req.session.error = 'No se pudo cargar el formulario de reserva. Actualiza la página o vuelve al inicio e inténtalo nuevamente.';
     res.redirect('/paciente/dashboard');
   }
 };
@@ -302,7 +302,7 @@ exports.getHorasDisponibles = async (req, res) => {
     if (!(await existeMedicoActivo(id_medico))) {
       return res.json({
         ok: false,
-        mensaje: 'El médico seleccionado no está disponible.'
+        mensaje: 'El médico seleccionado no está disponible. Elige otro médico o cambia la especialidad.'
       });
     }
 
@@ -320,6 +320,7 @@ exports.getHorasDisponibles = async (req, res) => {
       FROM cita
       WHERE id_medico = ?
       AND fecha = ?
+      AND estado <> 'cancelada'
       ${excludeCurrent}
       `,
       params
@@ -336,7 +337,7 @@ exports.getHorasDisponibles = async (req, res) => {
     console.error(error);
     res.json({
       ok: false,
-      mensaje: 'No se pudieron cargar las horas disponibles.'
+      mensaje: 'No se pudieron cargar las horas disponibles. Revisa médico y fecha, luego intenta nuevamente.'
     });
   }
 };
@@ -374,12 +375,12 @@ exports.storeReservarCita = async (req, res) => {
     const paciente = await obtenerPacientePorPersona(req.session.user.id_persona);
 
     if (!paciente) {
-      req.session.error = 'No se encontró el perfil del paciente.';
+      req.session.error = 'No se encontró tu perfil de paciente. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/paciente/dashboard');
     }
 
     if (!(await existeMedicoActivo(id_medico))) {
-      req.session.error = 'El médico seleccionado no está disponible.';
+      req.session.error = 'El médico seleccionado no está disponible. Elige otro médico o cambia la especialidad.';
       return res.redirect('/paciente/reservar-cita');
     }
 
@@ -390,13 +391,14 @@ exports.storeReservarCita = async (req, res) => {
       WHERE id_medico = ?
       AND fecha = ?
       AND hora = ?
+      AND estado <> 'cancelada'
       LIMIT 1
       `,
       [id_medico, fecha, hora]
     );
 
     if (ocupada.length > 0) {
-      req.session.error = 'La hora seleccionada ya fue reservada. Elige otra hora.';
+      req.session.error = 'La hora seleccionada ya fue reservada. Elige otra hora disponible antes de guardar.';
       return res.redirect('/paciente/reservar-cita');
     }
 
@@ -421,11 +423,11 @@ exports.storeReservarCita = async (req, res) => {
     console.error(error);
 
     if (error.code === 'ER_DUP_ENTRY') {
-      req.session.error = 'La hora seleccionada ya fue reservada. Elige otra hora.';
+      req.session.error = 'La hora seleccionada ya fue reservada. Elige otra hora disponible antes de guardar.';
       return res.redirect('/paciente/reservar-cita');
     }
 
-    req.session.error = 'Ocurrió un error al reservar la cita.';
+    req.session.error = 'No se pudo reservar la cita. Verifica médico, fecha, hora y motivo antes de intentarlo nuevamente.';
     return res.redirect('/paciente/reservar-cita');
   }
 };
@@ -436,7 +438,7 @@ exports.showEditarCita = async (req, res) => {
     const paciente = await obtenerPacientePorPersona(req.session.user.id_persona);
 
     if (!paciente) {
-      req.session.error = 'No se encontró el perfil del paciente.';
+      req.session.error = 'No se encontró tu perfil de paciente. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/paciente/dashboard');
     }
 
@@ -461,7 +463,7 @@ exports.showEditarCita = async (req, res) => {
     );
 
     if (citaRows.length === 0) {
-      req.session.error = 'La cita seleccionada no existe o no te pertenece.';
+      req.session.error = 'La cita seleccionada no existe o no pertenece a tu cuenta. Actualiza la lista e inténtalo nuevamente.';
       return res.redirect('/paciente/mis-citas');
     }
 
@@ -501,7 +503,7 @@ exports.showEditarCita = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar la reserva seleccionada.';
+    req.session.error = 'No se pudo cargar la reserva seleccionada. Vuelve a Mis citas e inténtalo nuevamente.';
     return res.redirect('/paciente/mis-citas');
   }
 };
@@ -540,7 +542,7 @@ exports.updateCita = async (req, res) => {
     const paciente = await obtenerPacientePorPersona(req.session.user.id_persona);
 
     if (!paciente) {
-      req.session.error = 'No se encontró el perfil del paciente.';
+      req.session.error = 'No se encontró tu perfil de paciente. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/paciente/dashboard');
     }
 
@@ -556,7 +558,7 @@ exports.updateCita = async (req, res) => {
     );
 
     if (citaRows.length === 0) {
-      req.session.error = 'La cita seleccionada no existe o no te pertenece.';
+      req.session.error = 'La cita seleccionada no existe o no pertenece a tu cuenta. Actualiza la lista e inténtalo nuevamente.';
       return res.redirect('/paciente/mis-citas');
     }
 
@@ -566,7 +568,7 @@ exports.updateCita = async (req, res) => {
     }
 
     if (!(await existeMedicoActivo(id_medico))) {
-      req.session.error = 'El médico seleccionado no está disponible.';
+      req.session.error = 'El médico seleccionado no está disponible. Elige otro médico o cambia la especialidad.';
       return res.redirect(`/paciente/mis-citas/${id_cita}/editar`);
     }
 
@@ -577,6 +579,7 @@ exports.updateCita = async (req, res) => {
       WHERE id_medico = ?
       AND fecha = ?
       AND hora = ?
+      AND estado <> 'cancelada'
       AND id_cita <> ?
       LIMIT 1
       `,
@@ -584,7 +587,7 @@ exports.updateCita = async (req, res) => {
     );
 
     if (ocupada.length > 0) {
-      req.session.error = 'La hora seleccionada ya fue reservada. Elige otra hora.';
+      req.session.error = 'La hora seleccionada ya fue reservada. Elige otra hora disponible antes de guardar.';
       return res.redirect(`/paciente/mis-citas/${id_cita}/editar`);
     }
 
@@ -609,11 +612,11 @@ exports.updateCita = async (req, res) => {
     console.error(error);
 
     if (error.code === 'ER_DUP_ENTRY') {
-      req.session.error = 'La hora seleccionada ya fue reservada. Elige otra hora.';
+      req.session.error = 'La hora seleccionada ya fue reservada. Elige otra hora disponible antes de guardar.';
       return res.redirect(`/paciente/mis-citas/${req.params.id_cita}/editar`);
     }
 
-    req.session.error = 'Ocurrió un error al actualizar la reserva.';
+    req.session.error = 'No se pudo actualizar la reserva. Revisa médico, fecha, hora y motivo antes de intentarlo nuevamente.';
     return res.redirect(`/paciente/mis-citas/${req.params.id_cita}/editar`);
   }
 };
@@ -623,7 +626,7 @@ exports.misCitas = async (req, res) => {
     const paciente = await obtenerPacientePorPersona(req.session.user.id_persona);
 
     if (!paciente) {
-      req.session.error = 'No se encontró el perfil del paciente.';
+      req.session.error = 'No se encontró tu perfil de paciente. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/paciente/dashboard');
     }
 
@@ -694,7 +697,7 @@ exports.misCitas = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudieron cargar tus citas.';
+    req.session.error = 'No se pudieron cargar tus citas. Actualiza la página o intenta nuevamente en unos segundos.';
     res.redirect('/paciente/dashboard');
   }
 };
@@ -706,7 +709,7 @@ exports.cancelarCita = async (req, res) => {
     const paciente = await obtenerPacientePorPersona(req.session.user.id_persona);
 
     if (!paciente) {
-      req.session.error = 'No se encontró el perfil del paciente.';
+      req.session.error = 'No se encontró tu perfil de paciente. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/paciente/dashboard');
     }
 
@@ -722,7 +725,7 @@ exports.cancelarCita = async (req, res) => {
     );
 
     if (cita.length === 0) {
-      req.session.error = 'La cita seleccionada no existe o no te pertenece.';
+      req.session.error = 'La cita seleccionada no existe o no pertenece a tu cuenta. Actualiza la lista e inténtalo nuevamente.';
       return res.redirect('/paciente/mis-citas');
     }
 
@@ -745,7 +748,7 @@ exports.cancelarCita = async (req, res) => {
     return res.redirect('/paciente/mis-citas');
   } catch (error) {
     console.error(error);
-    req.session.error = 'Ocurrió un error al cancelar la cita.';
+    req.session.error = 'No se pudo cancelar la cita. Verifica que siga pendiente e inténtalo nuevamente.';
     return res.redirect('/paciente/mis-citas');
   }
 };
@@ -756,7 +759,7 @@ exports.resumenCita = async (req, res) => {
     const paciente = await obtenerPacientePorPersona(req.session.user.id_persona);
 
     if (!paciente) {
-      req.session.error = 'No se encontró el perfil del paciente.';
+      req.session.error = 'No se encontró tu perfil de paciente. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/paciente/dashboard');
     }
 
@@ -808,7 +811,7 @@ exports.resumenCita = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar el resumen de la cita.';
+    req.session.error = 'No se pudo cargar el resumen de la cita. Vuelve a Mis citas e inténtalo nuevamente.';
     return res.redirect('/paciente/mis-citas');
   }
 };
@@ -818,7 +821,7 @@ exports.showAntecedentes = async (req, res) => {
     const paciente = await obtenerPacientePorPersona(req.session.user.id_persona);
 
     if (!paciente) {
-      req.session.error = 'No se encontró el perfil del paciente.';
+      req.session.error = 'No se encontró tu perfil de paciente. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/paciente/dashboard');
     }
 
@@ -846,7 +849,7 @@ exports.showAntecedentes = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudieron cargar tus antecedentes médicos.';
+    req.session.error = 'No se pudieron cargar tus antecedentes médicos. Actualiza la página o intenta nuevamente en unos segundos.';
     return res.redirect('/paciente/dashboard');
   }
 };
@@ -856,7 +859,7 @@ exports.updateAntecedentes = async (req, res) => {
     const paciente = await obtenerPacientePorPersona(req.session.user.id_persona);
 
     if (!paciente) {
-      req.session.error = 'No se encontró el perfil del paciente.';
+      req.session.error = 'No se encontró tu perfil de paciente. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/paciente/dashboard');
     }
 
@@ -1022,7 +1025,7 @@ exports.updateAntecedentes = async (req, res) => {
     return res.redirect('/paciente/antecedentes');
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudieron actualizar tus antecedentes médicos.';
+    req.session.error = 'No se pudieron guardar tus antecedentes. Revisa los campos marcados e inténtalo nuevamente.';
     return res.redirect('/paciente/antecedentes');
   }
 };
@@ -1033,7 +1036,7 @@ exports.historial = async (req, res) => {
     const paciente = await obtenerPacientePorPersona(req.session.user.id_persona);
 
     if (!paciente) {
-      req.session.error = 'No se encontró el perfil del paciente.';
+      req.session.error = 'No se encontró tu perfil de paciente. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/paciente/dashboard');
     }
 
@@ -1116,7 +1119,7 @@ exports.historial = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar tu historial médico.';
+    req.session.error = 'No se pudo cargar tu historial médico. Actualiza la página o intenta nuevamente en unos segundos.';
     return res.redirect('/paciente/dashboard');
   }
 };
@@ -1128,7 +1131,7 @@ exports.detalleHistorial = async (req, res) => {
     const paciente = await obtenerPacientePorPersona(req.session.user.id_persona);
 
     if (!paciente) {
-      req.session.error = 'No se encontró el perfil del paciente.';
+      req.session.error = 'No se encontró tu perfil de paciente. Vuelve a iniciar sesión o solicita apoyo a administración.';
       return res.redirect('/paciente/dashboard');
     }
 
@@ -1186,7 +1189,7 @@ exports.detalleHistorial = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar el detalle de la consulta.';
+    req.session.error = 'No se pudo cargar el detalle de la consulta. Vuelve al historial e inténtalo nuevamente.';
     return res.redirect('/paciente/historial');
   }
 };

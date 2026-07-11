@@ -24,7 +24,7 @@ exports.dashboard = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar el panel administrativo.';
+    req.session.error = 'No se pudo cargar el panel administrativo. Actualiza la página o vuelve a iniciar sesión si el problema continúa.';
     return res.redirect('/login');
   }
 };
@@ -55,7 +55,7 @@ function dniValido(value) {
   return /^[0-9]{8}$/.test(value || '');
 }
 function telefonoValido(value) {
-  return /^[0-9]{7,15}$/.test(value || '');
+  return /^[0-9]{9}$/.test(value || '');
 }
 function limpiarTexto(value) {
   return (value || '').trim().replace(/\s{2,}/g, ' ');
@@ -65,7 +65,7 @@ function textoPersonaValido(value, min = 2, max = 80) {
 
   if (text.length < min || text.length > max) return false;
 
-  return /^[\p{L} .'-]+$/u.test(text);
+  return /^[\p{L} ]+$/u.test(text);
 }
 function validarDatosPersonaBasicos(data) {
   const {
@@ -100,11 +100,11 @@ function validarDatosPersonaBasicos(data) {
   }
 
   if (!telefonoValido(telefono)) {
-    return 'El teléfono debe tener entre 7 y 15 dígitos.';
+    return 'El teléfono debe tener exactamente 9 dígitos.';
   }
 
 if (!isFechaNacimientoValida(fecha_nacimiento)) {
-  return 'La fecha de nacimiento debe ser anterior a la fecha actual.';
+  return 'La fecha de nacimiento no puede ser de hoy, futura ni del año actual.';
 }
 
   if (!SEXOS_PERMITIDOS.includes(sexo)) {
@@ -166,24 +166,16 @@ async function ensureRoleRecord(connection, idPersona, rol, body = {}) {
 
     const medicoActual = medicoRows[0] || null;
 
-    const fichaIncompleta =
-      !medicoActual ||
-      !medicoActual.especialidad ||
-      !medicoActual.numero_colegiatura ||
-      !medicoActual.turno;
+    if (!ESPECIALIDADES_MEDICAS.includes(especialidad)) {
+      throw new Error('Para asignar el rol Médico, selecciona una especialidad válida.');
+    }
 
-    if (fichaIncompleta) {
-      if (!ESPECIALIDADES_MEDICAS.includes(especialidad)) {
-        throw new Error('Para asignar el rol Médico, selecciona una especialidad válida.');
-      }
+    if (!/^[A-Za-z0-9-]{3,30}$/.test(numeroColegiatura)) {
+      throw new Error('Para asignar el rol Médico, registra un número de colegiatura válido.');
+    }
 
-      if (!/^[A-Za-z0-9-]{3,30}$/.test(numeroColegiatura)) {
-        throw new Error('Para asignar el rol Médico, registra un número de colegiatura válido.');
-      }
-
-      if (!TURNOS_PERMITIDOS.includes(turno)) {
-        throw new Error('Para asignar el rol Médico, selecciona un turno válido.');
-      }
+    if (!TURNOS_PERMITIDOS.includes(turno)) {
+      throw new Error('Para asignar el rol Médico, selecciona un turno válido.');
     }
 
     if (numeroColegiatura) {
@@ -204,18 +196,16 @@ async function ensureRoleRecord(connection, idPersona, rol, body = {}) {
     }
 
     if (medicoActual) {
-      if (fichaIncompleta) {
-        await connection.query(
-          `
-          UPDATE medico
-          SET especialidad = ?,
-              numero_colegiatura = ?,
-              turno = ?
-          WHERE id_medico = ?
-          `,
-          [especialidad, numeroColegiatura, turno, medicoActual.id_medico]
-        );
-      }
+      await connection.query(
+        `
+        UPDATE medico
+        SET especialidad = ?,
+            numero_colegiatura = ?,
+            turno = ?
+        WHERE id_medico = ?
+        `,
+        [especialidad, numeroColegiatura, turno, medicoActual.id_medico]
+      );
     } else {
       await connection.query(
         `
@@ -249,33 +239,24 @@ async function ensureRoleRecord(connection, idPersona, rol, body = {}) {
 
     const enfermeraActual = enfermeraRows[0] || null;
 
-    const fichaIncompleta =
-      !enfermeraActual ||
-      !enfermeraActual.area ||
-      !enfermeraActual.turno;
+    if (!textoBasicoValido(area, 2, 80)) {
+      throw new Error('Para asignar el rol Enfermera, registra un área válida.');
+    }
 
-    if (fichaIncompleta) {
-      if (!textoBasicoValido(area, 2, 80)) {
-        throw new Error('Para asignar el rol Enfermera, registra un área válida.');
-      }
-
-      if (!TURNOS_PERMITIDOS.includes(turno)) {
-        throw new Error('Para asignar el rol Enfermera, selecciona un turno válido.');
-      }
+    if (!TURNOS_PERMITIDOS.includes(turno)) {
+      throw new Error('Para asignar el rol Enfermera, selecciona un turno válido.');
     }
 
     if (enfermeraActual) {
-      if (fichaIncompleta) {
-        await connection.query(
-          `
-          UPDATE enfermera
-          SET area = ?,
-              turno = ?
-          WHERE id_enfermera = ?
-          `,
-          [area, turno, enfermeraActual.id_enfermera]
-        );
-      }
+      await connection.query(
+        `
+        UPDATE enfermera
+        SET area = ?,
+            turno = ?
+        WHERE id_enfermera = ?
+        `,
+        [area, turno, enfermeraActual.id_enfermera]
+      );
     } else {
       await connection.query(
         `
@@ -414,8 +395,128 @@ function isFechaNacimientoValida(value) {
   const hoy = new Date();
   hoy.setHours(0, 0, 0, 0);
 
-  return !Number.isNaN(fechaNacimiento.getTime()) && fechaNacimiento < hoy;
+  return !Number.isNaN(fechaNacimiento.getTime())
+    && fechaNacimiento < hoy
+    && fechaNacimiento.getFullYear() < hoy.getFullYear();
 }
+
+
+async function obtenerUsuarioGestion(idUsuario) {
+  const [rows] = await db.query(
+    `
+    SELECT 
+      u.id_usuario,
+      u.username,
+      u.rol,
+      u.activo,
+      u.fecha_creacion,
+
+      p.id_persona,
+      p.nombres,
+      p.apellido_paterno,
+      p.apellido_materno,
+      p.dni,
+      DATE_FORMAT(p.fecha_nacimiento, '%Y-%m-%d') AS fecha_nacimiento,
+      p.sexo,
+      p.correo,
+      p.telefono,
+      p.direccion,
+
+      pac_rol.id_paciente,
+      med_rol.id_medico,
+      med_rol.especialidad AS medico_especialidad,
+      med_rol.numero_colegiatura AS medico_colegiatura,
+      med_rol.turno AS medico_turno,
+
+      enf_rol.id_enfermera,
+      enf_rol.area AS enfermera_area,
+      enf_rol.turno AS enfermera_turno,
+
+      adm_rol.id_administrativo,
+      adm_rol.cargo AS administrativo_cargo,
+      adm_rol.anexo AS administrativo_anexo
+    FROM usuario u
+    INNER JOIN persona p ON u.id_persona = p.id_persona
+    LEFT JOIN paciente pac_rol ON p.id_persona = pac_rol.id_persona
+    LEFT JOIN medico med_rol ON p.id_persona = med_rol.id_persona
+    LEFT JOIN enfermera enf_rol ON p.id_persona = enf_rol.id_persona
+    LEFT JOIN administrativo adm_rol ON p.id_persona = adm_rol.id_persona
+    WHERE u.id_usuario = ?
+    LIMIT 1
+    `,
+    [idUsuario]
+  );
+
+  return rows[0] || null;
+}
+
+function usuarioVacio(rol = 'paciente') {
+  return {
+    id_usuario: null,
+    nombres: '',
+    apellido_paterno: '',
+    apellido_materno: '',
+    dni: '',
+    fecha_nacimiento: '',
+    sexo: '',
+    correo: '',
+    telefono: '',
+    direccion: '',
+    username: '',
+    rol,
+    id_paciente: null,
+    id_medico: null,
+    medico_especialidad: '',
+    medico_colegiatura: '',
+    medico_turno: '',
+    id_enfermera: null,
+    enfermera_area: '',
+    enfermera_turno: '',
+    id_administrativo: null,
+    administrativo_cargo: 'Administrativo',
+    administrativo_anexo: ''
+  };
+}
+
+
+exports.nuevoUsuario = (req, res) => {
+  const rolInicial = ROLES_PERMITIDOS.includes(req.query.rol) ? req.query.rol : 'paciente';
+
+  res.render('admin/usuario-form', {
+    title: 'Registrar usuario',
+    layout: 'layouts/dashboard',
+    modo: 'crear',
+    actionUrl: '/admin/usuarios/nuevo',
+    backUrl: '/admin/usuarios',
+    usuario: usuarioVacio(rolInicial),
+    isSelf: false
+  });
+};
+
+exports.formEditarUsuario = async (req, res) => {
+  try {
+    const usuario = await obtenerUsuarioGestion(req.params.id_usuario);
+
+    if (!usuario) {
+      req.session.error = 'El usuario seleccionado no existe o ya fue modificado. Actualiza la lista e inténtalo nuevamente.';
+      return res.redirect('/admin/usuarios');
+    }
+
+    res.render('admin/usuario-form', {
+      title: 'Editar usuario',
+      layout: 'layouts/dashboard',
+      modo: 'editar',
+      actionUrl: `/admin/usuarios/${usuario.id_usuario}/editar`,
+      backUrl: '/admin/usuarios',
+      usuario,
+      isSelf: Number(usuario.id_usuario) === Number(req.session.user.id_usuario)
+    });
+  } catch (error) {
+    console.error(error);
+    req.session.error = 'No se pudo abrir el formulario de edición. Vuelve a la lista e inténtalo nuevamente.';
+    return res.redirect('/admin/usuarios');
+  }
+};
 
 exports.usuarios = async (req, res) => {
   try {
@@ -502,8 +603,11 @@ exports.usuarios = async (req, res) => {
         p.apellido_paterno,
         p.apellido_materno,
         p.dni,
+        DATE_FORMAT(p.fecha_nacimiento, '%Y-%m-%d') AS fecha_nacimiento,
+        p.sexo,
         p.correo,
         p.telefono,
+        p.direccion,
 
         pac_rol.id_paciente,
         med_rol.id_medico,
@@ -582,43 +686,213 @@ exports.usuarios = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudieron cargar los usuarios.';
+    req.session.error = 'No se pudieron cargar los usuarios. Actualiza la página o intenta nuevamente en unos segundos.';
     return res.redirect('/admin/dashboard');
   }
 };
 
-exports.editarUsuario = async (req, res) => {
+exports.storeUsuario = async (req, res) => {
   const connection = await db.getConnection();
 
   try {
-    const { id_usuario } = req.params;
-
     const {
+      nombres,
+      apellido_paterno,
+      apellido_materno,
+      dni,
+      fecha_nacimiento,
+      sexo,
+      telefono,
+      direccion,
       username,
       rol,
       password
     } = req.body;
 
     const correoAcceso = limpiarTexto(username).toLowerCase();
+    const dniLimpio = limpiarTexto(dni).replace(/\D/g, '');
+    const telefonoLimpio = limpiarTexto(telefono).replace(/\D/g, '');
+
+    const errorPersona = validarDatosPersonaBasicos({
+      nombres,
+      apellido_paterno,
+      apellido_materno,
+      dni: dniLimpio,
+      correo: correoAcceso,
+      telefono: telefonoLimpio,
+      fecha_nacimiento,
+      sexo
+    });
+
+    if (errorPersona) {
+      req.session.error = errorPersona;
+      return res.redirect('/admin/usuarios/nuevo');
+    }
+
+    if (!ROLES_PERMITIDOS.includes(rol)) {
+      req.session.error = 'Selecciona un rol valido.';
+      return res.redirect('/admin/usuarios/nuevo');
+    }
+
+    if (password && password.trim() !== '' && !passwordFuerte(password)) {
+      req.session.error = 'La contrasena debe tener minimo 8 caracteres, mayuscula, minuscula, numero y simbolo.';
+      return res.redirect('/admin/usuarios/nuevo');
+    }
+
+    await connection.beginTransaction();
+
+    const [duplicados] = await connection.query(
+      `
+      SELECT 'usuario' AS origen
+      FROM usuario
+      WHERE username = ?
+
+      UNION
+
+      SELECT 'persona_correo' AS origen
+      FROM persona
+      WHERE correo = ?
+
+      UNION
+
+      SELECT 'persona_dni' AS origen
+      FROM persona
+      WHERE dni = ?
+
+      LIMIT 1
+      `,
+      [correoAcceso, correoAcceso, dniLimpio]
+    );
+
+    if (duplicados.length > 0) {
+      await connection.rollback();
+      req.session.error = 'El DNI o correo ya esta registrado por otra cuenta.';
+      return res.redirect('/admin/usuarios/nuevo');
+    }
+
+    const [personaResult] = await connection.query(
+      `
+      INSERT INTO persona (
+        nombres,
+        apellido_paterno,
+        apellido_materno,
+        dni,
+        fecha_nacimiento,
+        sexo,
+        correo,
+        telefono,
+        direccion
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      [
+        limpiarTexto(nombres),
+        limpiarTexto(apellido_paterno),
+        apellido_materno ? limpiarTexto(apellido_materno) : null,
+        dniLimpio,
+        fecha_nacimiento,
+        sexo,
+        correoAcceso,
+        telefonoLimpio,
+        direccion ? limpiarTexto(direccion) : null
+      ]
+    );
+
+    const idPersona = personaResult.insertId;
+    const passwordPlano = password && password.trim() !== '' ? password.trim() : TEMPORARY_PASSWORD;
+    const passwordHash = await bcrypt.hash(passwordPlano, 10);
+
+    await ensureRoleRecord(connection, idPersona, rol, req.body);
+
+    await connection.query(
+      `
+      INSERT INTO usuario (
+        id_persona,
+        username,
+        password_hash,
+        rol,
+        activo,
+        debe_cambiar_password
+      ) VALUES (?, ?, ?, ?, 1, 1)
+      `,
+      [idPersona, correoAcceso, passwordHash, rol]
+    );
+
+    await connection.commit();
+
+    req.session.success = password && password.trim() !== ''
+      ? 'Usuario registrado correctamente.'
+      : `Usuario registrado correctamente. Contrasena temporal: ${TEMPORARY_PASSWORD}.`;
+
+    return res.redirect('/admin/usuarios');
+  } catch (error) {
+    await connection.rollback();
+    console.error(error);
+
+    req.session.error = error.message || 'No se pudo registrar el usuario. Revisa los datos ingresados e inténtalo nuevamente.';
+    return res.redirect('/admin/usuarios/nuevo');
+  } finally {
+    connection.release();
+  }
+};
+
+exports.editarUsuario = async (req, res) => {
+  const { id_usuario } = req.params;
+  const connection = await db.getConnection();
+
+  try {
+
+    const {
+      nombres,
+      apellido_paterno,
+      apellido_materno,
+      dni,
+      fecha_nacimiento,
+      sexo,
+      telefono,
+      direccion,
+      username,
+      rol,
+      password
+    } = req.body;
+
+    const correoAcceso = limpiarTexto(username).toLowerCase();
+    const dniLimpio = limpiarTexto(dni).replace(/\D/g, '');
+    const telefonoLimpio = limpiarTexto(telefono).replace(/\D/g, '');
 
     if (!correoAcceso || !rol) {
       req.session.error = 'Completa el correo de acceso y el rol.';
-      return res.redirect(getUsuariosRedirect(req));
+      return res.redirect(`/admin/usuarios/${id_usuario}/editar`);
     }
 
     if (!correoValido(correoAcceso)) {
       req.session.error = 'Ingresa un correo de acceso válido.';
-      return res.redirect(getUsuariosRedirect(req));
+      return res.redirect(`/admin/usuarios/${id_usuario}/editar`);
     }
 
     if (!ROLES_PERMITIDOS.includes(rol)) {
       req.session.error = 'Selecciona un rol válido.';
-      return res.redirect(getUsuariosRedirect(req));
+      return res.redirect(`/admin/usuarios/${id_usuario}/editar`);
     }
 
     if (password && password.trim() !== '' && !passwordFuerte(password)) {
       req.session.error = 'La nueva contraseña debe tener mínimo 8 caracteres, mayúscula, minúscula, número y símbolo.';
-      return res.redirect(getUsuariosRedirect(req));
+      return res.redirect(`/admin/usuarios/${id_usuario}/editar`);
+    }
+
+    const errorPersonaEdicion = validarDatosPersonaBasicos({
+      nombres,
+      apellido_paterno,
+      apellido_materno,
+      dni: dniLimpio,
+      correo: correoAcceso,
+      telefono: telefonoLimpio,
+      fecha_nacimiento,
+      sexo
+    });
+
+    if (errorPersonaEdicion) {
+      req.session.error = errorPersonaEdicion;
+      return res.redirect(`/admin/usuarios/${id_usuario}/editar`);
     }
 
     await connection.beginTransaction();
@@ -641,8 +915,8 @@ exports.editarUsuario = async (req, res) => {
 
     if (usuarioRows.length === 0) {
       await connection.rollback();
-      req.session.error = 'El usuario seleccionado no existe.';
-      return res.redirect(getUsuariosRedirect(req));
+      req.session.error = 'El usuario seleccionado no existe o ya fue modificado. Actualiza la lista e inténtalo nuevamente.';
+      return res.redirect(`/admin/usuarios/${id_usuario}/editar`);
     }
 
     const usuarioActual = usuarioRows[0];
@@ -662,7 +936,7 @@ exports.editarUsuario = async (req, res) => {
     ) {
       await connection.rollback();
       req.session.error = 'Debe quedar al menos un administrador activo en el sistema.';
-      return res.redirect(getUsuariosRedirect(req));
+      return res.redirect(`/admin/usuarios/${id_usuario}/editar`);
     }
 
     const [duplicados] = await connection.query(
@@ -679,20 +953,29 @@ exports.editarUsuario = async (req, res) => {
       WHERE correo = ?
       AND id_persona <> ?
 
+      UNION
+
+      SELECT 'dni' AS origen
+      FROM persona
+      WHERE dni = ?
+      AND id_persona <> ?
+
       LIMIT 1
       `,
       [
         correoAcceso,
         id_usuario,
         correoAcceso,
+        usuarioActual.id_persona,
+        dniLimpio,
         usuarioActual.id_persona
       ]
     );
 
     if (duplicados.length > 0) {
       await connection.rollback();
-      req.session.error = 'El correo de acceso ya está registrado por otra cuenta.';
-      return res.redirect(getUsuariosRedirect(req));
+      req.session.error = 'El DNI o correo de acceso ya esta registrado por otra cuenta.';
+      return res.redirect(`/admin/usuarios/${id_usuario}/editar`);
     }
 
     await ensureRoleRecord(connection, usuarioActual.id_persona, nuevoRol, req.body);
@@ -700,10 +983,29 @@ exports.editarUsuario = async (req, res) => {
     await connection.query(
       `
       UPDATE persona
-      SET correo = ?
+      SET nombres = ?,
+          apellido_paterno = ?,
+          apellido_materno = ?,
+          dni = ?,
+          fecha_nacimiento = ?,
+          sexo = ?,
+          correo = ?,
+          telefono = ?,
+          direccion = ?
       WHERE id_persona = ?
       `,
-      [correoAcceso, usuarioActual.id_persona]
+      [
+        limpiarTexto(nombres),
+        limpiarTexto(apellido_paterno),
+        apellido_materno ? limpiarTexto(apellido_materno) : null,
+        dniLimpio,
+        fecha_nacimiento,
+        sexo,
+        correoAcceso,
+        telefonoLimpio,
+        direccion ? limpiarTexto(direccion) : null,
+        usuarioActual.id_persona
+      ]
     );
 
     if (password && password.trim() !== '') {
@@ -744,13 +1046,13 @@ exports.editarUsuario = async (req, res) => {
       ? 'Tu acceso fue actualizado correctamente. Por seguridad, tu rol no fue modificado.'
       : 'Acceso y rol actualizados correctamente.';
 
-    return res.redirect(getUsuariosRedirect(req));
+    return res.redirect('/admin/usuarios');
   } catch (error) {
     await connection.rollback();
     console.error(error);
 
-    req.session.error = error.message || 'Ocurrió un error al actualizar el usuario.';
-    return res.redirect(getUsuariosRedirect(req));
+    req.session.error = error.message || 'No se pudo actualizar el usuario. Revisa los datos ingresados e inténtalo nuevamente.';
+    return res.redirect(`/admin/usuarios/${id_usuario}/editar`);
   } finally {
     connection.release();
   }
@@ -762,7 +1064,7 @@ exports.cambiarEstadoUsuario = async (req, res) => {
     const { accion } = req.body;
 
     if (!['activar', 'desactivar'].includes(accion)) {
-      req.session.error = 'Acción no válida.';
+      req.session.error = 'La acción solicitada no es válida. Vuelve a la pantalla anterior e inténtalo nuevamente.';
       return res.redirect(getUsuariosRedirect(req));
     }
 
@@ -784,7 +1086,7 @@ exports.cambiarEstadoUsuario = async (req, res) => {
     );
 
     if (usuarioRows.length === 0) {
-      req.session.error = 'El usuario seleccionado no existe.';
+      req.session.error = 'El usuario seleccionado no existe o ya fue modificado. Actualiza la lista e inténtalo nuevamente.';
       return res.redirect(getUsuariosRedirect(req));
     }
 
@@ -805,7 +1107,7 @@ exports.cambiarEstadoUsuario = async (req, res) => {
     return res.redirect(getUsuariosRedirect(req));
   } catch (error) {
     console.error(error);
-    req.session.error = 'Ocurrió un error al actualizar el estado del usuario.';
+    req.session.error = 'No se pudo actualizar el estado del usuario. Intenta nuevamente en unos segundos.';
     return res.redirect(getUsuariosRedirect(req));
   }
 };
@@ -843,7 +1145,7 @@ exports.eliminarUsuario = async (req, res) => {
 
     if (usuarioRows.length === 0) {
       await connection.rollback();
-      req.session.error = 'El usuario seleccionado no existe.';
+      req.session.error = 'El usuario seleccionado no existe o ya fue modificado. Actualiza la lista e inténtalo nuevamente.';
       return res.redirect(getUsuariosRedirect(req));
     }
 
@@ -888,7 +1190,7 @@ exports.eliminarUsuario = async (req, res) => {
     await connection.rollback();
     console.error(error);
 
-    req.session.error = 'No se pudo eliminar el usuario.';
+    req.session.error = 'No se pudo eliminar el usuario. Verifica si tiene registros asociados o intenta nuevamente.';
     return res.redirect(getUsuariosRedirect(req));
   } finally {
     connection.release();
@@ -957,7 +1259,7 @@ exports.medicos = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudieron cargar los médicos.';
+    req.session.error = 'No se pudieron cargar los médicos. Actualiza la página o intenta nuevamente en unos segundos.';
     return res.redirect('/admin/dashboard');
   }
 };
@@ -1164,7 +1466,7 @@ exports.storeNuevoMedico = async (req, res) => {
     return res.render('admin/formulario-personal', {
       title: 'Registrar médico',
       layout: 'layouts/dashboard',
-      error: 'Ocurrió un error al registrar el médico.',
+      error: 'No se pudo registrar el médico. Revisa los datos ingresados e inténtalo nuevamente.',
       hideGlobalError: true,
       old: req.body
     });
@@ -1215,7 +1517,7 @@ exports.showEditarMedico = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar el formulario de edicion.';
+    req.session.error = 'No se pudo abrir el formulario de edición. Vuelve a la lista e inténtalo nuevamente.';
     return res.redirect('/admin/medicos');
   }
 };
@@ -1400,7 +1702,7 @@ await connection.beginTransaction();
   } catch (error) {
     await connection.rollback();
     console.error(error);
-    req.session.error = 'Ocurrió un error al actualizar el médico.';
+    req.session.error = 'No se pudo actualizar el médico. Revisa los datos ingresados e inténtalo nuevamente.';
     return res.redirect('/admin/medicos');
   } finally {
     connection.release();
@@ -1468,7 +1770,7 @@ exports.enfermeras = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudieron cargar las enfermeras.';
+    req.session.error = 'No se pudieron cargar las enfermeras. Actualiza la página o intenta nuevamente en unos segundos.';
     return res.redirect('/admin/dashboard');
   }
 };
@@ -1660,7 +1962,7 @@ exports.storeNuevaEnfermera = async (req, res) => {
     return res.render('admin/formulario-personal', {
       title: 'Registrar enfermera',
       layout: 'layouts/dashboard',
-      formError: 'Ocurrió un error al registrar la enfermera.',
+      formError: 'No se pudo registrar la enfermera. Revisa los datos ingresados e inténtalo nuevamente.',
       old: req.body
     });
   } finally {
@@ -1709,7 +2011,7 @@ exports.showEditarEnfermera = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar el formulario de edicion.';
+    req.session.error = 'No se pudo abrir el formulario de edición. Vuelve a la lista e inténtalo nuevamente.';
     return res.redirect('/admin/enfermeras');
   }
 };
@@ -1871,7 +2173,7 @@ if (!TURNOS_PERMITIDOS.includes(turno)) {
   } catch (error) {
     await connection.rollback();
     console.error(error);
-    req.session.error = 'Ocurrió un error al actualizar la enfermera.';
+    req.session.error = 'No se pudo actualizar la enfermera. Revisa los datos ingresados e inténtalo nuevamente.';
     return res.redirect('/admin/enfermeras');
   } finally {
     connection.release();
@@ -1883,7 +2185,7 @@ exports.cambiarEstadoMedico = async (req, res) => {
     const { id_medico } = req.params;
     const { accion } = req.body;
     if (!['activar', 'desactivar'].includes(accion)) {
-      req.session.error = 'Acción no válida.';
+      req.session.error = 'La acción solicitada no es válida. Vuelve a la pantalla anterior e inténtalo nuevamente.';
       return res.redirect('/admin/medicos');
     }
     const activo = accion === 'activar' ? 1 : 0;
@@ -1903,7 +2205,7 @@ exports.cambiarEstadoMedico = async (req, res) => {
     return res.redirect('/admin/medicos');
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo actualizar el estado del médico.';
+    req.session.error = 'No se pudo actualizar el estado del médico. Intenta nuevamente en unos segundos.';
     return res.redirect('/admin/medicos');
   }
 };
@@ -2024,7 +2326,7 @@ exports.eliminarMedico = async (req, res) => {
   } catch (error) {
     await connection.rollback();
     console.error(error);
-    req.session.error = 'No se pudo eliminar el médico.';
+    req.session.error = 'No se pudo eliminar el médico. Verifica si tiene citas asociadas o intenta nuevamente.';
     return res.redirect('/admin/medicos');
   } finally {
     connection.release();
@@ -2036,7 +2338,7 @@ exports.cambiarEstadoEnfermera = async (req, res) => {
     const { id_enfermera } = req.params;
     const { accion } = req.body;
     if (!['activar', 'desactivar'].includes(accion)) {
-      req.session.error = 'Acción no válida.';
+      req.session.error = 'La acción solicitada no es válida. Vuelve a la pantalla anterior e inténtalo nuevamente.';
       return res.redirect('/admin/enfermeras');
     }
     const activo = accion === 'activar' ? 1 : 0;
@@ -2056,7 +2358,7 @@ exports.cambiarEstadoEnfermera = async (req, res) => {
     return res.redirect('/admin/enfermeras');
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo actualizar el estado de la enfermera.';
+    req.session.error = 'No se pudo actualizar el estado de la enfermera. Intenta nuevamente en unos segundos.';
     return res.redirect('/admin/enfermeras');
   }
 };
@@ -2159,7 +2461,7 @@ exports.eliminarEnfermera = async (req, res) => {
   } catch (error) {
     await connection.rollback();
     console.error(error);
-    req.session.error = 'No se pudo eliminar la enfermera.';
+    req.session.error = 'No se pudo eliminar la enfermera. Verifica si tiene triajes asociados o intenta nuevamente.';
     return res.redirect('/admin/enfermeras');
   } finally {
     connection.release();
@@ -2263,7 +2565,7 @@ exports.citas = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudieron cargar las citas.';
+    req.session.error = 'No se pudieron cargar las citas. Actualiza la página o intenta nuevamente en unos segundos.';
     return res.redirect('/admin/dashboard');
   }
 };
@@ -2337,7 +2639,7 @@ exports.detalleCita = async (req, res) => {
     );
 
     if (rows.length === 0) {
-      req.session.error = 'La cita seleccionada no existe.';
+      req.session.error = 'La cita seleccionada no existe o ya fue modificada. Actualiza la lista e inténtalo nuevamente.';
       return res.redirect('/admin/citas');
     }
 
@@ -2348,7 +2650,7 @@ exports.detalleCita = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cargar el detalle de la cita.';
+    req.session.error = 'No se pudo cargar el detalle de la cita. Vuelve a la lista e inténtalo nuevamente.';
     return res.redirect('/admin/citas');
   }
 };
@@ -2368,7 +2670,7 @@ exports.cancelarCita = async (req, res) => {
     );
 
     if (rows.length === 0) {
-      req.session.error = 'La cita seleccionada no existe.';
+      req.session.error = 'La cita seleccionada no existe o ya fue modificada. Actualiza la lista e inténtalo nuevamente.';
       return res.redirect('/admin/citas');
     }
 
@@ -2392,7 +2694,7 @@ exports.cancelarCita = async (req, res) => {
     return res.redirect('/admin/citas');
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo cancelar la cita.';
+    req.session.error = 'No se pudo cancelar la cita. Verifica que siga en un estado cancelable e inténtalo nuevamente.';
     return res.redirect('/admin/citas');
   }
 };

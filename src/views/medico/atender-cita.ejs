@@ -44,6 +44,10 @@
     </div>
   </section>
 
+  <div class="form-guidance" role="note">
+    <strong>Antes de confirmar:</strong> revisa triaje, antecedentes, diagnóstico y tratamiento. Guardar en progreso conserva el borrador; confirmar finaliza la consulta.
+  </div>
+
   <form action="/medico/citas/<%= cita.id_cita %>/atender" method="POST" class="consulta-form js-role-validated-form" id="consultaForm" novalidate>
     <input type="hidden" name="accion" id="accionInput" value="">
     <div id="consultaMessage" class="step-message hidden"></div>
@@ -144,11 +148,11 @@
       </a>
       <button type="button" class="btn-secondary-action icon-action" id="saveDraftButton" title="Guardar en progreso" aria-label="Guardar en progreso">
         <img class="action-metaphor" src="/img/action-metaphors/medico/consultas/guardar.png" alt="" aria-hidden="true">
-        <span class="visually-hidden">Guardar en progreso</span>
+        <span>Guardar en progreso</span>
       </button>
       <button type="button" class="btn-dark icon-action" id="openConfirmModal" title="Confirmar consulta" aria-label="Confirmar consulta">
         <img class="action-metaphor" src="/img/action-metaphors/medico/consultas/confirmar.png" alt="" aria-hidden="true">
-        <span class="visually-hidden">Confirmar consulta</span>
+        <span>Confirmar consulta</span>
       </button>
     </div>
   </form>
@@ -170,7 +174,7 @@
         </button>
         <button type="button" class="btn-dark icon-action" id="confirmConsultaButton" disabled title="Sí, confirmar" aria-label="Sí, confirmar">
           <img class="action-metaphor" src="/img/action-metaphors/medico/consultas/confirmar.png" alt="" aria-hidden="true">
-          <span class="visually-hidden">Sí, confirmar</span>
+          <span>Sí, confirmar</span>
         </button>
       </div>
     </div>

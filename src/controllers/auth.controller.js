@@ -34,7 +34,7 @@ function limpiarTexto(value) {
 function textoPersonaValido(value, min = 2, max = 80) {
   const text = limpiarTexto(value);
   if (text.length < min || text.length > max) return false;
-  return /^[\p{L} .'-]+$/u.test(text);
+  return /^[\p{L} ]+$/u.test(text);
 }
 
 function dniValido(value) {
@@ -42,7 +42,7 @@ function dniValido(value) {
 }
 
 function telefonoValido(value) {
-  return /^[0-9]{7,15}$/.test(value || '');
+  return /^[0-9]{9}$/.test(value || '');
 }
 
 function correoValido(value) {
@@ -167,7 +167,7 @@ exports.login = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    req.session.error = 'Ocurrió un error al iniciar sesión.';
+    req.session.error = 'No se pudo iniciar sesión. Verifica tu conexión e inténtalo nuevamente.';
     return res.redirect('/login');
   }
 };
@@ -269,7 +269,7 @@ exports.register = async (req, res) => {
     if (!telefonoValido(telefonoLimpio)) {
       return res.render('auth/register', {
         title: 'Crear Cuenta',
-        error: 'El teléfono debe tener entre 7 y 15 dígitos.',
+        error: 'El teléfono debe tener exactamente 9 dígitos.',
         success: null,
         old
       });
@@ -365,7 +365,7 @@ exports.register = async (req, res) => {
 
     return res.render('auth/register', {
       title: 'Crear Cuenta',
-      error: 'Ocurrió un error al crear la cuenta.',
+      error: 'No se pudo crear la cuenta. Revisa los datos ingresados e inténtalo nuevamente.',
       success: null,
       old: req.body
     });
@@ -461,7 +461,7 @@ exports.forgotPassword = async (req, res) => {
     return res.redirect('/login');
   } catch (error) {
     console.error(error);
-    req.session.error = 'Ocurrió un error al procesar la recuperación de contraseña.';
+    req.session.error = 'No se pudo procesar la recuperación. Verifica el dato ingresado e inténtalo nuevamente.';
     return res.redirect('/forgot-password');
   }
 };
@@ -494,7 +494,7 @@ exports.showResetPassword = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    req.session.error = 'No se pudo validar el enlace de recuperación.';
+    req.session.error = 'No se pudo validar el enlace de recuperación. Solicita un nuevo enlace e inténtalo nuevamente.';
     return res.redirect('/forgot-password');
   }
 };
@@ -575,7 +575,7 @@ exports.resetPassword = async (req, res) => {
     return res.redirect('/login');
   } catch (error) {
     console.error(error);
-    req.session.error = 'Ocurrió un error al restablecer la contraseña.';
+    req.session.error = 'No se pudo restablecer la contraseña. Solicita un nuevo enlace e inténtalo nuevamente.';
     return res.redirect('/forgot-password');
   }
 };

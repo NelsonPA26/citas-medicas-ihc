@@ -54,6 +54,10 @@
     </div>
   </div>
 
+  <div class="form-guidance" role="note">
+    <strong>Completa solo información segura:</strong> si no recuerdas un antecedente, marca “No sabe” en lugar de escribir datos dudosos.
+  </div>
+
   <form action="/paciente/antecedentes" method="POST" class="antecedentes-form js-patient-validated-form" id="antecedentesForm" novalidate>
     <section class="antecedente-section" data-section="alergias">
       <div class="antecedente-section-heading">
@@ -309,7 +313,7 @@
       </button>
       <button type="submit" class="btn-dark icon-action" title="Guardar antecedentes" aria-label="Guardar antecedentes">
         <img class="action-metaphor" src="/img/action-metaphors/paciente/antecedentes/guardar.svg" alt="" aria-hidden="true">
-        <span class="visually-hidden">Guardar antecedentes</span>
+        <span>Guardar antecedentes</span>
       </button>
     </div>
   </form>
@@ -322,7 +326,7 @@
     <div class="modal-actions">
       <button type="button" class="btn-light icon-action" id="stayAntecedentes" title="Permanecer editando" aria-label="Permanecer editando">
         <img class="action-metaphor" src="/img/action-metaphors/paciente/antecedentes/volver.svg" alt="" aria-hidden="true">
-        <span class="visually-hidden">Permanecer editando</span>
+        <span>Permanecer editando</span>
       </button>
       <a href="#" class="btn-danger" id="confirmLeaveAntecedentes" title="Salir sin guardar" aria-label="Salir sin guardar">
         <img class="action-metaphor" src="/img/action-metaphors/paciente/antecedentes/cancelar.svg" alt="" aria-hidden="true">

@@ -1,6 +1,18 @@
+<%
+  const esModoEdicion = typeof modoEdicion !== 'undefined' && modoEdicion;
+  const citaSegura = typeof cita !== 'undefined' && cita ? cita : {};
+  const especialidadesSeguras = typeof especialidades !== 'undefined' && Array.isArray(especialidades) ? especialidades : [];
+  const medicosSeguros = typeof medicos !== 'undefined' && Array.isArray(medicos) ? medicos : [];
+  const actionUrlSeguro = typeof actionUrl !== 'undefined' ? actionUrl : (esModoEdicion && citaSegura.id_cita ? `/paciente/mis-citas/${citaSegura.id_cita}/editar` : '/paciente/reservar-cita');
+%>
+
 <div class="module-card">
   <div class="module-header">
-    <p><%= modoEdicion ? 'Actualiza los datos de tu reserva mientras sigue pendiente de triaje.' : 'Completa los pasos para reservar una atención médica.' %></p>
+    <p><%= esModoEdicion ? 'Actualiza los datos de tu reserva mientras sigue pendiente de triaje.' : 'Completa los pasos para reservar una atención médica.' %></p>
+  </div>
+
+  <div class="form-guidance" role="note">
+    <strong>Ayuda para evitar errores:</strong> selecciona primero especialidad y médico; luego el sistema mostrará solo horarios disponibles. Revisa el resumen antes de confirmar.
   </div>
 
   <div class="step-indicator step-indicator-labeled" aria-label="Progreso de la reserva">
@@ -18,7 +30,7 @@
     </span>
   </div>
 
-  <form action="<%= actionUrl %>" method="POST" class="appointment-form js-patient-validated-form" id="appointmentForm" novalidate>
+  <form action="<%= actionUrlSeguro %>" method="POST" class="appointment-form js-patient-validated-form" id="appointmentForm" novalidate>
     <div id="stepMessage" class="step-message hidden"></div>
 
     <section class="appointment-step active" data-step="1">
@@ -29,8 +41,8 @@
         </label>
         <select id="especialidad" name="especialidad" required>
           <option value="">Seleccione una especialidad</option>
-          <% especialidades.forEach(especialidad => { %>
-            <option value="<%= especialidad %>" <%= modoEdicion && cita.especialidad === especialidad ? 'selected' : '' %>><%= especialidad %></option>
+          <% especialidadesSeguras.forEach(especialidad => { %>
+            <option value="<%= especialidad %>" <%= esModoEdicion && citaSegura.especialidad === especialidad ? 'selected' : '' %>><%= especialidad %></option>
           <% }) %>
         </select>
         <small class="field-message" data-for="especialidad"></small>
@@ -42,13 +54,13 @@
           <svg class="field-icon" aria-hidden="true"><use href="#field-icon-user"></use></svg>
           <span>Seleccionar médico</span>
         </label>
-        <select id="id_medico" name="id_medico" required <%= modoEdicion ? '' : 'disabled' %>>
+        <select id="id_medico" name="id_medico" required <%= esModoEdicion ? '' : 'disabled' %>>
           <option value="">Seleccione un médico</option>
-          <% medicos.forEach(medico => { %>
+          <% medicosSeguros.forEach(medico => { %>
             <option
               value="<%= medico.id_medico %>"
               data-especialidad="<%= medico.especialidad %>"
-              <%= modoEdicion && Number(cita.id_medico) === Number(medico.id_medico) ? 'selected' : '' %>
+              <%= esModoEdicion && Number(citaSegura.id_medico) === Number(medico.id_medico) ? 'selected' : '' %>
             >
               Dr(a). <%= medico.nombres %> <%= medico.apellido_paterno %> - <%= medico.especialidad %>
             </option>
@@ -60,9 +72,9 @@
 
       <div class="form-actions">
         <a
-          href="<%= modoEdicion ? '/paciente/mis-citas' : '/paciente/dashboard' %>"
+          href="<%= esModoEdicion ? '/paciente/mis-citas' : '/paciente/dashboard' %>"
           class="btn-light js-cancel-appointment"
-          data-cancel-message="<%= modoEdicion ? 'Si cancelas, se perderán los cambios no guardados de la reserva.' : 'Si cancelas, no se registrará la cita.' %>"
+          data-cancel-message="<%= esModoEdicion ? 'Si cancelas, se perderán los cambios no guardados de la reserva.' : 'Si cancelas, no se registrará la cita.' %>"
           title="Cancelar cambios"
           aria-label="Cancelar cambios"
         >
@@ -84,7 +96,7 @@
             <svg class="field-icon" aria-hidden="true"><use href="#field-icon-calendar"></use></svg>
             <span>Seleccionar fecha</span>
           </label>
-          <input type="date" id="fecha" name="fecha" value="<%= modoEdicion ? cita.fecha : '' %>" required>
+          <input type="date" id="fecha" name="fecha" value="<%= esModoEdicion ? citaSegura.fecha : '' %>" required>
           <small class="field-message" data-for="fecha"></small>
           <small class="form-help">Solo se permiten fechas de lunes a viernes.</small>
         </div>
@@ -94,9 +106,9 @@
             <svg class="field-icon" aria-hidden="true"><use href="#field-icon-clock"></use></svg>
             <span>Seleccionar hora disponible</span>
           </label>
-          <select id="hora" name="hora" required <%= modoEdicion ? '' : 'disabled' %>>
-            <% if (modoEdicion) { %>
-              <option value="<%= cita.hora %>" selected><%= cita.hora.substring(0, 5) %></option>
+          <select id="hora" name="hora" required <%= esModoEdicion ? '' : 'disabled' %>>
+            <% if (esModoEdicion) { %>
+              <option value="<%= citaSegura.hora || '' %>" selected><%= citaSegura.hora ? citaSegura.hora.substring(0, 5) : 'Sin hora' %></option>
             <% } else { %>
               <option value="">Primero selecciona médico y fecha</option>
             <% } %>
@@ -113,8 +125,8 @@
         </label>
         <small class="form-help">Selecciona uno o más síntomas si aplica. Esta información será revisada durante el triaje.</small>
         <%
-          const sintomasSeleccionados = modoEdicion && cita.sintomas
-            ? cita.sintomas.split(',').map(item => item.trim())
+          const sintomasSeleccionados = esModoEdicion && citaSegura.sintomas
+            ? citaSegura.sintomas.split(',').map(item => item.trim())
             : [];
           const otroSintomaGuardado = sintomasSeleccionados.find(item => item.startsWith('Otro:'));
           const sintomasBaseSeleccionados = sintomasSeleccionados.map(item => item.startsWith('Otro:') ? 'Otro' : item);
@@ -179,7 +191,7 @@
           maxlength="255"
           data-validate="medical-text"
           required
-        ><%= modoEdicion ? cita.motivo : '' %></textarea>
+        ><%= esModoEdicion ? citaSegura.motivo : '' %></textarea>
         <small class="field-message" data-for="motivo"></small>
         <small class="form-help">Describe brevemente el motivo de tu cita.</small>
       </div>
@@ -212,16 +224,16 @@
       </div>
 
       <div class="notice-box">
-        Revisa cuidadosamente los datos antes de <%= modoEdicion ? 'actualizar la reserva' : 'confirmar la cita' %>.
+        Revisa cuidadosamente los datos antes de <%= esModoEdicion ? 'actualizar la reserva' : 'confirmar la cita' %>.
       </div>
 
       <div class="form-actions">
         <button type="button" class="btn-light" id="backStep3">
           Atrás
         </button>
-        <button type="submit" class="btn-dark icon-action" title="<%= modoEdicion ? 'Actualizar reserva' : 'Confirmar cita' %>" aria-label="<%= modoEdicion ? 'Actualizar reserva' : 'Confirmar cita' %>">
-          <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/<%= modoEdicion ? 'editar.png' : 'confirmar.png' %>" alt="" aria-hidden="true">
-          <span class="visually-hidden"><%= modoEdicion ? 'Actualizar reserva' : 'Confirmar cita' %></span>
+        <button type="submit" class="btn-dark icon-action" title="<%= esModoEdicion ? 'Actualizar reserva' : 'Confirmar cita' %>" aria-label="<%= esModoEdicion ? 'Actualizar reserva' : 'Confirmar cita' %>">
+          <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/<%= esModoEdicion ? 'editar.png' : 'confirmar.png' %>" alt="" aria-hidden="true">
+          <span><%= esModoEdicion ? 'Actualizar reserva' : 'Confirmar cita' %></span>
         </button>
       </div>
     </section>
@@ -248,9 +260,9 @@
 <script src="/js/patient-validations.js"></script>
 
 <script>
-  const modoEdicion = <%= modoEdicion ? 'true' : 'false' %>;
-  const citaId = <%= modoEdicion ? Number(cita.id_cita) : 'null' %>;
-  const selectedHora = '<%= modoEdicion ? cita.hora : '' %>';
+  const isAppointmentEditMode = <%= esModoEdicion ? 'true' : 'false' %>;
+  const citaId = <%- JSON.stringify(esModoEdicion ? Number(citaSegura.id_cita || 0) : null) %>;
+  const selectedHora = <%- JSON.stringify(esModoEdicion ? (citaSegura.hora || '') : '') %>;
   const especialidadSelect = document.getElementById('especialidad');
   const medicoSelect = document.getElementById('id_medico');
   const fechaInput = document.getElementById('fecha');
@@ -419,7 +431,7 @@
 
     try {
       const params = new URLSearchParams({ id_medico: idMedico, fecha });
-      if (modoEdicion && citaId) params.set('id_cita', citaId);
+      if (isAppointmentEditMode && citaId) params.set('id_cita', citaId);
       const response = await fetch(`/paciente/horas-disponibles?${params.toString()}`);
       const data = await response.json();
 
@@ -440,7 +452,7 @@
         const option = document.createElement('option');
         option.value = hora;
         option.textContent = hora.substring(0, 5);
-        if (modoEdicion && hora === selectedHora) option.selected = true;
+        if (isAppointmentEditMode && hora === selectedHora) option.selected = true;
         horaSelect.appendChild(option);
       });
       horaSelect.disabled = false;
@@ -512,7 +524,7 @@
 
   cancelAppointmentLink.addEventListener('click', (event) => {
     event.preventDefault();
-    if (modoEdicion && !appointmentHasChanges()) {
+    if (isAppointmentEditMode && !appointmentHasChanges()) {
       window.location.href = cancelAppointmentLink.href;
       return;
     }
@@ -532,7 +544,7 @@
 
   filtrarMedicos();
   updateOtherSymptomField();
-  if (modoEdicion) cargarHorasDisponibles();
+  if (isAppointmentEditMode) cargarHorasDisponibles();
   updateStep1State(false);
   updateStep2State();
 </script>
