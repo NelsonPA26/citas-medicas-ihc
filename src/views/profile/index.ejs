@@ -28,15 +28,17 @@
 
   <div class="profile-grid">
     <section class="profile-section">
-      <h3>Datos personales</h3>
+      <h3><i class="bi bi-person-vcard" aria-hidden="true"></i>Datos personales</h3>
 
       <div class="profile-info">
         <div>
+          <i class="bi bi-person" aria-hidden="true"></i>
           <span>Nombres</span>
           <strong><%= profile.nombres %></strong>
         </div>
 
         <div>
+          <i class="bi bi-people" aria-hidden="true"></i>
           <span>Apellidos</span>
           <strong>
             <%= profile.apellido_paterno %>
@@ -45,21 +47,25 @@
         </div>
 
         <div>
+          <i class="bi bi-credit-card-2-front" aria-hidden="true"></i>
           <span>DNI</span>
           <strong><%= profile.dni || 'No registrado' %></strong>
         </div>
 
         <div>
+          <i class="bi bi-calendar-event" aria-hidden="true"></i>
           <span>Fecha de nacimiento</span>
           <strong><%= formatDate(profile.fecha_nacimiento) %></strong>
         </div>
 
         <div>
+          <i class="bi bi-gender-ambiguous" aria-hidden="true"></i>
           <span>Sexo</span>
           <strong><%= profile.sexo || 'No registrado' %></strong>
         </div>
 
         <div>
+          <i class="bi bi-shield-check" aria-hidden="true"></i>
           <span>Rol</span>
           <strong class="capitalize"><%= profile.rol %></strong>
         </div>
@@ -67,12 +73,8 @@
     </section>
 
     <section class="profile-section">
-      <h3>Información editable</h3>
+      <h3><i class="bi bi-pencil-square" aria-hidden="true"></i>Información editable</h3>
       <p class="section-help">Puedes actualizar estos datos cuando sea necesario.</p>
-
-      <div class="form-guidance" role="note">
-        <strong>Recomendación:</strong> usa un correo vigente y un teléfono de 9 dígitos para que el personal pueda comunicarse contigo.
-      </div>
 
       <form action="/perfil/actualizar" method="POST" class="profile-form js-role-validated-form" id="profileForm" novalidate>
         <div class="profile-form-grid">
@@ -179,27 +181,31 @@
 
   <div class="profile-grid profile-grid-secondary">
     <section class="profile-section profile-role-section">
-      <h3>Datos según rol</h3>
+      <h3><i class="bi bi-person-badge" aria-hidden="true"></i>Datos según rol</h3>
       <p class="section-help">Estos datos son administrados por el personal autorizado.</p>
 
       <div class="profile-info profile-role-info">
         <% if (profile.rol === 'paciente') { %>
           <div>
+            <i class="bi bi-mortarboard" aria-hidden="true"></i>
             <span>Código de estudiante</span>
             <strong><%= extra && extra.codigo_estudiante ? extra.codigo_estudiante : 'No registrado' %></strong>
           </div>
 
           <div>
+            <i class="bi bi-building" aria-hidden="true"></i>
             <span>Escuela</span>
             <strong><%= extra && extra.escuela ? extra.escuela : 'No registrado' %></strong>
           </div>
 
           <div>
+            <i class="bi bi-bank" aria-hidden="true"></i>
             <span>Facultad</span>
             <strong><%= extra && extra.facultad ? extra.facultad : 'No registrado' %></strong>
           </div>
 
           <div>
+            <i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>
             <span>Contexto universitario</span>
             <strong><%= extra && extra.contexto_universitario ? extra.contexto_universitario : 'No registrado' %></strong>
           </div>
@@ -207,16 +213,19 @@
 
         <% if (profile.rol === 'medico') { %>
           <div>
+            <i class="bi bi-stethoscope" aria-hidden="true"></i>
             <span>Especialidad</span>
             <strong><%= extra && extra.especialidad ? extra.especialidad : 'No registrado' %></strong>
           </div>
 
           <div>
+            <i class="bi bi-award" aria-hidden="true"></i>
             <span>N.º de colegiatura</span>
             <strong><%= extra && extra.numero_colegiatura ? extra.numero_colegiatura : 'No registrado' %></strong>
           </div>
 
           <div>
+            <i class="bi bi-clock" aria-hidden="true"></i>
             <span>Turno</span>
             <strong><%= extra && extra.turno ? extra.turno : 'No registrado' %></strong>
           </div>
@@ -224,11 +233,13 @@
 
         <% if (profile.rol === 'enfermera') { %>
           <div>
+            <i class="bi bi-hospital" aria-hidden="true"></i>
             <span>Área</span>
             <strong><%= extra && extra.area ? extra.area : 'No registrado' %></strong>
           </div>
 
           <div>
+            <i class="bi bi-clock" aria-hidden="true"></i>
             <span>Turno</span>
             <strong><%= extra && extra.turno ? extra.turno : 'No registrado' %></strong>
           </div>
@@ -236,11 +247,13 @@
 
         <% if (profile.rol === 'administrativo') { %>
           <div>
+            <i class="bi bi-person-badge" aria-hidden="true"></i>
             <span>Cargo</span>
             <strong><%= extra && extra.cargo ? extra.cargo : 'No registrado' %></strong>
           </div>
 
           <div>
+            <i class="bi bi-telephone" aria-hidden="true"></i>
             <span>Anexo</span>
             <strong><%= extra && extra.anexo ? extra.anexo : 'No registrado' %></strong>
           </div>
@@ -250,12 +263,21 @@
 
     <section class="profile-section profile-security-form">
       <div class="profile-section-heading">
-        <h3>Actualizar contraseña</h3>
+        <h3><i class="bi bi-shield-lock" aria-hidden="true"></i>Actualizar contraseña</h3>
       </div>
 
       <p class="section-help">Usa una contraseña fuerte para proteger las funciones administrativas del sistema.</p>
 
-      <form action="/perfil/cambiar-password" method="POST" class="profile-form js-role-validated-form" id="passwordForm" novalidate>
+      <form
+        action="/perfil/cambiar-password"
+        method="POST"
+        class="profile-form js-role-validated-form"
+        id="passwordForm"
+        data-confirm-title="Cambiar contraseña"
+        data-confirm="Vas a cambiar tu contraseña de acceso. Verifica que sea segura, que coincida con la confirmación y que puedas recordarla antes de continuar."
+        data-confirm-button="Cambiar contraseña"
+        novalidate
+      >
         <div class="profile-form-grid">
           <div class="form-group">
             <label for="current_password" class="field-label-with-icon">
@@ -318,7 +340,7 @@
             <span>Cancelar cambios</span>
           </button>
           <button type="submit" class="btn-dark password-update-action" title="Actualizar contraseña" aria-label="Actualizar contraseña">
-            <span class="button-symbol" aria-hidden="true">🔒</span>
+            <i class="bi bi-shield-lock" aria-hidden="true"></i>
             <span>Actualizar contraseña</span>
           </button>
         </div>

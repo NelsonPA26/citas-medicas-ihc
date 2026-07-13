@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title || 'Sistema de Citas Médicas' %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body class="dashboard-body">
@@ -70,7 +71,7 @@
             <span>Reservar cita</span>
         </a>
 
-        <a href="/paciente/mis-citas" class="<%= currentPath === '/paciente/mis-citas' ? 'active' : '' %>">
+        <a href="/paciente/mis-citas" class="<%= currentPath.startsWith('/paciente/mis-citas') ? 'active' : '' %>">
             <%- icons.citas %>
             <span>Mis citas</span>
         </a>
@@ -129,7 +130,7 @@
           <span>Inicio</span>
         </a>
 
-        <a href="/enfermera/triaje-pendiente" class="<%= currentPath === '/enfermera/triaje-pendiente' ? 'active' : '' %>">
+        <a href="/enfermera/triaje-pendiente" class="<%= currentPath === '/enfermera/triaje-pendiente' || currentPath.startsWith('/enfermera/triaje/') ? 'active' : '' %>">
             <%- icons.triaje %>
             <span>Triaje pendiente</span>
         </a>
@@ -194,14 +195,11 @@
       let roleTopbarHelp = null;
 
       if (user && user.rol === 'paciente') {
-        const patientHelpTopics = {
-          '/paciente/reservar-cita': 'reservar-cita',
-          '/paciente/mis-citas': 'mis-citas',
-          '/paciente/historial': 'historial',
-          '/paciente/antecedentes': 'antecedentes',
-          '/perfil': 'perfil'
-        };
-        roleTopbarHelp = patientHelpTopics[currentPath] || null;
+        if (currentPath.startsWith('/paciente/reservar-cita')) roleTopbarHelp = 'reservar-cita';
+        if (currentPath.startsWith('/paciente/mis-citas')) roleTopbarHelp = 'mis-citas';
+        if (currentPath.startsWith('/paciente/historial')) roleTopbarHelp = 'historial';
+        if (currentPath.startsWith('/paciente/antecedentes')) roleTopbarHelp = 'antecedentes';
+        if (currentPath === '/perfil') roleTopbarHelp = 'perfil';
       }
 
       if (user && user.rol === 'medico') {
@@ -213,7 +211,7 @@
       }
 
       if (user && user.rol === 'enfermera') {
-        if (currentPath === '/enfermera/triaje-pendiente') roleTopbarHelp = 'enfermera-triaje-pendiente';
+        if (currentPath === '/enfermera/triaje-pendiente' || currentPath.startsWith('/enfermera/triaje/')) roleTopbarHelp = 'enfermera-triaje-pendiente';
         if (currentPath.startsWith('/enfermera/triaje/') || currentPath.includes('/enfermera/triajes/')) roleTopbarHelp = 'enfermera-registrar-triaje';
         if (currentPath === '/enfermera/triajes') roleTopbarHelp = 'enfermera-triajes';
         if (currentPath === '/enfermera/historial-triajes') roleTopbarHelp = 'enfermera-historial-triajes';
@@ -227,11 +225,14 @@
         if (currentPath === '/perfil') roleTopbarHelp = 'admin-perfil';
       }
 
+      const isAdminRole = user && user.rol === 'administrativo';
+      const showAdminRegisterUserAction = isAdminRole && currentPath === '/admin/usuarios';
     %>
 
-    <header class="dashboard-topbar <%= roleTopbarHelp ? 'dashboard-topbar-helpable' : '' %>">
+    <header class="dashboard-topbar <%= roleTopbarHelp ? 'dashboard-topbar-helpable' : '' %> <%= isAdminRole ? 'dashboard-topbar-admin' : '' %>">
       <div>
         <h1><%= title %></h1>
+        <p id="pageModuleDescription" class="page-module-description hidden"></p>
 
         <% if (
           currentPath === '/paciente/dashboard' ||
@@ -243,8 +244,31 @@
         <% } %>
       </div>
 
-      <% if (roleTopbarHelp) { %>
-        <button type="button" class="topbar-help-trigger" data-help-topic="<%= roleTopbarHelp %>" aria-label="Ver ayuda de este modulo">
+      <% if (isAdminRole && (showAdminRegisterUserAction || roleTopbarHelp)) { %>
+        <div class="topbar-action-group admin-topbar-actions">
+          <% if (roleTopbarHelp) { %>
+            <button type="button" class="topbar-help-trigger topbar-help-trigger-compact" data-help-topic="<%= roleTopbarHelp %>" aria-label="Ver ayuda de este módulo" title="Ayuda de esta pantalla">
+              <span>?</span>
+              <strong class="visually-hidden">¿Necesitas ayuda?</strong>
+            </button>
+          <% } %>
+
+          <% if (showAdminRegisterUserAction) { %>
+            <div class="admin-user-primary-action" aria-label="Acción principal del módulo">
+              <a
+                href="/admin/usuarios/nuevo"
+                class="btn-admin-register-clean"
+                title="Registrar usuario"
+                aria-label="Registrar usuario"
+              >
+                <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/reg_usuario.png" alt="" aria-hidden="true">
+                <span>Registrar usuario</span>
+              </a>
+            </div>
+          <% } %>
+        </div>
+      <% } else if (roleTopbarHelp) { %>
+        <button type="button" class="topbar-help-trigger" data-help-topic="<%= roleTopbarHelp %>" aria-label="Ver ayuda de este módulo">
           <span>?</span>
           <strong>¿Necesitas ayuda?</strong>
         </button>
@@ -252,30 +276,47 @@
     </header>
 
     <section class="dashboard-content">
-      <% if (error) { %>
-        <div class="alert alert-error dashboard-alert" role="alert"><%= error %></div>
-      <% } %>
-
-      <% if (success) { %>
-        <div class="alert alert-success dashboard-alert auto-dismiss" role="status"><%= success %></div>
-      <% } %>
-
       <%- body %>
     </section>
   </main>
 
+  <% if (error || success) { %>
+    <div class="toast-region" aria-label="Notificaciones del sistema">
+      <% if (error) { %>
+        <div class="alert alert-error dashboard-toast auto-dismiss" role="alert" data-toast data-duration="7000">
+          <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+          <span><%= error %></span>
+          <button type="button" class="toast-close" aria-label="Cerrar notificación"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+        </div>
+      <% } %>
+
+      <% if (success) { %>
+        <div class="alert alert-success dashboard-toast auto-dismiss" role="status" aria-live="polite" data-toast data-duration="4500">
+          <i class="bi bi-check-circle" aria-hidden="true"></i>
+          <span><%= success %></span>
+          <button type="button" class="toast-close" aria-label="Cerrar notificación"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+        </div>
+      <% } %>
+    </div>
+  <% } %>
+
   <div class="modal-overlay hidden" id="globalConfirmModal">
-    <div class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="globalConfirmTitle" aria-describedby="globalConfirmText">
+    <div class="confirm-modal confirm-modal-polished" role="dialog" aria-modal="true" aria-labelledby="globalConfirmTitle" aria-describedby="globalConfirmText">
+      <button type="button" class="modal-close confirm-modal-close" id="globalConfirmClose" aria-label="Cerrar confirmación">&times;</button>
+      <div class="confirm-modal-icon" aria-hidden="true">
+        <i class="bi bi-check2-circle" id="globalConfirmIcon"></i>
+      </div>
       <h3 id="globalConfirmTitle">Confirmar acción</h3>
       <p id="globalConfirmText">¿Estás seguro de continuar?</p>
+      <small class="confirm-modal-note" id="globalConfirmNote">Revisa la información antes de continuar.</small>
 
       <div class="modal-actions">
         <button type="button" class="btn-light" id="globalConfirmCancel" title="Cancelar" aria-label="Cancelar">
-          <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/cancelar.png" alt="" aria-hidden="true">
+          <i class="bi bi-arrow-left" aria-hidden="true"></i>
           <span>Cancelar</span>
         </button>
         <button type="button" class="btn-danger icon-action" id="globalConfirmAccept" title="Confirmar" aria-label="Confirmar">
-          <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/confirmar.png" alt="" aria-hidden="true">
+          <i class="bi bi-check2-circle" id="globalConfirmAcceptIcon" aria-hidden="true"></i>
           <span>Confirmar</span>
         </button>
       </div>
@@ -286,6 +327,9 @@
     <div class="modal-overlay hidden" id="patientHelpModal" role="dialog" aria-modal="true" aria-labelledby="patientHelpTitle" aria-describedby="patientHelpIntro">
       <div class="confirm-modal help-modal">
         <div class="modal-header">
+          <span class="help-modal-topic-icon" aria-hidden="true">
+            <i class="bi bi-question-circle" id="patientHelpIcon"></i>
+          </span>
           <div>
             <span class="help-eyebrow">Ayuda rápida</span>
             <h3 id="patientHelpTitle">Ayuda</h3>
@@ -302,22 +346,53 @@
   <% } %>
 
   <script src="/js/ui-feedback.js"></script>
+  <script src="/js/clinical-info-cards.js"></script>
 
   <script>
-  const autoDismissAlerts = document.querySelectorAll('.auto-dismiss');
+  const pageModuleDescription = document.getElementById('pageModuleDescription');
+  const moduleDescriptionSource = document.querySelector(
+    '.dashboard-content .module-card > .module-header p, ' +
+    '.dashboard-content .module-header-copy p, ' +
+    '.dashboard-content .admin-user-form-intro p, ' +
+    '.dashboard-content .antecedentes-header p'
+  );
+
+  if (pageModuleDescription && moduleDescriptionSource) {
+    const descriptionText = moduleDescriptionSource.textContent.trim();
+
+    if (descriptionText) {
+      pageModuleDescription.textContent = descriptionText;
+      pageModuleDescription.classList.remove('hidden');
+      moduleDescriptionSource.classList.add('is-hoisted-description');
+      moduleDescriptionSource.setAttribute('aria-hidden', 'true');
+
+      const sourceHeader = moduleDescriptionSource.closest('.module-header');
+      if (sourceHeader) {
+        const hasAction = sourceHeader.querySelector('a, button, form, .admin-user-primary-action, .antecedentes-meta');
+        if (!hasAction) sourceHeader.classList.add('module-header-empty');
+      }
+    }
+  }
+
+  const autoDismissAlerts = document.querySelectorAll('[data-toast].auto-dismiss');
 
   document.querySelectorAll('.sidebar-nav a.active').forEach(link => {
     link.setAttribute('aria-current', 'page');
   });
 
   autoDismissAlerts.forEach(alert => {
-    setTimeout(() => {
+    const dismissToast = () => {
+      if (!alert.isConnected || alert.classList.contains('fade-out')) return;
       alert.classList.add('fade-out');
 
       setTimeout(() => {
         alert.remove();
       }, 400);
-    }, 3500);
+    };
+
+    const closeButton = alert.querySelector('.toast-close');
+    if (closeButton) closeButton.addEventListener('click', dismissToast);
+    setTimeout(dismissToast, Number(alert.dataset.duration || 4500));
   });
 
   const TABLE_PAGE_SIZE = 6;
@@ -542,6 +617,16 @@ function moveRowsByStatusPriority(tbody) {
         ],
         note: 'Estos datos ayudan al personal de salud a atenderte mejor.'
       },
+      'paciente-dashboard': {
+        title: 'Panel del paciente',
+        intro: 'Usa el inicio para ubicar tus próximas tareas sin recorrer todo el sistema.',
+        items: [
+          'Revisa tu próxima cita y su estado.',
+          'Usa los accesos rápidos para reservar, revisar citas o abrir tu historial.',
+          'Actualiza antecedentes y perfil cuando cambie información importante.'
+        ],
+        note: 'El inicio resume; los detalles están en cada módulo.'
+      },
       'reservar-cita': {
         title: 'Reservar cita',
         intro: 'Sigue estos pasos y confirma solo cuando todo esté correcto.',
@@ -606,6 +691,16 @@ function moveRowsByStatusPriority(tbody) {
         ],
         note: 'Si un dato no se puede editar, solicita apoyo al personal autorizado.'
       },
+      'medico-dashboard': {
+        title: 'Panel del médico',
+        intro: 'Consulta el estado de tu carga de atención antes de abrir una cita.',
+        items: [
+          'Prioriza citas listas para atención.',
+          'Continúa borradores clínicos antes de finalizar una consulta.',
+          'Accede a pacientes para revisar antecedentes e historial.'
+        ],
+        note: 'Los indicadores ayudan a decidir la siguiente tarea.'
+      },
       'medico-citas': {
         title: 'Citas por atender',
         intro: 'Aquí aparecen las citas que ya tienen triaje y están listas para atención médica.',
@@ -623,7 +718,7 @@ function moveRowsByStatusPriority(tbody) {
           'Revisa resumen del paciente, antecedentes y signos vitales.',
           'Puedes usar plantillas frecuentes, pero edita el texto según tu criterio.',
           'Guardar en progreso conserva un borrador.',
-          'Confirmar consulta finaliza la atención y exige diagnóstico y tratamiento.'
+          'Confirmar consulta finaliza la atención y exige diagnóstico y tratamiento/receta.'
         ],
         note: 'Confirma solo cuando el registro clínico esté completo.'
       },
@@ -708,18 +803,28 @@ function moveRowsByStatusPriority(tbody) {
         ],
         note: 'Un perfil actualizado facilita la comunicación del equipo.'
       },
+      'enfermera-dashboard': {
+        title: 'Panel de enfermería',
+        intro: 'Revisa pendientes y triajes activos para organizar la atención inicial.',
+        items: [
+          'Atiende primero los triajes pendientes.',
+          'Revisa triajes activos y enviados a espera médica.',
+          'Usa el historial para consultar registros cerrados.'
+        ],
+        note: 'El panel sirve para decidir dónde continuar el flujo.'
+      },
       'admin-usuarios': {
-        title: 'Gestion de usuarios',
+        title: 'Gestión de usuarios',
         intro: 'Administra datos, acceso, roles y estado de todas las cuentas del sistema.',
         items: [
           'Usa filtros para buscar por nombre, DNI, correo, rol o estado.',
-          'Registra usuarios nuevos desde este modulo y elige el rol que corresponde.',
-          'Edita datos personales, acceso, contrasena o rol cuando sea necesario.',
+          'Registra usuarios nuevos desde este módulo y elige el rol que corresponde.',
+          'Edita datos personales, acceso, contraseña o rol cuando sea necesario.',
           'Completa los datos profesionales solo cuando el rol sea medico, enfermera o administrativo.',
           'Desactiva cuentas cuando no deban ingresar.',
-          'Elimina solo usuarios sin registros historicos asociados.'
+          'Elimina solo usuarios sin registros históricos asociados.'
         ],
-        note: 'La contrasena temporal inicial es UNT12345* cuando no se escribe una contrasena propia.'
+        note: 'La contraseña temporal inicial es UNT12345* cuando no se escribe una contraseña propia.'
       },
       'admin-citas': {
         title: 'Citas generales',
@@ -753,6 +858,16 @@ function moveRowsByStatusPriority(tbody) {
           'Si detectas datos erróneos, corrígelos desde perfil o usuarios.'
         ],
         note: 'Tu cuenta administrativa controla información sensible del sistema.'
+      },
+      'admin-dashboard': {
+        title: 'Panel administrativo',
+        intro: 'Supervisa usuarios y citas desde una vista general compacta.',
+        items: [
+          'Revisa indicadores antes de entrar a listas completas.',
+          'Gestiona usuarios solo cuando corresponda por rol o estado.',
+          'Abre Citas para supervisar pendientes, completadas o canceladas.'
+        ],
+        note: 'Las acciones administrativas afectan información sensible; confirma antes de aplicar cambios.'
       }
     };
 
@@ -761,8 +876,34 @@ function moveRowsByStatusPriority(tbody) {
     const patientHelpIntro = document.getElementById('patientHelpIntro');
     const patientHelpList = document.getElementById('patientHelpList');
     const patientHelpNote = document.getElementById('patientHelpNote');
+    const patientHelpIcon = document.getElementById('patientHelpIcon');
     const closePatientHelpModal = document.getElementById('closePatientHelpModal');
     let lastPatientHelpTrigger = null;
+
+    const patientHelpIcons = {
+      'primeros-pasos': 'bi bi-compass',
+      'reservar-cita': 'bi bi-calendar-plus',
+      'mis-citas': 'bi bi-calendar3',
+      'estados': 'bi bi-info-circle',
+      'historial': 'bi bi-clipboard2-check',
+      'antecedentes': 'bi bi-heart-pulse',
+      'perfil': 'bi bi-person',
+      'medico-citas': 'bi bi-calendar3',
+      'medico-atender-cita': 'bi bi-clipboard2-pulse',
+      'medico-pacientes': 'bi bi-people',
+      'medico-historial-paciente': 'bi bi-folder2-open',
+      'medico-perfil': 'bi bi-person',
+      'enfermera-triaje-pendiente': 'bi bi-exclamation-circle',
+      'enfermera-registrar-triaje': 'bi bi-activity',
+      'enfermera-triajes': 'bi bi-clipboard2-pulse',
+      'enfermera-historial-triajes': 'bi bi-clock-history',
+      'enfermera-perfil': 'bi bi-person',
+      'admin-usuarios': 'bi bi-people',
+      'admin-citas': 'bi bi-calendar3',
+      'admin-detalle-cita': 'bi bi-card-checklist',
+      'admin-perfil': 'bi bi-person-gear',
+      'admin-dashboard': 'bi bi-shield-check'
+    };
 
     function closePatientHelp() {
       if (!patientHelpModal) return;
@@ -778,6 +919,9 @@ function moveRowsByStatusPriority(tbody) {
       if (!content) return;
 
       lastPatientHelpTrigger = trigger || null;
+      if (patientHelpIcon) {
+        patientHelpIcon.className = patientHelpIcons[topic] || 'bi bi-question-circle';
+      }
       patientHelpTitle.textContent = content.title;
       patientHelpIntro.textContent = content.intro;
       patientHelpList.innerHTML = content.items.map(item => `<li>${item}</li>`).join('');
@@ -806,53 +950,106 @@ function moveRowsByStatusPriority(tbody) {
     const globalConfirmModal = document.getElementById('globalConfirmModal');
     const globalConfirmTitle = document.getElementById('globalConfirmTitle');
     const globalConfirmText = document.getElementById('globalConfirmText');
+    const globalConfirmNote = document.getElementById('globalConfirmNote');
+    const globalConfirmIcon = document.getElementById('globalConfirmIcon');
+    const globalConfirmAcceptIcon = document.getElementById('globalConfirmAcceptIcon');
+    const globalConfirmClose = document.getElementById('globalConfirmClose');
     const globalConfirmCancel = document.getElementById('globalConfirmCancel');
     const globalConfirmAccept = document.getElementById('globalConfirmAccept');
     let pendingConfirmForm = null;
 
-    const getConfirmObjectFolder = form => {
-      const text = `${form.dataset.confirmTitle || ''} ${form.dataset.confirm || ''} ${window.location.pathname}`.toLowerCase();
+    const getConfirmActionIcon = confirmLabel => {
+      const normalizedLabel = confirmLabel.toLowerCase();
 
-      if (window.location.pathname.includes('/admin/usuarios')) return 'administrador/usuarios';
-      if (text.includes('enfermera')) return 'administrador/enfermeras';
-      if (text.includes('médico') || text.includes('medico')) return 'administrador/medicos';
-      if (text.includes('cita') || window.location.pathname.includes('/admin/citas')) return 'administrador/citas';
-      return 'administrador/usuarios';
+      if (normalizedLabel.includes('eliminar')) return 'bi-trash3';
+      if (normalizedLabel.includes('desactivar')) return 'bi-person-dash';
+      if (normalizedLabel.includes('activar')) return 'bi-person-check';
+      if (normalizedLabel.includes('cancelar') || normalizedLabel.includes('cerrar')) return 'bi-x-circle';
+      if (normalizedLabel.includes('contraseña') || normalizedLabel.includes('contrasena')) return 'bi-shield-lock';
+      if (normalizedLabel.includes('actualizar')) return 'bi-pencil-square';
+      if (normalizedLabel.includes('guardar')) return 'bi-floppy';
+      if (normalizedLabel.includes('registrar')) return 'bi-person-plus';
+      return 'bi-check2-circle';
     };
 
-    const getConfirmActionIcon = confirmLabel => {
+    const getConfirmActionTone = confirmLabel => {
       const normalizedLabel = confirmLabel.toLowerCase();
 
       if (normalizedLabel.includes('eliminar')) return 'eliminar';
       if (normalizedLabel.includes('desactivar')) return 'desactivar';
       if (normalizedLabel.includes('activar')) return 'activar';
-      if (normalizedLabel.includes('cancelar')) return 'cancelar';
+      if (normalizedLabel.includes('cancelar') || normalizedLabel.includes('cerrar sesión')) return 'cancelar';
+      if (normalizedLabel.includes('guardar') || normalizedLabel.includes('actualizar')) return 'guardar';
       return 'confirmar';
     };
 
+    const getConfirmActionNote = tone => ({
+      activar: 'La persona podrá volver a usar el sistema con normalidad.',
+      cancelar: 'La acción se puede detener ahora si necesitas revisar información.',
+      desactivar: 'La cuenta no podrá ingresar hasta que sea activada nuevamente.',
+      eliminar: 'Acción irreversible. Verifica que realmente corresponde.',
+      guardar: 'Se guardarán cambios en información sensible del sistema.',
+      confirmar: 'La acción quedará registrada al confirmar.'
+    }[tone] || 'Revisa la información antes de continuar.');
+
+    function openCriticalFormConfirmation(form, options = {}) {
+      pendingConfirmForm = form;
+      globalConfirmTitle.textContent = options.title || form.dataset.confirmTitle || 'Confirmar acción';
+      globalConfirmText.textContent = options.message || form.dataset.confirm || 'Esta acción puede modificar información del sistema. Revisa los datos antes de continuar.';
+      const confirmLabel = options.button || form.dataset.confirmButton || 'Confirmar';
+      const confirmTone = getConfirmActionTone(confirmLabel);
+      globalConfirmAccept.title = confirmLabel;
+      globalConfirmAccept.setAttribute('aria-label', confirmLabel);
+      globalConfirmAccept.dataset.confirmAction = confirmTone;
+      globalConfirmModal.querySelector('.confirm-modal').dataset.confirmAction = confirmTone;
+      const confirmAction = getConfirmActionIcon(confirmLabel);
+      const confirmAcceptText = globalConfirmAccept.querySelector('span');
+      confirmAcceptText.textContent = confirmLabel;
+      confirmAcceptText.classList.remove('visually-hidden');
+      globalConfirmAccept.classList.add('icon-action');
+      globalConfirmAcceptIcon.className = `bi ${confirmAction}`;
+      globalConfirmIcon.className = `bi ${confirmAction}`;
+      globalConfirmNote.textContent = getConfirmActionNote(confirmTone);
+      globalConfirmModal.classList.remove('hidden');
+      globalConfirmCancel.focus();
+    }
+
+    window.openCriticalFormConfirmation = openCriticalFormConfirmation;
+
     document.querySelectorAll('form[data-confirm]').forEach(form => {
       form.addEventListener('submit', event => {
+        if (event.defaultPrevented) return;
         event.preventDefault();
-        pendingConfirmForm = form;
-        globalConfirmTitle.textContent = form.dataset.confirmTitle || 'Confirmar acción';
-        globalConfirmText.textContent = form.dataset.confirm || '¿Estás seguro de continuar?';
-        const confirmLabel = form.dataset.confirmButton || 'Confirmar';
-        globalConfirmAccept.title = confirmLabel;
-        globalConfirmAccept.setAttribute('aria-label', confirmLabel);
-        const confirmAction = getConfirmActionIcon(confirmLabel);
-        const confirmAcceptText = globalConfirmAccept.querySelector('span');
-        confirmAcceptText.textContent = confirmLabel;
-        confirmAcceptText.classList.remove('visually-hidden');
-        globalConfirmAccept.classList.add('icon-action');
-        const confirmFolder = getConfirmObjectFolder(form);
-        globalConfirmAccept.querySelector('img').src = `/img/action-metaphors/${confirmFolder}/${confirmAction}.png`;
-        globalConfirmModal.classList.remove('hidden');
+        openCriticalFormConfirmation(form);
       });
     });
 
-    globalConfirmCancel.addEventListener('click', () => {
+    const logoutForm = document.querySelector('.logout-form');
+
+    if (logoutForm) {
+      logoutForm.addEventListener('submit', event => {
+        if (event.defaultPrevented) return;
+        if (typeof window.hasUnsavedCriticalChanges !== 'function') return;
+        if (!window.hasUnsavedCriticalChanges()) return;
+
+        event.preventDefault();
+        openCriticalFormConfirmation(logoutForm, {
+          title: 'Cerrar sesión con cambios sin guardar',
+          message: 'Hay cambios escritos en esta pantalla que todavía no se guardaron. Si cierras sesión ahora, se perderán.',
+          button: 'Cerrar sesión'
+        });
+      });
+    }
+
+    function closeGlobalConfirmModal() {
       pendingConfirmForm = null;
       globalConfirmModal.classList.add('hidden');
+    }
+
+    globalConfirmCancel.addEventListener('click', closeGlobalConfirmModal);
+
+    globalConfirmClose.addEventListener('click', () => {
+      closeGlobalConfirmModal();
     });
 
     globalConfirmAccept.addEventListener('click', () => {
@@ -869,8 +1066,7 @@ function moveRowsByStatusPriority(tbody) {
 
     globalConfirmModal.addEventListener('click', event => {
       if (event.target === globalConfirmModal) {
-        pendingConfirmForm = null;
-        globalConfirmModal.classList.add('hidden');
+        closeGlobalConfirmModal();
       }
     });
 
@@ -880,12 +1076,10 @@ function moveRowsByStatusPriority(tbody) {
       }
 
       if (event.key === 'Escape' && !globalConfirmModal.classList.contains('hidden')) {
-        pendingConfirmForm = null;
-        globalConfirmModal.classList.add('hidden');
+        closeGlobalConfirmModal();
       }
     });
   </script>
 
 </body>
 </html>
-

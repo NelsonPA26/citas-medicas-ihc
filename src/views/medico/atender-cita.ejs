@@ -4,23 +4,24 @@
   </div>
 
   <div class="notice-box">
-    Los selectores de diagnóstico y tratamiento son plantillas frecuentes editables. No reemplazan la evaluación médica ni generan una decisión automática.
+    Los selectores de diagnóstico y tratamiento/receta son plantillas frecuentes editables. No reemplazan la evaluación médica ni generan una decisión automática.
   </div>
 
-  <div class="clinical-overview">
+  <div class="clinical-workspace clinical-workspace-consulta">
+    <aside class="clinical-workspace-side" aria-label="Contexto cl&iacute;nico del paciente">
+      <div class="clinical-overview">
     <section class="patient-summary clinical-panel">
-      <h3>Resumen del paciente</h3>
+      <h3><i class="bi bi-person-vcard" aria-hidden="true"></i>Resumen del paciente</h3>
       <div><span>Paciente</span><strong><%= cita.paciente_nombres %> <%= cita.paciente_apellido_paterno %> <%= cita.paciente_apellido_materno || '' %></strong></div>
       <div><span>DNI</span><strong><%= cita.paciente_dni || 'No registrado' %></strong></div>
       <div><span>Edad</span><strong><%= cita.paciente_edad !== null ? cita.paciente_edad + ' años' : 'No registrada' %></strong></div>
       <div><span>Sexo</span><strong><%= cita.paciente_sexo || 'No registrado' %></strong></div>
       <div><span>Fecha y hora</span><strong><%= new Date(cita.fecha).toLocaleDateString('es-PE') %> - <%= cita.hora %></strong></div>
       <div class="full-row"><span>Motivo de consulta</span><strong><%= cita.motivo %></strong></div>
-      <div class="full-row"><span>Síntomas iniciales declarados por el paciente</span><strong><%= cita.sintomas_paciente || 'No declarados por el paciente' %></strong></div>
     </section>
 
-    <section class="triaje-summary clinical-panel">
-      <h3>Antecedentes médicos referidos por el paciente</h3>
+    <section class="triaje-summary clinical-panel clinical-antecedentes-panel">
+      <h3><i class="bi bi-journal-medical" aria-hidden="true"></i>Antecedentes médicos referidos por el paciente</h3>
       <div class="triaje-summary-grid compact-clinical-grid">
         <div><span>Alergias</span><strong><%= cita.alergias || 'No registradas' %></strong></div>
         <div><span>Enfermedades previas</span><strong><%= cita.enfermedades_previas || 'No registradas' %></strong></div>
@@ -30,10 +31,10 @@
         <div class="full-row"><span>Observaciones</span><strong><%= cita.antecedentes_observaciones || 'Sin observaciones' %></strong></div>
       </div>
     </section>
-  </div>
+      </div>
 
   <section class="triaje-summary">
-    <h3>Triaje registrado</h3>
+    <h3><i class="bi bi-activity" aria-hidden="true"></i>Triaje registrado</h3>
     <div class="triaje-summary-grid">
       <div><span>Temperatura</span><strong><%= cita.temperatura %> °C</strong></div>
       <div><span>Presión arterial</span><strong><%= cita.presion_arterial %></strong></div>
@@ -43,16 +44,24 @@
       <div class="full-row"><span>Observaciones de enfermería</span><strong><%= cita.triaje_observaciones || 'Sin observaciones' %></strong></div>
     </div>
   </section>
+    </aside>
 
-  <div class="form-guidance" role="note">
-    <strong>Antes de confirmar:</strong> revisa triaje, antecedentes, diagnóstico y tratamiento. Guardar en progreso conserva el borrador; confirmar finaliza la consulta.
-  </div>
+    <div class="clinical-workspace-main">
 
   <form action="/medico/citas/<%= cita.id_cita %>/atender" method="POST" class="consulta-form js-role-validated-form" id="consultaForm" novalidate>
     <input type="hidden" name="accion" id="accionInput" value="">
     <div id="consultaMessage" class="step-message hidden"></div>
 
     <div class="consulta-form-grid">
+      <section class="clinical-form-section">
+        <div class="clinical-form-section-heading">
+          <i class="bi bi-stethoscope" aria-hidden="true"></i>
+          <div>
+            <h3>Diagn&oacute;stico m&eacute;dico</h3>
+            <p>Registra la impresi&oacute;n diagn&oacute;stica seg&uacute;n la evaluaci&oacute;n cl&iacute;nica.</p>
+          </div>
+        </div>
+
       <div class="form-group">
         <label for="diagnostico_frecuente" class="field-label-with-icon">
           <svg class="field-icon" aria-hidden="true"><use href="#field-icon-stethoscope"></use></svg>
@@ -80,19 +89,29 @@
 
         <label for="diagnostico" class="field-label-with-icon">
           <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
-          <span>Diagnóstico / impresión diagnóstica registrada por el médico</span>
+          <span class="required-indicator">Diagnóstico / impresión diagnóstica registrada por el médico</span>
         </label>
         <textarea id="diagnostico" name="diagnostico" placeholder="Registra el diagnóstico o impresión diagnóstica según la evaluación médica." minlength="5" maxlength="255" data-validate="clinical-text" data-min="5"><%= cita.diagnostico || '' %></textarea>
         <span class="field-message" data-for="diagnostico"></span>
       </div>
+      </section>
+
+      <section class="clinical-form-section">
+        <div class="clinical-form-section-heading">
+          <i class="bi bi-capsule" aria-hidden="true"></i>
+          <div>
+            <h3>Tratamiento y receta</h3>
+            <p>Indica medicaci&oacute;n, dosis, frecuencia o manejo cl&iacute;nico cuando corresponda.</p>
+          </div>
+        </div>
 
       <div class="form-group">
         <label for="tratamiento_frecuente" class="field-label-with-icon">
           <svg class="field-icon" aria-hidden="true"><use href="#field-icon-pill"></use></svg>
-          <span>Tratamiento frecuente</span>
+          <span>Tratamiento / receta frecuente</span>
         </label>
         <select id="tratamiento_frecuente" class="clinical-helper-select" data-target="tratamiento">
-          <option value="">Seleccionar tratamiento frecuente</option>
+          <option value="">Seleccionar tratamiento o receta frecuente</option>
           <option value="Tratamiento sintomático según evaluación médica.">Tratamiento sintomático</option>
           <option value="Reposo relativo, hidratación oral y control de evolución.">Reposo e hidratación</option>
           <option value="Control de signos de alarma y reevaluación si presenta empeoramiento.">Control de signos de alarma</option>
@@ -107,20 +126,40 @@
 
         <label for="tratamiento" class="field-label-with-icon">
           <svg class="field-icon" aria-hidden="true"><use href="#field-icon-pill"></use></svg>
-          <span>Tratamiento indicado por el médico</span>
+          <span class="required-indicator">Tratamiento, receta e indicaciones del médico</span>
         </label>
-        <textarea id="tratamiento" name="tratamiento" placeholder="Indica el tratamiento médico personalizado." minlength="5" maxlength="800" data-validate="clinical-text" data-min="5"><%= cita.tratamiento || '' %></textarea>
+        <textarea id="tratamiento" name="tratamiento" placeholder="Registra medicación, dosis, frecuencia, duración e indicaciones clínicas cuando corresponda." minlength="5" maxlength="800" data-validate="clinical-text" data-min="5"><%= cita.tratamiento || '' %></textarea>
         <span class="field-message" data-for="tratamiento"></span>
       </div>
+      </section>
+
+      <section class="clinical-form-section">
+        <div class="clinical-form-section-heading">
+          <i class="bi bi-clipboard2-check" aria-hidden="true"></i>
+          <div>
+            <h3>Indicaciones al paciente</h3>
+            <p>Resume cuidados, signos de alarma, controles o recomendaciones preventivas.</p>
+          </div>
+        </div>
 
       <div class="form-group">
         <label for="recomendaciones" class="field-label-with-icon">
           <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
-          <span>Recomendaciones para el paciente</span>
+          <span>Indicaciones y recomendaciones para el paciente</span>
         </label>
-        <textarea id="recomendaciones" name="recomendaciones" placeholder="Opcional: escribe recomendaciones personalizadas para el paciente." maxlength="800" data-validate="clinical-text" data-min="5"><%= cita.recomendaciones || '' %></textarea>
+        <textarea id="recomendaciones" name="recomendaciones" placeholder="Opcional: cuidados en casa, signos de alarma, controles o recomendaciones preventivas." maxlength="800" data-validate="clinical-text" data-min="5"><%= cita.recomendaciones || '' %></textarea>
         <span class="field-message" data-for="recomendaciones"></span>
       </div>
+      </section>
+
+      <section class="clinical-form-section">
+        <div class="clinical-form-section-heading">
+          <i class="bi bi-shield-lock" aria-hidden="true"></i>
+          <div>
+            <h3>Notas internas</h3>
+            <p>Agrega observaciones de uso cl&iacute;nico interno si son necesarias.</p>
+          </div>
+        </div>
 
       <div class="form-group">
         <label for="observaciones" class="field-label-with-icon">
@@ -135,10 +174,11 @@
           <span>Ocultar estas observaciones al paciente</span>
         </label>
       </div>
+      </section>
     </div>
 
     <div class="notice-box">
-      Puedes guardar la consulta en progreso sin completar todos los campos. Para confirmar, el diagnóstico y el tratamiento son obligatorios.
+      Puedes guardar la consulta en progreso sin completar todos los campos. Para confirmar, el diagnóstico y el tratamiento/receta son obligatorios.
     </div>
 
     <div class="form-actions">
@@ -146,9 +186,9 @@
         <img class="action-metaphor" src="/img/action-metaphors/medico/consultas/cancelar.png" alt="" aria-hidden="true">
         <span>Cancelar</span>
       </a>
-      <button type="button" class="btn-secondary-action icon-action" id="saveDraftButton" title="Guardar en progreso" aria-label="Guardar en progreso">
+      <button type="button" class="btn-secondary-action icon-action" id="saveDraftButton" title="Guardar borrador clínico" aria-label="Guardar borrador clínico">
         <img class="action-metaphor" src="/img/action-metaphors/medico/consultas/guardar.png" alt="" aria-hidden="true">
-        <span>Guardar en progreso</span>
+        <span>Guardar borrador</span>
       </button>
       <button type="button" class="btn-dark icon-action" id="openConfirmModal" title="Confirmar consulta" aria-label="Confirmar consulta">
         <img class="action-metaphor" src="/img/action-metaphors/medico/consultas/confirmar.png" alt="" aria-hidden="true">
@@ -156,24 +196,33 @@
       </button>
     </div>
   </form>
+    </div>
+  </div>
 
   <div class="modal-overlay hidden" id="confirmConsultaModal">
-    <div class="confirm-modal">
+    <div class="confirm-modal confirm-modal-polished" data-confirm-action="confirmar">
+      <button type="button" class="modal-close confirm-modal-close" id="closeConfirmModalTop" aria-label="Cerrar confirmación">&times;</button>
+      <div class="confirm-modal-icon" aria-hidden="true">
+        <i class="bi bi-clipboard2-check"></i>
+      </div>
       <h3>Confirmar consulta</h3>
-      <p>Antes de completar la atención, verifica que el diagnóstico y el tratamiento correspondan a la evaluación médica realizada.</p>
+      <p>Antes de completar la atención, verifica que el diagnóstico y el tratamiento/receta correspondan a la evaluación médica realizada.</p>
+
+      <small class="confirm-modal-note">La consulta quedará finalizada y visible en el historial clínico.</small>
 
       <label class="checkbox-line">
         <input type="checkbox" id="medicalResponsibilityCheck">
-        <span>Confirmo que revisé antecedentes, síntomas iniciales, triaje y que el registro final corresponde a mi criterio médico.</span>
+        <span>Confirmo que revisé antecedentes, triaje y que el registro final corresponde a mi criterio médico.</span>
       </label>
+      <small class="field-message" data-for="medicalResponsibilityCheck"></small>
 
       <div class="modal-actions">
         <button type="button" class="btn-light" id="closeConfirmModal" title="Cancelar" aria-label="Cancelar">
-          <img class="action-metaphor" src="/img/action-metaphors/medico/consultas/cancelar.png" alt="" aria-hidden="true">
+          <i class="bi bi-arrow-left" aria-hidden="true"></i>
           <span>Cancelar</span>
         </button>
         <button type="button" class="btn-dark icon-action" id="confirmConsultaButton" disabled title="Sí, confirmar" aria-label="Sí, confirmar">
-          <img class="action-metaphor" src="/img/action-metaphors/medico/consultas/confirmar.png" alt="" aria-hidden="true">
+          <i class="bi bi-clipboard2-check" aria-hidden="true"></i>
           <span>Sí, confirmar</span>
         </button>
       </div>
@@ -200,12 +249,13 @@
 
   const confirmConsultaModal = document.getElementById('confirmConsultaModal');
   const closeConfirmModal = document.getElementById('closeConfirmModal');
+  const closeConfirmModalTop = document.getElementById('closeConfirmModalTop');
   const confirmConsultaButton = document.getElementById('confirmConsultaButton');
   const medicalResponsibilityCheck = document.getElementById('medicalResponsibilityCheck');
 
   function showConsultaMessage(message, field = null) {
-    consultaMessage.textContent = message;
-    consultaMessage.classList.remove('hidden');
+    consultaMessage.textContent = '';
+    consultaMessage.classList.add('hidden');
 
     document.querySelectorAll('.field-error').forEach(input => {
       input.classList.remove('field-error');
@@ -213,17 +263,23 @@
 
     if (field) {
       field.classList.add('field-error');
+      field.setAttribute('aria-invalid', 'true');
+      const target = consultaForm.querySelector(`.field-message[data-for="${field.id}"]`)
+        || confirmConsultaModal.querySelector(`.field-message[data-for="${field.id}"]`);
+      if (target) {
+        target.textContent = message;
+        target.classList.add('is-visible');
+      }
       field.focus();
+    } else {
+      consultaMessage.textContent = message;
+      consultaMessage.classList.remove('hidden');
     }
   }
 
   function clearConsultaMessage() {
     consultaMessage.textContent = '';
     consultaMessage.classList.add('hidden');
-
-    document.querySelectorAll('.field-error').forEach(input => {
-      input.classList.remove('field-error');
-    });
   }
 
   function validateFilledClinicalFields() {
@@ -254,7 +310,7 @@
     }
 
     if (!tratamientoInput.value.trim()) {
-      showConsultaMessage('Para confirmar la consulta, registra el tratamiento indicado.', tratamientoInput);
+      showConsultaMessage('Para confirmar la consulta, registra el tratamiento, receta o indicaciones médicas.', tratamientoInput);
       return false;
     }
 
@@ -311,6 +367,16 @@
     if (!validateFilledClinicalFields()) return;
 
     accionInput.value = 'borrador';
+
+    if (typeof window.openCriticalFormConfirmation === 'function') {
+      window.openCriticalFormConfirmation(consultaForm, {
+        title: 'Guardar borrador clínico',
+        message: 'La consulta quedará en progreso y no aparecerá como atención completada. Podrás continuarla luego antes de confirmar diagnóstico y tratamiento/receta.',
+        button: 'Guardar borrador'
+      });
+      return;
+    }
+
     consultaForm.submit();
   });
 
@@ -327,6 +393,10 @@
   });
 
   closeConfirmModal.addEventListener('click', () => {
+    confirmConsultaModal.classList.add('hidden');
+  });
+
+  closeConfirmModalTop.addEventListener('click', () => {
     confirmConsultaModal.classList.add('hidden');
   });
 

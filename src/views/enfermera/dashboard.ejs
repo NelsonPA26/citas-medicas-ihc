@@ -1,26 +1,80 @@
-<div class="dashboard-grid">
+
+
+<div class="dashboard-grid dashboard-grid-compact">
   <% const hoy = new Date().toISOString().slice(0, 10); %>
   <div class="stat-card highlight-card">
-    <h3>Triajes pendientes</h3>
+    <h3><i class="bi bi-exclamation-circle" aria-hidden="true"></i>Triajes pendientes</h3>
     <p class="stat-number"><%= stats.triajes_pendientes || 0 %></p>
     <a href="/enfermera/triaje-pendiente" class="card-link">Ver pendientes</a>
   </div>
 
   <div class="stat-card">
-    <h3>Triajes activos</h3>
+    <h3><i class="bi bi-activity" aria-hidden="true"></i>Triajes activos</h3>
     <p class="stat-number"><%= stats.triajes_realizados || 0 %></p>
     <a href="/enfermera/triajes" class="card-link">Ver activos</a>
   </div>
 
   <div class="stat-card">
-    <h3>Activos de hoy</h3>
+    <h3><i class="bi bi-calendar-day" aria-hidden="true"></i>Activos de hoy</h3>
     <p class="stat-number"><%= stats.triajes_hoy || 0 %></p>
     <a href="/enfermera/triajes?desde=<%= hoy %>&hasta=<%= hoy %>" class="card-link">Ver hoy</a>
   </div>
 
   <div class="stat-card">
-    <h3>En espera médica</h3>
+    <h3><i class="bi bi-person-hearts" aria-hidden="true"></i>En espera médica</h3>
     <p class="stat-number"><%= stats.citas_con_triaje || 0 %></p>
     <a href="/enfermera/triajes?estado=triaje_registrado" class="card-link">Ver enviados</a>
   </div>
+</div>
+
+<div class="dashboard-secondary-grid dashboard-secondary-grid-even">
+  <%
+    const cargaTriaje = Number(stats.triajes_pendientes || 0) + Number(stats.citas_con_triaje || 0);
+  %>
+
+  <section class="dashboard-info-card" aria-labelledby="nurseFlowTitle">
+    <div class="dashboard-info-heading">
+      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-activity"></i></span>
+      <div>
+        <h3 id="nurseFlowTitle">Carga de triaje</h3>
+        <p>Resumen de seguimiento sin duplicar accesos superiores.</p>
+      </div>
+    </div>
+
+    <div class="dashboard-info-list">
+      <div class="dashboard-info-row dashboard-info-row-static">
+        <span><i class="bi bi-activity" aria-hidden="true"></i>Carga activa</span>
+        <strong><%= cargaTriaje %></strong>
+      </div>
+      <div class="dashboard-info-row dashboard-info-row-static">
+        <span><i class="bi bi-calendar-day" aria-hidden="true"></i>Ritmo de hoy</span>
+        <strong><%= Number(stats.triajes_hoy || 0) > 0 ? 'Con actividad' : 'Sin registros' %></strong>
+      </div>
+      <div class="dashboard-info-row dashboard-info-row-static">
+        <span><i class="bi bi-send-check" aria-hidden="true"></i>Derivacion medica</span>
+        <strong><%= Number(stats.citas_con_triaje || 0) > 0 ? 'En curso' : 'Sin espera' %></strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="dashboard-info-card" aria-labelledby="nurseSummaryTitle">
+    <div class="dashboard-info-heading">
+      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-clipboard2-check"></i></span>
+      <div>
+        <h3 id="nurseSummaryTitle">Acceso complementario</h3>
+        <p>Opciones que no repiten las tarjetas principales.</p>
+      </div>
+    </div>
+
+    <div class="dashboard-info-list">
+      <a href="/enfermera/historial-triajes" class="dashboard-info-row">
+        <span><i class="bi bi-clock-history" aria-hidden="true"></i>Historial de triajes</span>
+        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="/perfil" class="dashboard-info-row">
+        <span><i class="bi bi-person" aria-hidden="true"></i>Mi perfil</span>
+        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+      </a>
+    </div>
+  </section>
 </div>

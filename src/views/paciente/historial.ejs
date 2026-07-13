@@ -71,11 +71,11 @@
           <tr>
             <th>Fecha</th>
             <th>Hora</th>
-            <th>Medico</th>
+            <th>Médico</th>
             <th>Especialidad</th>
             <th>Motivo</th>
             <th>Diagnostico</th>
-            <th>Accion</th>
+            <th>Acción</th>
           </tr>
         </thead>
         <tbody>
@@ -85,7 +85,7 @@
               <td><%= consulta.hora %></td>
               <td>Dr(a). <%= consulta.medico_nombres %> <%= consulta.medico_apellido_paterno %></td>
               <td><%= consulta.especialidad %></td>
-              <td><strong><%= consulta.motivo %></strong></td>
+              <td><strong class="table-text-clip" title="<%= consulta.motivo %>"><%= consulta.motivo %></strong></td>
               <td><%= consulta.diagnostico || 'No registrado' %></td>
               <td>
                 <div class="table-actions">

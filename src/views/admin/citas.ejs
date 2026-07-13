@@ -15,7 +15,7 @@
         id="q"
         name="q"
         value="<%= filters.q || '' %>"
-        placeholder="Paciente, DNI, médico o motivo"
+        placeholder="Paciente, médico o motivo"
         maxlength="120"
         data-validate="search"
       >
@@ -75,7 +75,7 @@
             <th>Fecha</th>
             <th>Hora</th>
             <th>Paciente</th>
-            <th>Medico</th>
+            <th>Médico</th>
             <th>Especialidad</th>
             <th>Motivo</th>
             <th>Estado</th>
@@ -89,12 +89,10 @@
               <td><%= cita.hora %></td>
               <td>
                 <strong><%= cita.paciente_nombres %> <%= cita.paciente_apellido_paterno %> <%= cita.paciente_apellido_materno || '' %></strong>
-                <br>
-                <span class="text-muted">DNI: <%= cita.paciente_dni || 'No registrado' %></span>
               </td>
               <td>Dr(a). <%= cita.medico_nombres %> <%= cita.medico_apellido_paterno %> <%= cita.medico_apellido_materno || '' %></td>
               <td><%= cita.especialidad %></td>
-              <td><strong><%= cita.motivo %></strong></td>
+              <td><strong class="table-text-clip" title="<%= cita.motivo %>"><%= cita.motivo %></strong></td>
               <td>
                 <% if (cita.estado === 'pendiente') { %>
                   <span class="status-badge status-pendiente">Pendiente</span>

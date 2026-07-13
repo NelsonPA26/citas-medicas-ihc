@@ -15,7 +15,7 @@
 
   <div class="clinical-overview">
     <section class="patient-summary clinical-panel">
-      <h3>Paciente y cita</h3>
+      <h3><i class="bi bi-person-vcard" aria-hidden="true"></i>Paciente y cita</h3>
       <div><span>Paciente</span><strong><%= cita.paciente_nombres %> <%= cita.paciente_apellido_paterno %> <%= cita.paciente_apellido_materno || '' %></strong></div>
       <div><span>DNI</span><strong><%= cita.paciente_dni || 'No registrado' %></strong></div>
       <div><span>Edad</span><strong><%= cita.paciente_edad !== null ? cita.paciente_edad + ' años' : 'No registrada' %></strong></div>
@@ -25,11 +25,10 @@
       <div><span>Médico</span><strong>Dr(a). <%= cita.medico_nombres %> <%= cita.medico_apellido_paterno %> <%= cita.medico_apellido_materno || '' %></strong></div>
       <div><span>Especialidad</span><strong><%= cita.especialidad %></strong></div>
       <div class="full-row"><span>Motivo de consulta</span><strong><%= cita.motivo %></strong></div>
-      <div class="full-row"><span>Síntomas declarados</span><strong><%= cita.sintomas_paciente || 'No declarados por el paciente' %></strong></div>
     </section>
 
-    <section class="triaje-summary clinical-panel">
-      <h3>Antecedentes médicos</h3>
+    <section class="triaje-summary clinical-panel clinical-antecedentes-panel">
+      <h3><i class="bi bi-journal-medical" aria-hidden="true"></i>Antecedentes médicos</h3>
       <div class="triaje-summary-grid compact-clinical-grid">
         <div><span>Alergias</span><strong><%= cita.alergias || 'No registradas' %></strong></div>
         <div><span>Enfermedades previas</span><strong><%= cita.enfermedades_previas || 'No registradas' %></strong></div>
@@ -41,8 +40,9 @@
     </section>
   </div>
 
+  <div class="clinical-detail-pair">
   <section class="triaje-summary detail-section-block">
-    <h3>Triaje registrado</h3>
+    <h3><i class="bi bi-activity" aria-hidden="true"></i>Triaje registrado</h3>
 
     <% if (cita.id_triaje) { %>
       <div class="triaje-summary-grid">
@@ -61,13 +61,13 @@
   </section>
 
   <section class="consulta-detail-section">
-    <h3>Consulta médica</h3>
+    <h3><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>Consulta médica</h3>
 
     <% if (cita.id_consulta) { %>
       <div class="consulta-detail-grid">
         <div class="full-row"><span>Diagnóstico</span><strong><%= cita.diagnostico || 'No registrado' %></strong></div>
-        <div class="full-row"><span>Tratamiento</span><strong><%= cita.tratamiento || 'No registrado' %></strong></div>
-        <div class="full-row"><span>Recomendaciones</span><strong><%= cita.recomendaciones || 'Sin recomendaciones registradas' %></strong></div>
+        <div class="full-row"><span>Tratamiento, receta e indicaciones</span><strong><%= cita.tratamiento || 'No registrado' %></strong></div>
+        <div class="full-row"><span>Recomendaciones al paciente</span><strong><%= cita.recomendaciones || 'Sin recomendaciones registradas' %></strong></div>
         <div class="full-row"><span>Observaciones</span><strong><%= cita.consulta_observaciones || 'Sin observaciones registradas' %></strong></div>
         <div><span>Estado de registro</span><strong><%= cita.borrador === 1 ? 'Borrador' : 'Finalizada' %></strong></div>
         <div><span>Fecha de registro</span><strong><%= cita.consulta_fecha_registro ? new Date(cita.consulta_fecha_registro).toLocaleString('es-PE') : 'No registrada' %></strong></div>
@@ -76,6 +76,8 @@
       <p class="text-muted">Todavía no hay consulta médica registrada para esta cita.</p>
     <% } %>
   </section>
+
+  </div>
 
   <div class="form-actions">
     <a href="/admin/citas" class="btn-light">Volver</a>

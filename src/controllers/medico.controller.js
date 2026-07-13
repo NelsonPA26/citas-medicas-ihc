@@ -237,7 +237,7 @@ exports.storeAtenderCita = async (req, res) => {
     const observacionesLimpias = normalizarTextoClinico(observaciones);
 
     if (accion === 'confirmar' && (!diagnosticoLimpio || !tratamientoLimpio)) {
-      req.session.error = 'Para confirmar la consulta, el diagnóstico y el tratamiento son obligatorios.';
+      req.session.error = 'Para confirmar la consulta, el diagnóstico y el tratamiento/receta son obligatorios.';
       return res.redirect(`/medico/citas/${id_cita}/atender`);
     }
 
@@ -247,7 +247,7 @@ exports.storeAtenderCita = async (req, res) => {
     }
 
     if (!textoClinicoValido(tratamientoLimpio, 5, 800)) {
-      req.session.error = 'El tratamiento debe tener entre 5 y 800 caracteres y usar puntuación básica.';
+      req.session.error = 'El tratamiento/receta debe tener entre 5 y 800 caracteres y usar puntuación básica.';
       return res.redirect(`/medico/citas/${id_cita}/atender`);
     }
 

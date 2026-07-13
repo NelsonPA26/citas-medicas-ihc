@@ -24,7 +24,7 @@
           id="q"
           name="q"
           value="<%= filters.q || '' %>"
-          placeholder="Medico, especialidad o motivo"
+          placeholder="Médico, especialidad o motivo"
           maxlength="120"
           data-validate="search"
         >
@@ -71,11 +71,11 @@
           <tr>
             <th>Fecha</th>
             <th>Hora</th>
-            <th>Medico</th>
+            <th>Médico</th>
             <th>Especialidad</th>
             <th>Motivo</th>
             <th>Estado</th>
-            <th>Accion</th>
+            <th>Acción</th>
           </tr>
         </thead>
         <tbody>
@@ -85,7 +85,7 @@
               <td><%= cita.hora %></td>
               <td>Dr(a). <%= cita.medico_nombres %> <%= cita.medico_apellido_paterno %></td>
               <td><%= cita.especialidad %></td>
-              <td><strong><%= cita.motivo %></strong></td>
+              <td><strong class="table-text-clip" title="<%= cita.motivo %>"><%= cita.motivo %></strong></td>
               <td>
                 <span class="status-badge status-<%= cita.estado %>" title="Ver significado en Ayuda"><%= estadoTexto[cita.estado] || cita.estado %></span>
               </td>
@@ -132,17 +132,22 @@
 </div>
 
 <div class="modal-overlay hidden" id="cancelModal" role="dialog" aria-modal="true" aria-labelledby="cancelModalTitle" aria-describedby="cancelModalText">
-  <div class="confirm-modal">
+  <div class="confirm-modal confirm-modal-polished" data-confirm-action="cancelar">
+    <button type="button" class="modal-close confirm-modal-close" id="closeCancelModalTop" aria-label="Cerrar confirmación">&times;</button>
+    <div class="confirm-modal-icon" aria-hidden="true">
+      <i class="bi bi-calendar-x"></i>
+    </div>
     <h3 id="cancelModalTitle">Cancelar cita</h3>
     <p id="cancelModalText">Estás por cancelar esta cita. Esta acción cambiará su estado a cancelada.</p>
+    <small class="confirm-modal-note">La cita no se eliminará, pero quedará marcada como cancelada.</small>
     <div class="modal-actions">
       <button type="button" class="btn-light icon-action" id="closeCancelModal" title="Conservar cita" aria-label="Conservar cita">
-        <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/volver.png" alt="" aria-hidden="true">
+        <i class="bi bi-arrow-left" aria-hidden="true"></i>
         <span>Conservar cita</span>
       </button>
       <form method="POST" id="cancelForm">
         <button type="submit" class="btn-danger" title="Sí, cancelar" aria-label="Sí, cancelar">
-          <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/cancelar.png" alt="" aria-hidden="true">
+          <i class="bi bi-calendar-x" aria-hidden="true"></i>
           <span>Sí, cancelar</span>
         </button>
       </form>
@@ -157,6 +162,7 @@
   const cancelModal = document.getElementById('cancelModal');
   const cancelForm = document.getElementById('cancelForm');
   const closeCancelModal = document.getElementById('closeCancelModal');
+  const closeCancelModalTop = document.getElementById('closeCancelModalTop');
   const cancelModalText = document.getElementById('cancelModalText');
 
   function closePatientCancelModal() {
@@ -173,6 +179,7 @@
   });
 
   closeCancelModal.addEventListener('click', closePatientCancelModal);
+  closeCancelModalTop.addEventListener('click', closePatientCancelModal);
   cancelModal.addEventListener('click', event => {
     if (event.target === cancelModal) closePatientCancelModal();
   });

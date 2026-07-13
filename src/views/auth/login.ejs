@@ -1,5 +1,6 @@
 <div class="auth-card login-card">
   <h2>Acceso al Sistema</h2>
+  <p class="auth-card-subtitle">Ingresa con tu cuenta institucional para continuar.</p>
 
   <% if (error) { %>
     <div class="alert alert-error"><%= error %></div>
@@ -9,31 +10,41 @@
     <div class="alert alert-success"><%= success %></div>
   <% } %>
 
-  <p class="form-guidance" role="note"><strong>Consejo:</strong> escribe tu correo o usuario sin espacios. Después de varios intentos fallidos, la cuenta se bloquea temporalmente por seguridad.</p>
-
   <form action="/login" method="POST" class="auth-form js-auth-validated-form" novalidate>
+    <% const identifierHasError = error && (!errorField || errorField === 'identificador'); %>
+    <% const passwordHasError = error && (!errorField || errorField === 'password'); %>
     <div class="form-group">
       <label for="identificador">Correo institucional/Usuario</label>
-      <input 
-        type="text" 
-        id="identificador" 
-        name="identificador" 
-        placeholder="ejemplo@unt.edu.pe"
-        data-validate="login-identifier"
-        required
-      >
-      <small class="field-message" data-for="identificador"></small>
+      <div class="auth-input-wrap">
+        <i class="bi bi-envelope" aria-hidden="true"></i>
+        <input
+          type="text"
+          id="identificador"
+          name="identificador"
+          placeholder="ejemplo@unt.edu.pe"
+          autocomplete="username"
+          data-validate="login-identifier"
+          class="<%= identifierHasError ? 'field-error' : '' %>"
+          aria-invalid="<%= identifierHasError ? 'true' : 'false' %>"
+          required
+        >
+      </div>
+      <small class="field-message <%= identifierHasError ? 'is-visible' : '' %>" data-for="identificador"><%= identifierHasError ? 'No hay una cuenta registrada con ese usuario o correo.' : '' %></small>
     </div>
 
     <div class="form-group">
       <label for="password">Contraseña</label>
 
       <div class="password-field">
+        <i class="bi bi-lock auth-field-leading-icon" aria-hidden="true"></i>
         <input 
           type="password" 
           id="password" 
           name="password" 
           placeholder="********"
+          autocomplete="current-password"
+          class="<%= passwordHasError ? 'field-error' : '' %>"
+          aria-invalid="<%= passwordHasError ? 'true' : 'false' %>"
           required
         >
 
@@ -61,6 +72,7 @@
           </span>
         </button>
       </div>
+      <small class="field-message <%= passwordHasError ? 'is-visible' : '' %>" data-for="password"><%= passwordHasError ? 'La contraseña no coincide con la cuenta ingresada.' : '' %></small>
     </div>
 
     <a href="/forgot-password" class="auth-link">¿Olvidaste tu contraseña?</a>
@@ -68,9 +80,9 @@
     <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
   </form>
 
-  <div class="auth-divider"></div>
-
-  <a href="/register" class="btn btn-secondary">Registrarse</a>
+  <div class="auth-divider"><span>o</span></div>
+  <p class="auth-register-prompt">¿No tienes cuenta?</p>
+  <a href="/register" class="btn btn-secondary auth-register-button">Registrarse</a>
 </div>
 <script>
   const passwordInput = document.getElementById('password');

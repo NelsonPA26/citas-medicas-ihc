@@ -1,25 +1,75 @@
-<div class="dashboard-grid">
+
+
+<div class="dashboard-grid dashboard-grid-compact">
   <div class="stat-card highlight-card">
-    <h3>Citas listas para atención</h3>
+    <h3><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>Citas listas para atención</h3>
     <p class="stat-number"><%= stats.listas_atencion || 0 %></p>
     <a href="/medico/citas" class="card-link">Ver citas</a>
   </div>
 
   <div class="stat-card">
-    <h3>Consultas en progreso</h3>
+    <h3><i class="bi bi-pencil-square" aria-hidden="true"></i>Consultas en progreso</h3>
     <p class="stat-number"><%= stats.borradores || 0 %></p>
     <a href="/medico/citas" class="card-link">Continuar consultas</a>
   </div>
 
   <div class="stat-card">
-    <h3>Consultas completadas</h3>
+    <h3><i class="bi bi-clipboard2-check" aria-hidden="true"></i>Consultas completadas</h3>
     <p class="stat-number"><%= stats.completadas || 0 %></p>
     <a href="/medico/pacientes" class="card-link">Ver historiales</a>
   </div>
 
   <div class="stat-card">
-    <h3>Pacientes atendidos</h3>
+    <h3><i class="bi bi-person-check" aria-hidden="true"></i>Pacientes atendidos</h3>
     <p class="stat-number"><%= stats.pacientes_atendidos || 0 %></p>
     <a href="/medico/pacientes" class="card-link">Ver pacientes</a>
   </div>
+</div>
+
+<div class="dashboard-secondary-grid dashboard-secondary-grid-even">
+  <%
+    const cargaActiva = Number(stats.listas_atencion || 0) + Number(stats.borradores || 0);
+  %>
+
+  <section class="dashboard-info-card" aria-labelledby="doctorPriorityTitle">
+    <div class="dashboard-info-heading">
+      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-clipboard2-pulse"></i></span>
+      <div>
+        <h3 id="doctorPriorityTitle">Carga clinica</h3>
+        <p>Resumen operativo sin repetir los enlaces superiores.</p>
+      </div>
+    </div>
+
+    <div class="dashboard-info-list">
+      <div class="dashboard-info-row dashboard-info-row-static">
+        <span><i class="bi bi-activity" aria-hidden="true"></i>Carga activa</span>
+        <strong><%= cargaActiva %></strong>
+      </div>
+      <div class="dashboard-info-row dashboard-info-row-static">
+        <span><i class="bi bi-pencil-square" aria-hidden="true"></i>Continuidad pendiente</span>
+        <strong><%= Number(stats.borradores || 0) > 0 ? 'Revisar' : 'Estable' %></strong>
+      </div>
+      <div class="dashboard-info-row dashboard-info-row-static">
+        <span><i class="bi bi-person-check" aria-hidden="true"></i>Cobertura de pacientes</span>
+        <strong><%= stats.pacientes_atendidos || 0 %></strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="dashboard-info-card" aria-labelledby="doctorSummaryTitle">
+    <div class="dashboard-info-heading">
+      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-bar-chart-line"></i></span>
+      <div>
+        <h3 id="doctorSummaryTitle">Acceso complementario</h3>
+        <p>Opciones que no duplican las tarjetas principales.</p>
+      </div>
+    </div>
+
+    <div class="dashboard-info-list">
+      <a href="/perfil" class="dashboard-info-row">
+        <span><i class="bi bi-person" aria-hidden="true"></i>Mi perfil</span>
+        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+      </a>
+    </div>
+  </section>
 </div>

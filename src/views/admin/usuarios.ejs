@@ -3,18 +3,6 @@
     <div class="module-header-copy">
       <p>Administra datos, roles y acceso de los usuarios registrados en el sistema.</p>
     </div>
-
-    <div class="admin-user-primary-action" aria-label="Acción principal del módulo">
-  <a
-    href="/admin/usuarios/nuevo"
-    class="btn-admin-register-clean"
-    title="Registrar usuario"
-    aria-label="Registrar usuario"
-  >
-    <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/registrar.png" alt="" aria-hidden="true">
-    <span>Registrar usuario</span>
-  </a>
-</div>
   </div>
 
   <form action="/admin/usuarios" method="GET" class="filter-card js-role-validated-form" novalidate>
@@ -32,7 +20,7 @@
           id="q"
           name="q"
           value="<%= filters.q || '' %>"
-          placeholder="Nombre, DNI, correo o usuario"
+          placeholder="Nombre, DNI o usuario"
           maxlength="120"
           data-validate="search"
         >
@@ -107,7 +95,6 @@
           <tr>
             <th><a class="sort-link" href="<%= sortQuery('usuario') %>">Usuario<%= sortMark('usuario') %></a></th>
             <th><a class="sort-link" href="<%= sortQuery('dni') %>">DNI<%= sortMark('dni') %></a></th>
-            <th><a class="sort-link" href="<%= sortQuery('correo') %>">Correo<%= sortMark('correo') %></a></th>
             <th><a class="sort-link" href="<%= sortQuery('telefono') %>">Teléfono<%= sortMark('telefono') %></a></th>
             <th><a class="sort-link" href="<%= sortQuery('rol') %>">Rol<%= sortMark('rol') %></a></th>
             <th><a class="sort-link" href="<%= sortQuery('estado') %>">Estado<%= sortMark('estado') %></a></th>
@@ -123,11 +110,9 @@
               <td>
                 <strong><%= nombreCompleto %></strong>
                 <br>
-                <span class="text-muted">@<%= usuario.username %></span>
               </td>
 
               <td><%= usuario.dni || 'No registrado' %></td>
-              <td><%= usuario.correo %></td>
               <td><%= usuario.telefono || 'No registrado' %></td>
 
               <td>
@@ -240,21 +225,26 @@
 </div>
 
 <div class="modal-overlay hidden" id="userStatusModal">
-  <div class="confirm-modal">
+  <div class="confirm-modal confirm-modal-polished" data-confirm-action="desactivar">
+    <button type="button" class="modal-close confirm-modal-close" id="closeUserStatusModalTop" aria-label="Cerrar confirmación">&times;</button>
+    <div class="confirm-modal-icon" aria-hidden="true">
+      <i class="bi bi-person-dash"></i>
+    </div>
     <h3 id="userStatusTitle">Confirmar acción</h3>
     <p id="userStatusText">¿Estás seguro de realizar esta acción?</p>
+    <small class="confirm-modal-note" id="userStatusNote">Revisa la cuenta antes de continuar.</small>
 
     <div class="modal-actions">
       <button type="button" class="btn-light" id="closeUserStatusModal" title="Cancelar" aria-label="Cancelar">
-        <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/cancelar.png" alt="" aria-hidden="true">
+        <i class="bi bi-arrow-left" aria-hidden="true"></i>
         <span>Cancelar</span>
       </button>
 
       <form method="POST" id="userStatusForm">
         <input type="hidden" name="accion" id="userStatusAction">
         <button type="submit" class="btn-danger icon-action" id="userStatusConfirmButton" title="Confirmar" aria-label="Confirmar">
-          <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/confirmar.png" alt="" aria-hidden="true">
-          <span class="visually-hidden">Confirmar</span>
+          <i class="bi bi-person-dash" aria-hidden="true"></i>
+          <span>Confirmar</span>
         </button>
       </form>
     </div>
@@ -268,8 +258,12 @@
   const userStatusAction = document.getElementById('userStatusAction');
   const userStatusText = document.getElementById('userStatusText');
   const userStatusTitle = document.getElementById('userStatusTitle');
+  const userStatusNote = document.getElementById('userStatusNote');
   const userStatusConfirmButton = document.getElementById('userStatusConfirmButton');
   const closeUserStatusModal = document.getElementById('closeUserStatusModal');
+  const closeUserStatusModalTop = document.getElementById('closeUserStatusModalTop');
+  const userStatusModalCard = userStatusModal.querySelector('.confirm-modal');
+  const userStatusModalIcon = userStatusModal.querySelector('.confirm-modal-icon i');
 
   userStatusButtons.forEach(button => {
     button.addEventListener('click', () => {
@@ -283,18 +277,26 @@
       if (action === 'desactivar') {
         userStatusTitle.textContent = 'Desactivar usuario';
         userStatusText.textContent = `¿Estás seguro de desactivar la cuenta de ${userName}? Esta persona no podrá iniciar sesión.`;
+        userStatusNote.textContent = 'La cuenta quedará bloqueada hasta que un administrador la reactive.';
+        userStatusModalCard.dataset.confirmAction = 'desactivar';
         userStatusConfirmButton.className = 'btn-danger icon-action';
+        userStatusConfirmButton.dataset.confirmAction = 'desactivar';
         userStatusConfirmButton.title = 'Sí, desactivar';
         userStatusConfirmButton.setAttribute('aria-label', 'Sí, desactivar');
-        userStatusConfirmButton.querySelector('img').src = '/img/action-metaphors/administrador/usuarios/desactivar.png';
+        userStatusConfirmButton.querySelector('i').className = 'bi bi-person-dash';
+        userStatusModalIcon.className = 'bi bi-person-dash';
         userStatusConfirmButton.querySelector('span').textContent = 'Sí, desactivar';
       } else {
         userStatusTitle.textContent = 'Activar usuario';
         userStatusText.textContent = `¿Deseas activar nuevamente la cuenta de ${userName}?`;
+        userStatusNote.textContent = 'La persona podrá volver a iniciar sesión con normalidad.';
+        userStatusModalCard.dataset.confirmAction = 'activar';
         userStatusConfirmButton.className = 'btn-success-action icon-action';
+        userStatusConfirmButton.dataset.confirmAction = 'activar';
         userStatusConfirmButton.title = 'Sí, activar';
         userStatusConfirmButton.setAttribute('aria-label', 'Sí, activar');
-        userStatusConfirmButton.querySelector('img').src = '/img/action-metaphors/administrador/usuarios/activar.png';
+        userStatusConfirmButton.querySelector('i').className = 'bi bi-person-check';
+        userStatusModalIcon.className = 'bi bi-person-check';
         userStatusConfirmButton.querySelector('span').textContent = 'Sí, activar';
       }
 
@@ -303,6 +305,10 @@
   });
 
   closeUserStatusModal.addEventListener('click', () => {
+    userStatusModal.classList.add('hidden');
+  });
+
+  closeUserStatusModalTop.addEventListener('click', () => {
     userStatusModal.classList.add('hidden');
   });
 

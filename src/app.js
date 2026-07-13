@@ -60,11 +60,13 @@ app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
 
   res.locals.error = req.session.error || null;
+  res.locals.errorField = req.session.errorField || null;
   res.locals.success = req.session.success || null;
 
   res.locals.currentPath = req.path;
 
   delete req.session.error;
+  delete req.session.errorField;
   delete req.session.success;
 
   next();

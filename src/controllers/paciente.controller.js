@@ -20,24 +20,6 @@ const HORAS_ATENCION = [
   '17:00:00'
 ];
 
-const SINTOMAS_FRECUENTES = [
-  'Fiebre',
-  'Malestar general',
-  'Cansancio',
-  'Dolor muscular',
-  'Tos',
-  'Dolor de garganta',
-  'Congestión nasal',
-  'Dificultad para respirar',
-  'Dolor abdominal',
-  'Náuseas',
-  'Vómitos',
-  'Diarrea',
-  'Ansiedad',
-  'Insomnio',
-  'Otro'
-];
-
 function textoClinicoValido(value, obligatorio = false) {
   const text = (value || '').trim();
 
@@ -55,33 +37,6 @@ function detalleValido(value) {
   if (!/^[\p{L}0-9 .,;:()/%+-]+$/u.test(text)) return false;
 
   return !/^([\p{L}])\1{2,}$/iu.test(text);
-}
-
-function normalizarSintomas(sintomas, sintomasOtro = '') {
-  if (!sintomas) return null;
-
-  const seleccionados = Array.isArray(sintomas) ? sintomas : [sintomas];
-
-  const validos = seleccionados
-    .filter(sintoma => SINTOMAS_FRECUENTES.includes(sintoma) && sintoma !== 'Otro')
-    .slice(0, 8);
-
-  if (seleccionados.includes('Otro')) {
-    const detalle = (sintomasOtro || '').trim().replace(/,/g, ';');
-
-    if (textoClinicoValido(detalle, true)) {
-      validos.push(`Otro: ${detalle}`);
-    } else {
-      validos.push('Otro síntoma');
-    }
-  }
-
-  return validos.length > 0 ? validos.join(', ') : null;
-}
-
-function incluyeSintomaOtro(sintomas) {
-  const seleccionados = Array.isArray(sintomas) ? sintomas : [sintomas].filter(Boolean);
-  return seleccionados.includes('Otro');
 }
 
 function normalizarLista(value) {
@@ -269,7 +224,6 @@ exports.showReservarCita = async (req, res) => {
       layout: 'layouts/dashboard',
       medicos,
       especialidades,
-      sintomasFrecuentes: SINTOMAS_FRECUENTES,
       modoEdicion: false,
       cita: null,
       actionUrl: '/paciente/reservar-cita'
@@ -344,8 +298,7 @@ exports.getHorasDisponibles = async (req, res) => {
 
 exports.storeReservarCita = async (req, res) => {
   try {
-    const { id_medico, fecha, hora, motivo, sintomas, sintomas_otro } = req.body;
-    const sintomasNormalizados = normalizarSintomas(sintomas, sintomas_otro);
+    const { id_medico, fecha, hora, motivo } = req.body;
 
     if (!id_medico || !fecha || !hora || !motivo) {
       req.session.error = 'Completa todos los datos para reservar la cita.';
@@ -354,11 +307,6 @@ exports.storeReservarCita = async (req, res) => {
 
     if (!textoClinicoValido(motivo, true)) {
       req.session.error = 'Ingresa un motivo válido con al menos 5 caracteres.';
-      return res.redirect('/paciente/reservar-cita');
-    }
-
-    if (incluyeSintomaOtro(sintomas) && !textoClinicoValido(sintomas_otro, true)) {
-      req.session.error = 'Describe el otro síntoma con al menos 5 caracteres.';
       return res.redirect('/paciente/reservar-cita');
     }
 
@@ -414,7 +362,7 @@ exports.storeReservarCita = async (req, res) => {
         estado
       ) VALUES (?, ?, ?, ?, ?, ?, 'pendiente')
       `,
-      [paciente.id_paciente, id_medico, fecha, hora, sintomasNormalizados, motivo]
+      [paciente.id_paciente, id_medico, fecha, hora, null, motivo]
     );
 
     req.session.success = 'Cita reservada correctamente.';
@@ -449,7 +397,6 @@ exports.showEditarCita = async (req, res) => {
         c.id_medico,
         DATE_FORMAT(c.fecha, '%Y-%m-%d') AS fecha,
         TIME_FORMAT(c.hora, '%H:%i:%s') AS hora,
-        c.sintomas,
         c.motivo,
         c.estado,
         m.especialidad
@@ -496,7 +443,6 @@ exports.showEditarCita = async (req, res) => {
       layout: 'layouts/dashboard',
       medicos,
       especialidades,
-      sintomasFrecuentes: SINTOMAS_FRECUENTES,
       modoEdicion: true,
       cita: citaRows[0],
       actionUrl: `/paciente/mis-citas/${id_cita}/editar`
@@ -511,8 +457,7 @@ exports.showEditarCita = async (req, res) => {
 exports.updateCita = async (req, res) => {
   try {
     const { id_cita } = req.params;
-    const { id_medico, fecha, hora, motivo, sintomas, sintomas_otro } = req.body;
-    const sintomasNormalizados = normalizarSintomas(sintomas, sintomas_otro);
+    const { id_medico, fecha, hora, motivo } = req.body;
 
     if (!id_medico || !fecha || !hora || !motivo) {
       req.session.error = 'Completa todos los datos para actualizar la reserva.';
@@ -521,11 +466,6 @@ exports.updateCita = async (req, res) => {
 
     if (!textoClinicoValido(motivo, true)) {
       req.session.error = 'Ingresa un motivo válido con al menos 5 caracteres.';
-      return res.redirect(`/paciente/mis-citas/${id_cita}/editar`);
-    }
-
-    if (incluyeSintomaOtro(sintomas) && !textoClinicoValido(sintomas_otro, true)) {
-      req.session.error = 'Describe el otro síntoma con al menos 5 caracteres.';
       return res.redirect(`/paciente/mis-citas/${id_cita}/editar`);
     }
 
@@ -597,13 +537,13 @@ exports.updateCita = async (req, res) => {
       SET id_medico = ?,
           fecha = ?,
           hora = ?,
-          sintomas = ?,
+          sintomas = NULL,
           motivo = ?
       WHERE id_cita = ?
       AND id_paciente = ?
       AND estado = 'pendiente'
       `,
-      [id_medico, fecha, hora, sintomasNormalizados, motivo, id_cita, paciente.id_paciente]
+      [id_medico, fecha, hora, motivo, id_cita, paciente.id_paciente]
     );
 
     req.session.success = 'Reserva actualizada correctamente.';
@@ -662,7 +602,6 @@ exports.misCitas = async (req, res) => {
         c.fecha,
         TIME_FORMAT(c.hora, '%H:%i') AS hora,
         c.motivo,
-        c.sintomas,
         c.estado,
         c.fecha_creacion,
         m.especialidad,
@@ -770,7 +709,6 @@ exports.resumenCita = async (req, res) => {
         c.fecha,
         TIME_FORMAT(c.hora, '%H:%i') AS hora,
         c.motivo,
-        c.sintomas AS sintomas_paciente,
         c.estado,
         c.fecha_creacion,
 

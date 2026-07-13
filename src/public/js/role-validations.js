@@ -1,8 +1,9 @@
 window.RoleValidation = (() => {
-  const TEXT_PATTERN = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,;:()\/\-\n]+$/;
-  const SEARCH_PATTERN = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,;:()\/-]+$/;
-  const ADDRESS_PATTERN = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,#;:()\/-]+$/;
-  const PERSONAL_NAME_PATTERN = /^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$/;
+  const TEXT_PATTERN = /^[\p{L}0-9 .,;:()\/\-\n]+$/u;
+  const SEARCH_PATTERN = /^[\p{L}0-9 .,;:()\/-]+$/u;
+  const ADDRESS_PATTERN = /^[\p{L}0-9 .,#;:()\/-]+$/u;
+  const PERSONAL_NAME_PATTERN = /^[\p{L} ]+$/u;
+  const NON_PERSONAL_NAME_PATTERN = /[^\p{L} ]/gu;
 
   function normalizeSpaces(value) {
     return value.replace(/\s{2,}/g, ' ');
@@ -37,15 +38,15 @@ window.RoleValidation = (() => {
     const type = field.dataset.validate;
 
     if (type === 'search') {
-      field.value = normalizeSpaces(field.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,;:()\/-]/g, ''));
+      field.value = normalizeSpaces(field.value.replace(/[^\p{L}0-9 .,;:()\/-]/gu, ''));
     }
 
     if (type === 'clinical-text') {
-      field.value = normalizeSpaces(field.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,;:()\/\-\n]/g, ''));
+      field.value = normalizeSpaces(field.value.replace(/[^\p{L}0-9 .,;:()\/\-\n]/gu, ''));
     }
 
     if (type === 'personal-name') {
-      field.value = normalizeSpaces(field.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ ]/g, ''));
+      field.value = normalizeSpaces(field.value.replace(NON_PERSONAL_NAME_PATTERN, ''));
     }
 
     if (type === 'digits' || type === 'dni') {
@@ -73,7 +74,7 @@ window.RoleValidation = (() => {
     }
 
     if (type === 'address') {
-      field.value = normalizeSpaces(field.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,#;:()\/-]/g, ''));
+      field.value = normalizeSpaces(field.value.replace(/[^\p{L}0-9 .,#;:()\/-]/gu, ''));
     }
   }
 

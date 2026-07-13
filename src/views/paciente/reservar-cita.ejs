@@ -11,10 +11,6 @@
     <p><%= esModoEdicion ? 'Actualiza los datos de tu reserva mientras sigue pendiente de triaje.' : 'Completa los pasos para reservar una atención médica.' %></p>
   </div>
 
-  <div class="form-guidance" role="note">
-    <strong>Ayuda para evitar errores:</strong> selecciona primero especialidad y médico; luego el sistema mostrará solo horarios disponibles. Revisa el resumen antes de confirmar.
-  </div>
-
   <div class="step-indicator step-indicator-labeled" aria-label="Progreso de la reserva">
     <span class="step active" data-step-indicator="1">
       <strong>1</strong>
@@ -118,66 +114,6 @@
         </div>
       </div>
 
-      <div class="form-group symptom-section">
-        <label class="field-label-with-icon">
-          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-heart"></use></svg>
-          <span>Síntomas frecuentes</span>
-        </label>
-        <small class="form-help">Selecciona uno o más síntomas si aplica. Esta información será revisada durante el triaje.</small>
-        <%
-          const sintomasSeleccionados = esModoEdicion && citaSegura.sintomas
-            ? citaSegura.sintomas.split(',').map(item => item.trim())
-            : [];
-          const otroSintomaGuardado = sintomasSeleccionados.find(item => item.startsWith('Otro:'));
-          const sintomasBaseSeleccionados = sintomasSeleccionados.map(item => item.startsWith('Otro:') ? 'Otro' : item);
-          const gruposSintomas = [
-            { titulo: 'Generales', items: ['Fiebre', 'Malestar general', 'Cansancio', 'Dolor muscular'] },
-            { titulo: 'Respiratorios', items: ['Tos', 'Dolor de garganta', 'Congestión nasal', 'Dificultad para respirar'] },
-            { titulo: 'Digestivos', items: ['Dolor abdominal', 'Náuseas', 'Vómitos', 'Diarrea'] },
-            { titulo: 'Otros', items: ['Ansiedad', 'Insomnio', 'Otro'] }
-          ];
-        %>
-        <div class="symptom-category-grid appointment-symptom-grid">
-          <% gruposSintomas.forEach(grupo => { %>
-            <fieldset class="symptom-category appointment-symptom-card">
-              <legend><%= grupo.titulo %></legend>
-              <div class="symptom-card-content">
-                <% grupo.items.forEach(sintoma => { %>
-                  <label class="checkbox-option symptom-checkbox-option">
-                    <input
-                      type="checkbox"
-                      name="sintomas[]"
-                      value="<%= sintoma %>"
-                      <%= sintomasBaseSeleccionados.includes(sintoma) ? 'checked' : '' %>
-                    >
-                    <span><%= sintoma === 'Otro' ? 'Otro síntoma' : sintoma %></span>
-                  </label>
-                <% }) %>
-              </div>
-            </fieldset>
-          <% }) %>
-        </div>
-
-        <div class="form-group symptom-other-field <%= otroSintomaGuardado ? '' : 'hidden' %>" id="appointmentOtherSymptomGroup">
-          <label for="sintomas_otro" class="field-label-with-icon">
-            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
-            <span>Otro síntoma</span>
-          </label>
-          <input
-            type="text"
-            id="sintomas_otro"
-            name="sintomas_otro"
-            maxlength="120"
-            data-validate="medical-text"
-            data-min="5"
-            placeholder="Describe el síntoma adicional"
-            value="<%= otroSintomaGuardado ? otroSintomaGuardado.replace('Otro:', '').trim() : '' %>"
-            <%= otroSintomaGuardado ? '' : 'disabled' %>
-          >
-          <small class="field-message" data-for="sintomas_otro"></small>
-        </div>
-      </div>
-
       <div class="form-group">
         <label for="motivo" class="field-label-with-icon">
           <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
@@ -214,17 +150,12 @@
 
     <section class="appointment-step" data-step="3">
       <div class="summary-box">
-        <h3>Resumen de la cita</h3>
+        <h3><i class="bi bi-calendar-check" aria-hidden="true"></i>Resumen de la cita</h3>
         <div class="summary-row"><span>Especialidad:</span><strong id="summaryEspecialidad">-</strong></div>
         <div class="summary-row"><span>Médico:</span><strong id="summaryMedico">-</strong></div>
         <div class="summary-row"><span>Fecha:</span><strong id="summaryFecha">-</strong></div>
         <div class="summary-row"><span>Hora:</span><strong id="summaryHora">-</strong></div>
-        <div class="summary-row"><span>Síntomas:</span><strong id="summarySintomas">-</strong></div>
         <div class="summary-row"><span>Motivo:</span><strong id="summaryMotivo">-</strong></div>
-      </div>
-
-      <div class="notice-box">
-        Revisa cuidadosamente los datos antes de <%= esModoEdicion ? 'actualizar la reserva' : 'confirmar la cita' %>.
       </div>
 
       <div class="form-actions">
@@ -241,16 +172,21 @@
 </div>
 
 <div class="modal-overlay hidden" id="cancelAppointmentModal" role="dialog" aria-modal="true" aria-labelledby="cancelAppointmentTitle" aria-describedby="cancelAppointmentText">
-  <div class="confirm-modal">
+  <div class="confirm-modal confirm-modal-polished" data-confirm-action="cancelar">
+    <button type="button" class="modal-close confirm-modal-close" id="closeCancelAppointmentModalTop" aria-label="Cerrar confirmación">&times;</button>
+    <div class="confirm-modal-icon" aria-hidden="true">
+      <i class="bi bi-x-lg"></i>
+    </div>
     <h3 id="cancelAppointmentTitle">Cancelar cambios</h3>
     <p id="cancelAppointmentText">¿Seguro que deseas cancelar?</p>
+    <small class="confirm-modal-note">Puedes volver y revisar los datos antes de salir.</small>
     <div class="modal-actions">
       <button type="button" class="btn-light icon-action" id="closeCancelAppointmentModal" title="Seguir editando" aria-label="Seguir editando">
-        <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/volver.png" alt="" aria-hidden="true">
-        <span class="visually-hidden">Seguir editando</span>
+        <i class="bi bi-arrow-left" aria-hidden="true"></i>
+        <span>Seguir editando</span>
       </button>
       <a href="#" class="btn-danger" id="confirmCancelAppointment" title="Sí, cancelar" aria-label="Sí, cancelar">
-        <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/cancelar.png" alt="" aria-hidden="true">
+        <i class="bi bi-x-circle" aria-hidden="true"></i>
         <span>Sí, cancelar</span>
       </a>
     </div>
@@ -263,6 +199,7 @@
   const isAppointmentEditMode = <%= esModoEdicion ? 'true' : 'false' %>;
   const citaId = <%- JSON.stringify(esModoEdicion ? Number(citaSegura.id_cita || 0) : null) %>;
   const selectedHora = <%- JSON.stringify(esModoEdicion ? (citaSegura.hora || '') : '') %>;
+  const appointmentForm = document.getElementById('appointmentForm');
   const especialidadSelect = document.getElementById('especialidad');
   const medicoSelect = document.getElementById('id_medico');
   const fechaInput = document.getElementById('fecha');
@@ -270,9 +207,6 @@
   const motivoInput = document.getElementById('motivo');
   const steps = document.querySelectorAll('.appointment-step');
   const indicators = document.querySelectorAll('[data-step-indicator]');
-  const symptomChecks = document.querySelectorAll('input[name="sintomas[]"]');
-  const otherSymptomGroup = document.getElementById('appointmentOtherSymptomGroup');
-  const otherSymptomInput = document.getElementById('sintomas_otro');
   const nextStep1 = document.getElementById('nextStep1');
   const nextStep2 = document.getElementById('nextStep2');
   const backStep2 = document.getElementById('backStep2');
@@ -281,34 +215,29 @@
   const summaryMedico = document.getElementById('summaryMedico');
   const summaryFecha = document.getElementById('summaryFecha');
   const summaryHora = document.getElementById('summaryHora');
-  const summarySintomas = document.getElementById('summarySintomas');
   const summaryMotivo = document.getElementById('summaryMotivo');
   const stepMessage = document.getElementById('stepMessage');
   const cancelAppointmentLink = document.querySelector('.js-cancel-appointment');
   const cancelAppointmentModal = document.getElementById('cancelAppointmentModal');
   const cancelAppointmentText = document.getElementById('cancelAppointmentText');
   const closeCancelAppointmentModal = document.getElementById('closeCancelAppointmentModal');
+  const closeCancelAppointmentModalTop = document.getElementById('closeCancelAppointmentModalTop');
   const confirmCancelAppointment = document.getElementById('confirmCancelAppointment');
   const initialAppointmentState = {
     especialidad: especialidadSelect.value,
     medico: medicoSelect.value,
     fecha: fechaInput.value,
     hora: horaSelect.value,
-    motivo: motivoInput.value,
-    otro: otherSymptomInput.value,
-    sintomas: Array.from(symptomChecks).filter(input => input.checked).map(input => input.value).sort().join('|')
+    motivo: motivoInput.value
   };
 
   function appointmentHasChanges() {
-    const currentSymptoms = Array.from(symptomChecks).filter(input => input.checked).map(input => input.value).sort().join('|');
     return (
       especialidadSelect.value !== initialAppointmentState.especialidad ||
       medicoSelect.value !== initialAppointmentState.medico ||
       fechaInput.value !== initialAppointmentState.fecha ||
       horaSelect.value !== initialAppointmentState.hora ||
-      motivoInput.value !== initialAppointmentState.motivo ||
-      otherSymptomInput.value !== initialAppointmentState.otro ||
-      currentSymptoms !== initialAppointmentState.sintomas
+      motivoInput.value !== initialAppointmentState.motivo
     );
   }
 
@@ -325,11 +254,6 @@
     });
   });
 
-  otherSymptomInput.addEventListener('input', () => {
-    clearInlineMessage();
-    updateStep2State();
-  });
-
   fechaInput.min = new Date().toISOString().split('T')[0];
 
   function showStep(stepNumber) {
@@ -339,19 +263,28 @@
   }
 
   function showInlineMessage(message, field = null) {
-    stepMessage.textContent = message;
-    stepMessage.classList.remove('hidden');
+    stepMessage.textContent = '';
+    stepMessage.classList.add('hidden');
     document.querySelectorAll('.field-error').forEach(input => input.classList.remove('field-error'));
     if (field) {
-      field.classList.add('field-error');
+      setAppointmentFieldMessage(field, message);
       field.focus();
+    }
+  }
+
+  function setAppointmentFieldMessage(field, message = '') {
+    const target = appointmentForm.querySelector(`.field-message[data-for="${field.id}"]`);
+    field.classList.toggle('field-error', Boolean(message));
+    field.setAttribute('aria-invalid', message ? 'true' : 'false');
+    if (target) {
+      target.textContent = message;
+      target.classList.toggle('is-visible', Boolean(message));
     }
   }
 
   function clearInlineMessage() {
     stepMessage.textContent = '';
     stepMessage.classList.add('hidden');
-    document.querySelectorAll('.field-error').forEach(input => input.classList.remove('field-error'));
   }
 
   function setNextButtonState(button, enabled, message) {
@@ -385,12 +318,10 @@
     const hasDate = Boolean(fechaInput.value);
     const hasHour = Boolean(horaSelect.value);
     const hasReason = motivoInput.value.trim().length >= 5;
-    const otherRequired = Array.from(symptomChecks).some(input => input.value === 'Otro' && input.checked);
-    const otherOk = !otherRequired || otherSymptomInput.value.trim().length >= 5;
 
     setNextButtonState(
       nextStep2,
-      hasDate && hasHour && hasReason && otherOk,
+      hasDate && hasHour && hasReason,
       'Completa fecha, hora y motivo para continuar.'
     );
   }
@@ -425,6 +356,8 @@
       updateStep2State();
       return;
     }
+    setAppointmentFieldMessage(fechaInput);
+    setAppointmentFieldMessage(horaSelect);
     horaSelect.disabled = true;
     horaSelect.innerHTML = '<option value="">Cargando horas disponibles...</option>';
     updateStep2State();
@@ -437,12 +370,14 @@
 
       if (!data.ok) {
         horaSelect.innerHTML = `<option value="">${data.mensaje}</option>`;
+        setAppointmentFieldMessage(fechaInput, data.mensaje || 'Selecciona una fecha válida de lunes a viernes.');
         updateStep2State();
         return;
       }
 
       if (data.horas.length === 0) {
         horaSelect.innerHTML = '<option value="">No hay horas disponibles</option>';
+        setAppointmentFieldMessage(horaSelect, 'No hay horas disponibles para el médico y la fecha seleccionados.');
         updateStep2State();
         return;
       }
@@ -459,6 +394,7 @@
       updateStep2State();
     } catch (error) {
       horaSelect.innerHTML = '<option value="">Error al cargar horas</option>';
+      setAppointmentFieldMessage(horaSelect, 'No se pudieron cargar los horarios. Intenta nuevamente en unos segundos.');
       updateStep2State();
     }
   }
@@ -468,20 +404,6 @@
     cargarHorasDisponibles();
   });
   fechaInput.addEventListener('change', cargarHorasDisponibles);
-
-  function updateOtherSymptomField() {
-    const checked = Array.from(symptomChecks).some(input => input.value === 'Otro' && input.checked);
-    otherSymptomGroup.classList.toggle('hidden', !checked);
-    otherSymptomInput.disabled = !checked;
-    if (!checked) otherSymptomInput.value = '';
-    updateStep2State();
-  }
-
-  symptomChecks.forEach(input => input.addEventListener('change', () => {
-    clearInlineMessage();
-    updateOtherSymptomField();
-    updateStep2State();
-  }));
 
   nextStep1.addEventListener('click', () => {
     updateStep1State(true);
@@ -499,22 +421,11 @@
     if (!horaSelect.value) return showInlineMessage('Selecciona una hora disponible para la cita.', horaSelect);
     if (!window.PatientValidation.validateField(motivoInput)) return showInlineMessage('Revisa el motivo de la consulta.', motivoInput);
 
-    const sintomas = Array.from(symptomChecks).filter(input => input.checked).map(input => input.value);
-    if (sintomas.includes('Otro') && !window.PatientValidation.validateField(otherSymptomInput)) {
-      return showInlineMessage('Describe el otro síntoma para continuar.', otherSymptomInput);
-    }
-
     const medicoTexto = medicoSelect.options[medicoSelect.selectedIndex].textContent.trim();
-    const sintomasResumen = sintomas.map(sintoma => (
-      sintoma === 'Otro' && otherSymptomInput.value.trim()
-        ? `Otro: ${otherSymptomInput.value.trim()}`
-        : sintoma
-    ));
     summaryEspecialidad.textContent = especialidadSelect.value;
     summaryMedico.textContent = medicoTexto;
     summaryFecha.textContent = fechaInput.value;
     summaryHora.textContent = horaSelect.value.substring(0, 5);
-    summarySintomas.textContent = sintomasResumen.length > 0 ? sintomasResumen.join(', ') : 'No seleccionados';
     summaryMotivo.textContent = motivoInput.value;
     showStep(3);
   });
@@ -535,6 +446,7 @@
   });
 
   closeCancelAppointmentModal.addEventListener('click', closeAppointmentCancelModal);
+  closeCancelAppointmentModalTop.addEventListener('click', closeAppointmentCancelModal);
   cancelAppointmentModal.addEventListener('click', event => {
     if (event.target === cancelAppointmentModal) closeAppointmentCancelModal();
   });
@@ -543,7 +455,6 @@
   });
 
   filtrarMedicos();
-  updateOtherSymptomField();
   if (isAppointmentEditMode) cargarHorasDisponibles();
   updateStep1State(false);
   updateStep2State();

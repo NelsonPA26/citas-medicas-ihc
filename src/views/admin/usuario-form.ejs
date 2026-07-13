@@ -26,14 +26,20 @@
     <p><%= formIntro %></p>
   </div>
 
-  <div class="form-guidance" role="note">
-    <strong>Antes de guardar:</strong> verifica DNI, correo, teléfono y rol. El sistema validará los datos para evitar cuentas duplicadas o incompletas.
-  </div>
-
-  <form action="<%= actionUrl %>" method="POST" class="admin-user-form js-role-validated-form" id="adminUserForm" novalidate>
+  <form
+    action="<%= actionUrl %>"
+    method="POST"
+    class="admin-user-form js-role-validated-form"
+    id="adminUserForm"
+    data-original-role="<%= selectedRole %>"
+    data-confirm-title="<%= isEdit ? 'Actualizar usuario' : 'Registrar usuario' %>"
+    data-confirm="Revisa DNI, correo, rol y datos profesionales antes de <%= isEdit ? 'actualizar la cuenta' : 'registrar la cuenta' %>."
+    data-confirm-button="<%= isEdit ? 'Actualizar usuario' : 'Registrar usuario' %>"
+    novalidate
+  >
     <div class="form-section-card">
       <div class="form-section-heading">
-        <h3>Datos personales</h3>
+        <h3><i class="bi bi-person-vcard" aria-hidden="true"></i>Datos personales</h3>
         <p>Registra información clara para identificar al usuario dentro del sistema.</p>
       </div>
 
@@ -120,7 +126,7 @@
 
     <div class="form-section-card">
       <div class="form-section-heading">
-        <h3>Acceso y permisos</h3>
+        <h3><i class="bi bi-shield-lock" aria-hidden="true"></i>Acceso y permisos</h3>
         <p>Define el correo de acceso y el rol con el que ingresará al sistema.</p>
       </div>
 
@@ -173,7 +179,7 @@
 
     <div class="form-section-card role-extra-section" id="medicoFields" data-role-section="medico">
       <div class="form-section-heading">
-        <h3>Ficha de médico</h3>
+        <h3><i class="bi bi-person-badge" aria-hidden="true"></i>Ficha de médico</h3>
         <p>Estos campos son obligatorios solo cuando el rol seleccionado es Médico.</p>
       </div>
 
@@ -197,7 +203,7 @@
             <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
             <span>Número de colegiatura</span>
           </label>
-          <input type="text" id="numero_colegiatura" name="numero_colegiatura" value="<%= usuario.medico_colegiatura || '' %>" maxlength="30" data-validate="search" placeholder="Ejemplo: CMP-10005">
+          <input type="text" id="numero_colegiatura" name="numero_colegiatura" value="<%= usuario.medico_colegiatura || '' %>" maxlength="10" inputmode="numeric" data-validate="digits" data-min-length="3" placeholder="Ejemplo: 10005">
           <small class="field-message" data-for="numero_colegiatura"></small>
         </div>
 
@@ -219,7 +225,7 @@
 
     <div class="form-section-card role-extra-section" id="enfermeraFields" data-role-section="enfermera">
       <div class="form-section-heading">
-        <h3>Ficha de enfermería</h3>
+        <h3><i class="bi bi-heart-pulse" aria-hidden="true"></i>Ficha de enfermería</h3>
         <p>Estos campos son obligatorios solo cuando el rol seleccionado es Enfermera.</p>
       </div>
 
@@ -259,7 +265,7 @@
 
     <div class="form-section-card role-extra-section" id="administrativoFields" data-role-section="administrativo">
       <div class="form-section-heading">
-        <h3>Ficha administrativa</h3>
+        <h3><i class="bi bi-briefcase" aria-hidden="true"></i>Ficha administrativa</h3>
         <p>Estos campos son obligatorios solo cuando el rol seleccionado es Administrativo.</p>
       </div>
 
@@ -297,9 +303,9 @@
         <span>Cancelar</span>
       </a>
 
-      <button type="submit" class="btn-dark icon-action" title="Guardar usuario" aria-label="Guardar usuario">
-        <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/guardar.png" alt="" aria-hidden="true">
-        <span>Guardar usuario</span>
+      <button type="submit" class="btn-dark icon-action" title="<%= isEdit ? 'Actualizar usuario' : 'Registrar usuario' %>" aria-label="<%= isEdit ? 'Actualizar usuario' : 'Registrar usuario' %>">
+        <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/<%= isEdit ? 'editar.png' : 'registrar.png' %>" alt="" aria-hidden="true">
+        <span><%= isEdit ? 'Actualizar usuario' : 'Registrar usuario' %></span>
       </button>
     </div>
   </form>
@@ -307,6 +313,8 @@
 
 <script>
   const roleSelect = document.getElementById('rol');
+  const adminUserForm = document.getElementById('adminUserForm');
+  const passwordInput = document.getElementById('password');
   const roleSections = document.querySelectorAll('[data-role-section]');
   const fechaNacimientoInput = document.getElementById('fecha_nacimiento');
   const roleHelp = document.getElementById('roleHelp');
@@ -357,5 +365,33 @@
   }
 
   updateRoleSections();
+
+  if (adminUserForm) {
+    adminUserForm.addEventListener('submit', () => {
+      const originalRole = adminUserForm.dataset.originalRole || '';
+      const selectedRole = roleSelect ? roleSelect.value : originalRole;
+      const changes = [];
+
+      if (originalRole && selectedRole && originalRole !== selectedRole) {
+        changes.push(`cambio de rol de ${originalRole} a ${selectedRole}`);
+      }
+
+      if (passwordInput && passwordInput.value.trim()) {
+        changes.push('cambio de contraseña de acceso');
+      }
+
+      if (selectedRole === 'administrativo') {
+        changes.push('acceso administrativo a usuarios y citas');
+      }
+
+      const details = changes.length
+        ? `Detectado: ${changes.join(', ')}. `
+        : '';
+
+      adminUserForm.dataset.confirmTitle = 'Guardar usuario';
+      adminUserForm.dataset.confirm = `${details}Confirma solo si los datos personales, correo, rol y ficha del usuario son correctos.`;
+      adminUserForm.dataset.confirmButton = 'Guardar usuario';
+    }, true);
+  }
 </script>
 <script src="/js/role-validations.js"></script>

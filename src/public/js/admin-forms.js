@@ -92,7 +92,7 @@ document.querySelectorAll('.js-admin-person-form').forEach(form => {
       }
 
       if (field.dataset.validate === 'letters') {
-        field.value = field.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ ]/g, '');
+        field.value = field.value.replace(/[^\p{L} ]/gu, '').replace(/\s{2,}/g, ' ');
       }
 
       if (field.dataset.validate === 'code') {

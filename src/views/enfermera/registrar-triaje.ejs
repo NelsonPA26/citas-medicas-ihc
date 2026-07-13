@@ -45,9 +45,11 @@
     </p>
   </div>
 
-  <div class="clinical-overview">
+  <div class="clinical-workspace clinical-workspace-triaje">
+    <aside class="clinical-workspace-side" aria-label="Contexto del paciente">
+      <div class="clinical-overview">
     <section class="patient-summary clinical-panel">
-      <h3>Resumen del paciente</h3>
+      <h3><i class="bi bi-person-vcard" aria-hidden="true"></i>Resumen del paciente</h3>
       <div><span>Paciente</span><strong><%= citaSegura.paciente_nombres %> <%= citaSegura.paciente_apellido_paterno %> <%= citaSegura.paciente_apellido_materno || '' %></strong></div>
       <div><span>DNI</span><strong><%= citaSegura.paciente_dni || 'No registrado' %></strong></div>
       <div><span>Edad</span><strong><%= citaSegura.paciente_edad !== null ? citaSegura.paciente_edad + ' años' : 'No registrada' %></strong></div>
@@ -58,14 +60,10 @@
         <div class="full-row"><span>Médico</span><strong>Dr(a). <%= citaSegura.medico_nombres %> <%= citaSegura.medico_apellido_paterno %> <%= citaSegura.medico_apellido_materno || '' %></strong></div>
       <% } %>
       <div class="full-row"><span>Motivo de consulta</span><strong><%= citaSegura.motivo %></strong></div>
-      <div class="full-row">
-        <span>Síntomas declarados por el paciente</span>
-        <strong><%= citaSegura.sintomas_paciente || 'No declarados por el paciente' %></strong>
-      </div>
     </section>
 
     <section class="triaje-summary clinical-panel clinical-antecedentes-panel">
-      <h3>Antecedentes médicos</h3>
+      <h3><i class="bi bi-journal-medical" aria-hidden="true"></i>Antecedentes médicos</h3>
       <% if (antecedentesClinicos.length > 0) { %>
         <div class="clinical-note-list clinical-note-grid">
           <% antecedentesClinicos.forEach(item => { %>
@@ -79,10 +77,32 @@
         <p class="clinical-empty-text">No hay antecedentes médicos registrados.</p>
       <% } %>
     </section>
-  </div>
+      </div>
+    </aside>
 
-  <form action="<%= actionUrlSeguro %>" method="POST" class="triaje-form js-role-validated-form <%= esModoDetalle ? 'readonly-clinical-form' : '' %>" id="triajeForm" novalidate>
+    <div class="clinical-workspace-main">
+
+  <form
+    action="<%= actionUrlSeguro %>"
+    method="POST"
+    class="triaje-form js-role-validated-form <%= esModoDetalle ? 'readonly-clinical-form' : '' %>"
+    id="triajeForm"
+    data-required-checkbox-name="sintomas[]"
+    data-confirm-title="<%= esModoEdicion ? 'Actualizar triaje' : 'Registrar triaje' %>"
+    data-confirm="Revisa signos vitales, síntomas verificados y observaciones antes de guardar. Esta información orientará la atención médica posterior."
+    data-confirm-button="<%= esModoEdicion ? 'Actualizar triaje' : 'Registrar triaje' %>"
+    novalidate
+  >
     <div id="triajeMessage" class="step-message hidden"></div>
+
+    <section class="clinical-form-section">
+      <div class="clinical-form-section-heading">
+        <i class="bi bi-activity" aria-hidden="true"></i>
+        <div>
+          <h3>Signos vitales</h3>
+          <p>Registra los valores medidos antes de derivar al m&eacute;dico.</p>
+        </div>
+      </div>
 
     <div class="triaje-grid">
       <div class="form-group">
@@ -118,20 +138,31 @@
         <span class="field-message" data-for="saturacion"></span>
       </div>
     </div>
+    </section>
+
+    <section class="clinical-form-section">
+      <div class="clinical-form-section-heading">
+        <i class="bi bi-heart-pulse" aria-hidden="true"></i>
+        <div>
+          <h3>Evaluaci&oacute;n de s&iacute;ntomas</h3>
+          <p>Marca solo lo referido y verificado durante el triaje.</p>
+        </div>
+      </div>
 
     <div class="form-group">
       <label class="field-label-with-icon">
         <svg class="field-icon" aria-hidden="true"><use href="#field-icon-heart"></use></svg>
-        <span>Síntomas verificados por enfermería</span>
+        <span class="required-indicator">Síntomas verificados por enfermería</span>
       </label>
       <small class="form-help">Selecciona los síntomas que el paciente refiere durante el triaje.</small>
       <div class="symptom-category-grid symptom-category-grid-four">
-        <% gruposTriaje.forEach(grupo => { %>
+        <% gruposTriaje.forEach((grupo, grupoIndex) => { %>
           <fieldset class="symptom-category">
             <legend><%= grupo.titulo %></legend>
-            <% grupo.items.forEach(sintoma => { %>
-              <label class="checkbox-option">
+            <% grupo.items.forEach((sintoma, sintomaIndex) => { %>
+              <label class="checkbox-option" for="triaje_sintoma_<%= grupoIndex %>_<%= sintomaIndex %>">
                 <input
+                  id="triaje_sintoma_<%= grupoIndex %>_<%= sintomaIndex %>"
                   type="checkbox"
                   name="sintomas[]"
                   value="<%= sintoma %>"
@@ -144,6 +175,7 @@
           </fieldset>
         <% }) %>
       </div>
+      <span class="field-message" data-for="sintomas"></span>
 
       <div class="form-group symptom-other-field <%= otroTriajeGuardado ? '' : 'hidden' %>" id="triajeOtherSymptomGroup">
         <label for="sintomas_otro" class="field-label-with-icon">
@@ -164,6 +196,16 @@
         <span class="field-message" data-for="sintomas_otro"></span>
       </div>
     </div>
+    </section>
+
+    <section class="clinical-form-section">
+      <div class="clinical-form-section-heading">
+        <i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>
+        <div>
+          <h3>Notas de enfermer&iacute;a</h3>
+          <p>A&ntilde;ade datos relevantes para orientar la atenci&oacute;n posterior.</p>
+        </div>
+      </div>
 
     <div class="form-group">
       <label for="observaciones" class="field-label-with-icon">
@@ -173,6 +215,7 @@
       <textarea id="observaciones" name="observaciones" placeholder="Opcional: paciente llega acompañado, ansioso, requiere prioridad, no colabora con la toma de signos, se deriva a médico." maxlength="800" data-validate="clinical-text" data-min="5" <%= esModoDetalle ? 'readonly' : '' %>><%= triajeSeguro.observaciones || '' %></textarea>
       <span class="field-message" data-for="observaciones"></span>
     </div>
+    </section>
 
     <div class="form-actions">
       <% if (esModoDetalle) { %>
@@ -195,19 +238,26 @@
       <% } %>
     </div>
   </form>
+    </div>
+  </div>
 </div>
 
 <div class="modal-overlay hidden" id="cancelTriajeModal" role="dialog" aria-modal="true" aria-labelledby="cancelTriajeTitle" aria-describedby="cancelTriajeText">
-  <div class="confirm-modal">
+  <div class="confirm-modal confirm-modal-polished" data-confirm-action="cancelar">
+    <button type="button" class="modal-close confirm-modal-close" id="closeCancelTriajeModalTop" aria-label="Cerrar confirmación">&times;</button>
+    <div class="confirm-modal-icon" aria-hidden="true">
+      <i class="bi bi-x-lg"></i>
+    </div>
     <h3 id="cancelTriajeTitle">Cancelar cambios</h3>
     <p id="cancelTriajeText">¿Seguro que deseas cancelar?</p>
+    <small class="confirm-modal-note">Puedes seguir editando si necesitas revisar los signos vitales.</small>
     <div class="modal-actions">
       <button type="button" class="btn-light icon-action" id="closeCancelTriajeModal" title="Seguir editando" aria-label="Seguir editando">
-        <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/volver.png" alt="" aria-hidden="true">
+        <i class="bi bi-arrow-left" aria-hidden="true"></i>
         <span>Seguir editando</span>
       </button>
       <a href="#" class="btn-danger" id="confirmCancelTriaje" title="Sí, cancelar" aria-label="Sí, cancelar">
-        <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/cancelar.png" alt="" aria-hidden="true">
+        <i class="bi bi-x-circle" aria-hidden="true"></i>
         <span>Sí, cancelar</span>
       </a>
     </div>
@@ -230,6 +280,7 @@
   const cancelTriajeModal = document.getElementById('cancelTriajeModal');
   const cancelTriajeText = document.getElementById('cancelTriajeText');
   const closeCancelTriajeModal = document.getElementById('closeCancelTriajeModal');
+  const closeCancelTriajeModalTop = document.getElementById('closeCancelTriajeModalTop');
   const confirmCancelTriaje = document.getElementById('confirmCancelTriaje');
   const isTriajeReadOnly = <%= esModoDetalle ? 'true' : 'false' %>;
   const isTriajeEditMode = <%= esModoEdicion ? 'true' : 'false' %>;
@@ -258,19 +309,30 @@
   }
 
   function showTriajeMessage(message, field = null) {
-    triajeMessage.textContent = message;
-    triajeMessage.classList.remove('hidden');
+    triajeMessage.textContent = '';
+    triajeMessage.classList.add('hidden');
     document.querySelectorAll('.field-error').forEach(input => input.classList.remove('field-error'));
     if (field) {
       field.classList.add('field-error');
+      field.setAttribute('aria-invalid', 'true');
+      const target = triajeForm.querySelector(`.field-message[data-for="${field.id}"]`);
+      if (target) {
+        target.textContent = message;
+        target.classList.add('is-visible');
+      }
       field.focus();
+    } else {
+      const target = triajeForm.querySelector('.field-message[data-for="sintomas"]');
+      target.textContent = message;
+      target.classList.add('is-visible');
+      const firstSymptom = triajeSymptomChecks[0];
+      if (firstSymptom) firstSymptom.focus();
     }
   }
 
   function clearTriajeMessage() {
     triajeMessage.textContent = '';
     triajeMessage.classList.add('hidden');
-    document.querySelectorAll('.field-error').forEach(input => input.classList.remove('field-error'));
   }
 
   function updateOtherTriajeSymptom() {
@@ -285,6 +347,11 @@
   });
   triajeSymptomChecks.forEach(input => input.addEventListener('change', () => {
     clearTriajeMessage();
+    const symptomMessage = triajeForm.querySelector('.field-message[data-for="sintomas"]');
+    if (symptomMessage) {
+      symptomMessage.textContent = '';
+      symptomMessage.classList.remove('is-visible');
+    }
     updateOtherTriajeSymptom();
   }));
 
@@ -303,6 +370,7 @@
   }
 
   closeCancelTriajeModal.addEventListener('click', () => cancelTriajeModal.classList.add('hidden'));
+  closeCancelTriajeModalTop.addEventListener('click', () => cancelTriajeModal.classList.add('hidden'));
   cancelTriajeModal.addEventListener('click', event => {
     if (event.target === cancelTriajeModal) cancelTriajeModal.classList.add('hidden');
   });

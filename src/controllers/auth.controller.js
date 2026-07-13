@@ -89,7 +89,8 @@ exports.login = async (req, res) => {
     );
 
     if (rows.length === 0) {
-      req.session.error = 'Usuario o contraseña incorrectos.';
+      req.session.error = 'No encontramos una cuenta con ese usuario o correo.';
+      req.session.errorField = 'identificador';
       return res.redirect('/login');
     }
 
@@ -121,7 +122,8 @@ exports.login = async (req, res) => {
           [failedAttempts, user.id_usuario]
         );
 
-        req.session.error = `Usuario o contraseña incorrectos. La cuenta quedó bloqueada por ${LOGIN_LOCK_MINUTES} minutos.`;
+        req.session.error = `La contraseña no coincide. La cuenta quedó bloqueada por ${LOGIN_LOCK_MINUTES} minutos.`;
+        req.session.errorField = 'password';
         return res.redirect('/login');
       }
 
@@ -134,7 +136,8 @@ exports.login = async (req, res) => {
         [failedAttempts, user.id_usuario]
       );
 
-      req.session.error = 'Usuario o contraseña incorrectos.';
+      req.session.error = 'La contraseña no coincide con esa cuenta.';
+      req.session.errorField = 'password';
       return res.redirect('/login');
     }
 

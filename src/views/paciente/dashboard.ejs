@@ -1,6 +1,8 @@
-<div class="dashboard-grid">
+
+
+<div class="dashboard-grid dashboard-grid-compact">
   <div class="stat-card highlight-card">
-    <h3>Proxima cita</h3>
+    <h3><i class="bi bi-calendar-event" aria-hidden="true"></i>Próxima cita</h3>
 
     <% if (proximaCita) { %>
       <p>
@@ -20,26 +22,83 @@
         <% } %>
       </span>
     <% } else { %>
-      <p>No tienes citas proximas registradas.</p>
+      <p>No tienes citas próximas registradas.</p>
       <a href="/paciente/reservar-cita" class="card-link">Reservar cita</a>
     <% } %>
   </div>
 
   <div class="stat-card">
-    <h3>Citas pendientes</h3>
+    <h3><i class="bi bi-hourglass-split" aria-hidden="true"></i>Citas pendientes</h3>
     <p class="stat-number"><%= stats.pendientes || 0 %></p>
     <a href="/paciente/mis-citas" class="card-link">Revisar citas</a>
   </div>
 
   <div class="stat-card">
-    <h3>Consultas completadas</h3>
+    <h3><i class="bi bi-clipboard2-check" aria-hidden="true"></i>Consultas completadas</h3>
     <p class="stat-number"><%= stats.completadas || 0 %></p>
     <a href="/paciente/historial" class="card-link">Ver historial</a>
   </div>
 
   <div class="stat-card">
-    <h3>Citas canceladas</h3>
+    <h3><i class="bi bi-calendar-x" aria-hidden="true"></i>Citas canceladas</h3>
     <p class="stat-number"><%= stats.canceladas || 0 %></p>
     <a href="/paciente/mis-citas" class="card-link">Ver registros</a>
   </div>
+</div>
+
+<div class="dashboard-secondary-grid dashboard-secondary-grid-even">
+  <%
+    const totalCitas = Number(stats.pendientes || 0) + Number(stats.completadas || 0) + Number(stats.canceladas || 0);
+    const estadoActual = proximaCita ? (
+      proximaCita.estado === 'pendiente' ? 'Pendiente' :
+      proximaCita.estado === 'triaje_registrado' ? 'Triaje registrado' :
+      proximaCita.estado === 'en_consulta' ? 'En consulta' : 'Activa'
+    ) : 'Sin cita activa';
+  %>
+
+  <section class="dashboard-info-card" aria-labelledby="patientRouteTitle">
+    <div class="dashboard-info-heading">
+      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-signpost-2"></i></span>
+      <div>
+        <h3 id="patientRouteTitle">Resumen general</h3>
+        <p>Informacion agrupada sin repetir los accesos superiores.</p>
+      </div>
+    </div>
+
+    <div class="dashboard-info-list">
+      <div class="dashboard-info-row dashboard-info-row-static">
+        <span><i class="bi bi-calendar3" aria-hidden="true"></i>Total de citas registradas</span>
+        <strong><%= totalCitas %></strong>
+      </div>
+      <div class="dashboard-info-row dashboard-info-row-static">
+        <span><i class="bi bi-activity" aria-hidden="true"></i>Seguimiento actual</span>
+        <strong><%= estadoActual %></strong>
+      </div>
+      <div class="dashboard-info-row dashboard-info-row-static">
+        <span><i class="bi bi-folder2-open" aria-hidden="true"></i>Historial clinico</span>
+        <strong><%= Number(stats.completadas || 0) > 0 ? 'Disponible' : 'Sin registros' %></strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="dashboard-info-card" aria-labelledby="patientStatusTitle">
+    <div class="dashboard-info-heading">
+      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-person-check"></i></span>
+      <div>
+        <h3 id="patientStatusTitle">Datos personales</h3>
+        <p>Accesos complementarios que no repiten las tarjetas de citas.</p>
+      </div>
+    </div>
+
+    <div class="dashboard-info-list">
+      <a href="/paciente/antecedentes" class="dashboard-info-row">
+        <span><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>Antecedentes medicos</span>
+        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="/perfil" class="dashboard-info-row">
+        <span><i class="bi bi-person" aria-hidden="true"></i>Mi perfil</span>
+        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+      </a>
+    </div>
+  </section>
 </div>

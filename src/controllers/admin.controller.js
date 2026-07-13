@@ -17,10 +17,27 @@ exports.dashboard = async (req, res) => {
       `
     );
 
+    const [recentUsers] = await db.query(
+      `
+      SELECT
+        u.id_usuario,
+        u.rol,
+        u.fecha_creacion,
+        p.nombres,
+        p.apellido_paterno,
+        p.apellido_materno
+      FROM usuario u
+      INNER JOIN persona p ON u.id_persona = p.id_persona
+      ORDER BY u.fecha_creacion DESC, u.id_usuario DESC
+      LIMIT 5
+      `
+    );
+
     res.render('admin/dashboard', {
       title: 'Panel Administrativo',
       layout: 'layouts/dashboard',
-      stats
+      stats,
+      recentUsers
     });
   } catch (error) {
     console.error(error);
@@ -151,7 +168,7 @@ async function ensureRoleRecord(connection, idPersona, rol, body = {}) {
 
   if (rol === 'medico') {
     const especialidad = normalizarEspecialidad(body.especialidad);
-    const numeroColegiatura = limpiarTexto(body.numero_colegiatura).toUpperCase();
+    const numeroColegiatura = limpiarTexto(body.numero_colegiatura).replace(/\D/g, '');
     const turno = body.turno_medico;
 
     const [medicoRows] = await connection.query(
@@ -170,7 +187,7 @@ async function ensureRoleRecord(connection, idPersona, rol, body = {}) {
       throw new Error('Para asignar el rol Médico, selecciona una especialidad válida.');
     }
 
-    if (!/^[A-Za-z0-9-]{3,30}$/.test(numeroColegiatura)) {
+    if (!/^[0-9]{3,10}$/.test(numeroColegiatura)) {
       throw new Error('Para asignar el rol Médico, registra un número de colegiatura válido.');
     }
 

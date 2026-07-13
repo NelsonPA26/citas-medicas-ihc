@@ -12,6 +12,7 @@
     delete: 'Procesando acción...',
     cancel: 'Cancelando solicitud...'
   };
+  const initialFormSnapshots = new WeakMap();
 
   function normalizeMethod(form) {
     return String(form.getAttribute('method') || 'GET').toLowerCase();
@@ -52,6 +53,57 @@
     });
 
     return draft;
+  }
+
+  function isUnsavedTrackableField(field) {
+    if (!field.name || field.disabled) return false;
+    const type = String(field.type || '').toLowerCase();
+    if (type === 'file' || type === 'hidden') return false;
+    return field.matches('input, textarea, select');
+  }
+
+  function collectUnsavedSnapshot(form) {
+    const snapshot = {};
+
+    Array.from(form.elements).forEach(field => {
+      if (!isUnsavedTrackableField(field)) return;
+
+      if (field.type === 'checkbox') {
+        if (!snapshot[field.name]) snapshot[field.name] = [];
+        if (field.checked) snapshot[field.name].push(field.value);
+        return;
+      }
+
+      if (field.type === 'radio') {
+        if (field.checked) snapshot[field.name] = field.value;
+        return;
+      }
+
+      if (String(field.type || '').toLowerCase() === 'password') {
+        snapshot[field.name] = field.value.length > 0;
+        return;
+      }
+
+      snapshot[field.name] = field.value;
+    });
+
+    return snapshot;
+  }
+
+  function formHasUserEditableFields(form) {
+    return Array.from(form.elements).some(isUnsavedTrackableField);
+  }
+
+  function isTrackedForm(form) {
+    if (!(form instanceof HTMLFormElement)) return false;
+    if (form.matches('.logout-form')) return false;
+    if (form.dataset.trackUnsaved === 'false') return false;
+    if (normalizeMethod(form) !== 'post') return false;
+    return formHasUserEditableFields(form);
+  }
+
+  function formSnapshot(form) {
+    return JSON.stringify(collectUnsavedSnapshot(form));
   }
 
   function saveFormDraft(form) {
@@ -173,12 +225,128 @@
   window.showPageLoading = showPageLoading;
   window.saveCurrentFormDraft = saveFormDraft;
 
+  function genericFieldMessage(field) {
+    if (field.validity.valueMissing) return 'Este campo es obligatorio.';
+    if (field.validity.typeMismatch) return 'Revisa el formato ingresado.';
+    if (field.validity.patternMismatch) return 'El formato ingresado no es válido.';
+    if (field.validity.tooShort) return `Ingresa al menos ${field.minLength} caracteres.`;
+    if (field.validity.rangeUnderflow) return `El valor mínimo permitido es ${field.min}.`;
+    if (field.validity.rangeOverflow) return `El valor máximo permitido es ${field.max}.`;
+    return '';
+  }
+
+  function ensureFieldMessage(form, field) {
+    if (!field.id) return null;
+    let target = form.querySelector(`.field-message[data-for="${field.id}"]`);
+    if (target) return target;
+
+    const group = field.closest('.form-group');
+    if (!group) return null;
+    target = document.createElement('small');
+    target.className = 'field-message';
+    target.dataset.for = field.id;
+    group.appendChild(target);
+    return target;
+  }
+
+  function validateGenericField(form, field) {
+    if (field.disabled || field.type === 'hidden' || field.dataset.validate) return field.checkValidity();
+    const message = genericFieldMessage(field);
+    const target = ensureFieldMessage(form, field);
+    field.classList.toggle('field-error', Boolean(message));
+    field.setAttribute('aria-invalid', message ? 'true' : 'false');
+
+    if (target) {
+      target.textContent = message;
+      target.classList.toggle('is-visible', Boolean(message));
+    }
+
+    return !message;
+  }
+
+  function prepareProgressiveSubmit(form) {
+    if (normalizeMethod(form) !== 'post' || form.matches('.logout-form') || form.dataset.progressiveSubmit === 'false') return;
+    const submitButtons = Array.from(form.querySelectorAll('button[type="submit"], input[type="submit"]'));
+    if (!submitButtons.length) return;
+    const requiredFields = Array.from(form.querySelectorAll('[required]'));
+    const requiredCheckboxName = form.dataset.requiredCheckboxName || '';
+    const requiredCheckboxes = requiredCheckboxName
+      ? Array.from(form.querySelectorAll(`input[type="checkbox"][name="${requiredCheckboxName}"]`))
+      : [];
+
+    submitButtons.forEach(button => {
+      button.dataset.enabledTitle = button.getAttribute('title') || '';
+    });
+
+    const updateState = () => {
+      const fieldsComplete = requiredFields.every(field => field.disabled || field.checkValidity());
+      const checkboxGroupComplete = requiredCheckboxes.length === 0
+        || requiredCheckboxes.some(field => !field.disabled && field.checked);
+      const complete = fieldsComplete && checkboxGroupComplete;
+      const hasVisibleErrors = Boolean(form.querySelector('.field-error'));
+      const enabled = complete && !hasVisibleErrors;
+
+      submitButtons.forEach(button => {
+        button.disabled = !enabled;
+        button.setAttribute('aria-disabled', enabled ? 'false' : 'true');
+        if (!enabled) button.title = 'Completa correctamente los campos obligatorios para continuar.';
+        else if (button.dataset.enabledTitle) button.title = button.dataset.enabledTitle;
+        else button.removeAttribute('title');
+      });
+    };
+
+    requiredFields.forEach(field => {
+      let touched = false;
+      field.addEventListener('blur', () => {
+        touched = true;
+        validateGenericField(form, field);
+        updateState();
+      });
+      field.addEventListener('input', () => {
+        if (touched || field.classList.contains('field-error')) validateGenericField(form, field);
+        window.setTimeout(updateState, 0);
+      });
+      field.addEventListener('change', () => {
+        if (touched || field.classList.contains('field-error')) validateGenericField(form, field);
+        window.setTimeout(updateState, 0);
+      });
+    });
+
+    requiredCheckboxes.forEach(field => {
+      field.addEventListener('change', () => window.setTimeout(updateState, 0));
+    });
+
+    form.addEventListener('submit', event => {
+      const invalid = requiredFields.find(field => !field.disabled && !validateGenericField(form, field));
+      if (invalid) {
+        event.preventDefault();
+        invalid.focus();
+      }
+      updateState();
+    });
+
+    window.setTimeout(updateState, 0);
+  }
+  window.hasUnsavedCriticalChanges = function hasUnsavedCriticalChanges() {
+    return Array.from(document.querySelectorAll('form')).some(form => {
+      if (!isTrackedForm(form)) return false;
+      const initialSnapshot = initialFormSnapshots.get(form);
+      if (initialSnapshot == null) return false;
+      return formSnapshot(form) !== initialSnapshot;
+    });
+  };
+
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('form').forEach(form => {
       restoreFormDraft(form);
 
+      if (isTrackedForm(form)) {
+        initialFormSnapshots.set(form, formSnapshot(form));
+      }
+
       form.addEventListener('input', () => saveFormDraft(form));
       form.addEventListener('change', () => saveFormDraft(form));
+      prepareProgressiveSubmit(form);
     });
   });
 

@@ -1,5 +1,6 @@
 (() => {
-  const LETTERS_PATTERN = /^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$/;
+  const LETTERS_PATTERN = /^[\p{L} ]+$/u;
+  const NON_LETTERS_PATTERN = /[^\p{L} ]/gu;
 
   function normalizeSpaces(value) {
     return value.replace(/\s{2,}/g, ' ').trimStart();
@@ -28,7 +29,7 @@
     const type = field.dataset.validate;
 
     if (type === 'personal-name') {
-      field.value = normalizeSpaces(field.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ ]/g, ''));
+      field.value = normalizeSpaces(field.value.replace(NON_LETTERS_PATTERN, ''));
     }
 
     if (type === 'dni') {
