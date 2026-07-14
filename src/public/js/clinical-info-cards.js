@@ -47,8 +47,8 @@
     registro: ['bi-journal-check', 'neutral'],
     estado: ['bi-check2-circle', 'success'],
     'estado de registro': ['bi-check2-circle', 'success'],
-    medico: ['bi-stethoscope', 'clinical'],
-    doctor: ['bi-stethoscope', 'clinical'],
+    medico: ['doctor-custom', 'clinical'],
+    doctor: ['doctor-custom', 'clinical'],
     especialidad: ['bi-hospital', 'clinical'],
     motivo: ['bi-chat-left-text', 'neutral'],
     'motivo de consulta': ['bi-chat-left-text', 'neutral'],
@@ -82,7 +82,8 @@
     [['edad', 'sexo', 'correo', 'telefono', 'direccion'], 'bi-info-circle', 'neutral'],
     [['fecha', 'hora', 'registro'], 'bi-calendar3', 'primary'],
     [['estado'], 'bi-check2-circle', 'success'],
-    [['medico', 'doctor', 'especialidad'], 'bi-stethoscope', 'clinical'],
+    [['medico', 'doctor'], 'doctor-custom', 'clinical'],
+    [['especialidad'], 'bi-hospital', 'clinical'],
     [['motivo', 'observacion'], 'bi-chat-left-text', 'neutral'],
     [['sintoma', 'enfermedad', 'frecuencia'], 'bi-heart-pulse', 'clinical'],
     [['alergia'], 'bi-shield-exclamation', 'danger'],
@@ -118,6 +119,17 @@
   }
 
   function createIcon(iconData) {
+    if (iconData.icon === 'doctor-custom') {
+      const icon = document.createElement('img');
+      icon.className = 'clinical-info-icon clinical-info-icon-img';
+      icon.dataset.clinicalTone = iconData.tone || 'clinical';
+      icon.src = '/img/clinical-icons/asistencia-medica.png';
+      icon.alt = '';
+      icon.decoding = 'async';
+      icon.setAttribute('aria-hidden', 'true');
+      return icon;
+    }
+
     const icon = document.createElement('i');
     icon.className = `bi ${iconData.icon} clinical-info-icon`;
     icon.dataset.clinicalTone = iconData.tone || 'primary';

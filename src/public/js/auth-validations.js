@@ -1,9 +1,12 @@
 (() => {
   const LETTERS_PATTERN = /^[\p{L} ]+$/u;
-  const NON_LETTERS_PATTERN = /[^\p{L} ]/gu;
 
   function normalizeSpaces(value) {
     return value.replace(/\s{2,}/g, ' ').trimStart();
+  }
+
+  function keepPersonalName(value) {
+    return normalizeSpaces(value.replace(/[^\p{L} ]/gu, ''));
   }
 
   function formatPhone(value) {
@@ -29,7 +32,7 @@
     const type = field.dataset.validate;
 
     if (type === 'personal-name') {
-      field.value = normalizeSpaces(field.value.replace(NON_LETTERS_PATTERN, ''));
+      field.value = keepPersonalName(field.value);
     }
 
     if (type === 'dni') {
@@ -114,6 +117,33 @@
     return form.querySelector(`.field-message[data-for="${field.id}"]`);
   }
 
+  function passwordScore(value) {
+    return [
+      value.length >= 8,
+      /[A-Z]/.test(value),
+      /[a-z]/.test(value),
+      /\d/.test(value),
+      /[^A-Za-z0-9]/.test(value)
+    ].filter(Boolean).length;
+  }
+
+  function updatePasswordStrength(field) {
+    if (!field || !field.id || field.dataset.validate !== 'strong-password') return;
+    const form = field.form;
+    if (!form) return;
+
+    const strengthBox = form.querySelector(`.password-strength[data-password-strength-for="${field.id}"]`);
+    if (!strengthBox) return;
+
+    const score = passwordScore(field.value);
+    const labels = ['sin evaluar', 'muy d\u00e9bil', 'd\u00e9bil', 'media', 'buena', 'fuerte'];
+    const state = score >= 5 ? 'strong' : score >= 4 ? 'good' : score >= 3 ? 'medium' : 'weak';
+    const label = field.value ? labels[score] : labels[0];
+
+    strengthBox.dataset.strength = field.value ? state : 'empty';
+    strengthBox.querySelector('p').textContent = `Seguridad: ${label}`;
+  }
+
   function validateField(field) {
     const form = field.form;
     if (!form || field.type === 'hidden') return true;
@@ -130,6 +160,8 @@
       target.classList.toggle('is-visible', Boolean(message));
     }
 
+    updatePasswordStrength(field);
+
     return !message;
   }
 
@@ -140,6 +172,7 @@
 
     form.querySelectorAll('[data-validate]').forEach(field => {
       sanitize(field);
+      updatePasswordStrength(field);
       field.addEventListener('input', () => validateField(field));
       field.addEventListener('change', () => validateField(field));
     });

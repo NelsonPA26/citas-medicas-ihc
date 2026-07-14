@@ -65,6 +65,18 @@ function textoTriajeValido(value, required = false, maxLength = 800) {
     && /^[\p{L}0-9 .,;:()/-]+$/u.test(texto);
 }
 
+function limpiarFiltroTexto(value, maxLength = 80) {
+  return String(value || '')
+    .trim()
+    .replace(/\s{2,}/g, ' ')
+    .replace(/[^\p{L}0-9 .,;:()/-]/gu, '')
+    .slice(0, maxLength);
+}
+
+function fechaFiltroValida(value) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(String(value || ''));
+}
+
 function presionValida(value) {
   const match = String(value || '').trim().match(/^(\d{2,3})\/(\d{2,3})$/);
   if (!match) return false;
@@ -138,6 +150,34 @@ exports.ayuda = (req, res) => {
 
 exports.triajePendiente = async (req, res) => {
   try {
+    const filters = {
+      q: limpiarFiltroTexto(req.query.q, 100),
+      fecha: fechaFiltroValida(req.query.fecha) ? req.query.fecha : ''
+    };
+
+    const where = [
+      "c.estado = 'pendiente'",
+      't.id_triaje IS NULL'
+    ];
+    const params = [];
+
+    if (filters.q) {
+      const search = `%${filters.q}%`;
+      where.push(`(
+        CONCAT_WS(' ', per_paciente.nombres, per_paciente.apellido_paterno, per_paciente.apellido_materno) LIKE ?
+        OR per_paciente.dni LIKE ?
+        OR CONCAT_WS(' ', per_medico.nombres, per_medico.apellido_paterno) LIKE ?
+        OR med.especialidad LIKE ?
+        OR c.motivo LIKE ?
+      )`);
+      params.push(search, search, search, search, search);
+    }
+
+    if (filters.fecha) {
+      where.push('c.fecha = ?');
+      params.push(filters.fecha);
+    }
+
     const [citas] = await db.query(
       `
       SELECT 
@@ -173,16 +213,18 @@ exports.triajePendiente = async (req, res) => {
       INNER JOIN persona per_medico ON med.id_persona = per_medico.id_persona
       LEFT JOIN antecedente ant ON pac.id_paciente = ant.id_paciente
       LEFT JOIN triaje t ON c.id_cita = t.id_cita
-      WHERE c.estado = 'pendiente'
-      AND t.id_triaje IS NULL
+      WHERE ${where.join(' AND ')}
       ORDER BY c.fecha ASC, c.hora ASC
-      `
+      `,
+      params
     );
 
     res.render('enfermera/triaje-pendiente', {
       title: 'Triaje pendiente',
       layout: 'layouts/dashboard',
-      citas
+      citas,
+      filters,
+      hasActiveFilters: Boolean(filters.q || filters.fecha)
     });
   } catch (error) {
     console.error(error);

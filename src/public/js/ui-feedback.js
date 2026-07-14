@@ -117,6 +117,34 @@
     }
   }
 
+  function captureVisibleFieldErrors(form) {
+    return Array.from(form.querySelectorAll('.field-message[data-for].is-visible'))
+      .map(message => {
+        const field = form.querySelector(`#${CSS.escape(message.dataset.for)}`);
+        if (!field) return null;
+
+        return {
+          field,
+          message,
+          text: message.textContent,
+          fieldError: field.classList.contains('field-error'),
+          ariaInvalid: field.getAttribute('aria-invalid')
+        };
+      })
+      .filter(Boolean);
+  }
+
+  function restoreVisibleFieldErrors(errors) {
+    errors.forEach(error => {
+      error.message.textContent = error.text;
+      error.message.classList.add('is-visible');
+      error.field.classList.toggle('field-error', error.fieldError);
+
+      if (error.ariaInvalid === null) error.field.removeAttribute('aria-invalid');
+      else error.field.setAttribute('aria-invalid', error.ariaInvalid);
+    });
+  }
+
   function restoreFormDraft(form) {
     const hasVisibleError = document.querySelector('.alert-error');
     if (!hasVisibleError || form.dataset.preserveDraft === 'false') return;
@@ -130,6 +158,8 @@
     }
 
     if (!draft || typeof draft !== 'object') return;
+
+    const preservedErrors = captureVisibleFieldErrors(form);
 
     Array.from(form.elements).forEach(field => {
       if (!isDraftableField(field)) return;
@@ -153,6 +183,8 @@
       field.dispatchEvent(new Event('input', { bubbles: true }));
       field.dispatchEvent(new Event('change', { bubbles: true }));
     });
+
+    restoreVisibleFieldErrors(preservedErrors);
   }
 
   function ensureLoadingLayer() {
@@ -289,9 +321,12 @@
       submitButtons.forEach(button => {
         button.disabled = !enabled;
         button.setAttribute('aria-disabled', enabled ? 'false' : 'true');
-        if (!enabled) button.title = 'Completa correctamente los campos obligatorios para continuar.';
-        else if (button.dataset.enabledTitle) button.title = button.dataset.enabledTitle;
-        else button.removeAttribute('title');
+        if (!enabled) {
+          button.removeAttribute('title');
+        } else {
+          if (button.dataset.enabledTitle) button.title = button.dataset.enabledTitle;
+          else button.removeAttribute('title');
+        }
       });
     };
 
@@ -327,6 +362,185 @@
 
     window.setTimeout(updateState, 0);
   }
+
+  function appendToken(value, token) {
+    const tokens = String(value || '').split(/\s+/).filter(Boolean);
+    if (!tokens.includes(token)) tokens.push(token);
+    return tokens.join(' ');
+  }
+
+  function ensureFieldDescriptions(root = document) {
+    root.querySelectorAll('.form-group').forEach((group, groupIndex) => {
+      const controls = Array.from(group.querySelectorAll('input, select, textarea'));
+      if (!controls.length) return;
+
+      const helpIds = Array.from(group.querySelectorAll('.form-help')).map((help, helpIndex) => {
+        if (!help.id) {
+          const baseId = controls[0].id || controls[0].name || `field-${groupIndex}`;
+          help.id = `${baseId}-help-${helpIndex + 1}`;
+        }
+        return help.id;
+      });
+
+      controls.forEach(control => {
+        if (control.required) control.setAttribute('aria-required', 'true');
+        if (!control.hasAttribute('aria-invalid')) control.setAttribute('aria-invalid', 'false');
+
+        helpIds.forEach(id => {
+          control.setAttribute('aria-describedby', appendToken(control.getAttribute('aria-describedby'), id));
+        });
+      });
+    });
+
+    root.querySelectorAll('.field-message[data-for]').forEach((message, index) => {
+      const field = document.getElementById(message.dataset.for);
+      if (!message.id) message.id = `${message.dataset.for || 'field'}-message-${index + 1}`;
+      message.setAttribute('aria-live', 'polite');
+
+      if (field) {
+        field.setAttribute('aria-describedby', appendToken(field.getAttribute('aria-describedby'), message.id));
+        if (!field.hasAttribute('aria-invalid')) field.setAttribute('aria-invalid', 'false');
+      }
+    });
+  }
+
+  function enhanceSystemMessages(root = document) {
+    root.querySelectorAll('.alert-error').forEach(alert => {
+      if (!alert.hasAttribute('role')) alert.setAttribute('role', 'alert');
+    });
+
+    root.querySelectorAll('.alert-success').forEach(alert => {
+      if (!alert.hasAttribute('role')) alert.setAttribute('role', 'status');
+      if (!alert.hasAttribute('aria-live')) alert.setAttribute('aria-live', 'polite');
+    });
+  }
+
+  function enhanceTables(root = document) {
+    root.querySelectorAll('table.data-table').forEach((table, index) => {
+      if (!table.querySelector('caption')) {
+        const title = document.querySelector('.dashboard-topbar h1, .auth-card h2, .module-header h2');
+        const caption = document.createElement('caption');
+        caption.className = 'visually-hidden';
+        caption.textContent = title
+          ? `Tabla de ${title.textContent.trim()}`
+          : `Tabla de resultados ${index + 1}`;
+        table.prepend(caption);
+      }
+
+      table.querySelectorAll('th a.sort-link').forEach(link => {
+        if (!link.title) link.title = `Ordenar por ${link.textContent.replace(/[↑↓]/g, '').trim()}`;
+      });
+    });
+  }
+
+  function enhanceDisabledLinks(root = document) {
+    root.querySelectorAll('a.disabled, .pagination-button.disabled').forEach(link => {
+      link.setAttribute('aria-disabled', 'true');
+      link.setAttribute('tabindex', '-1');
+      link.addEventListener('click', event => event.preventDefault());
+    });
+  }
+
+  function getFocusableElements(container) {
+    return Array.from(container.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])'
+    )).filter(element => {
+      const style = window.getComputedStyle(element);
+      return style.display !== 'none' && style.visibility !== 'hidden';
+    });
+  }
+
+  function closeModal(modal) {
+    const closeButton = modal.querySelector('.modal-close, [data-modal-close], .btn-light[id^="close"]');
+    if (closeButton) {
+      closeButton.click();
+      return;
+    }
+
+    modal.classList.add('hidden');
+  }
+
+  function prepareAccessibleModal(modal) {
+    const dialog = modal.matches('[role="dialog"]') ? modal : modal.querySelector('.confirm-modal, [role="dialog"]') || modal;
+    const title = dialog.querySelector('h1, h2, h3, h4');
+    const description = dialog.querySelector('p, .confirm-modal-note');
+
+    if (!modal.hasAttribute('role')) modal.setAttribute('role', 'dialog');
+    if (!modal.hasAttribute('aria-modal')) modal.setAttribute('aria-modal', 'true');
+    if (!modal.hasAttribute('tabindex')) modal.setAttribute('tabindex', '-1');
+
+    if (title) {
+      if (!title.id) title.id = `${modal.id || 'modal'}-title`;
+      if (!modal.hasAttribute('aria-labelledby')) modal.setAttribute('aria-labelledby', title.id);
+    }
+
+    if (description) {
+      if (!description.id) description.id = `${modal.id || 'modal'}-description`;
+      if (!modal.hasAttribute('aria-describedby')) modal.setAttribute('aria-describedby', description.id);
+    }
+
+    modal.addEventListener('keydown', event => {
+      if (modal.classList.contains('hidden')) return;
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeModal(modal);
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+
+      const focusable = getFocusableElements(modal);
+      if (!focusable.length) {
+        event.preventDefault();
+        modal.focus();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+
+    const observer = new MutationObserver(() => {
+      const isOpen = !modal.classList.contains('hidden');
+
+      if (isOpen) {
+        const activeElement = document.activeElement;
+        modal.dataset.previousFocus = activeElement && activeElement.id && !modal.contains(activeElement)
+          ? activeElement.id
+          : '';
+        window.setTimeout(() => {
+          if (modal.contains(document.activeElement)) return;
+          const focusable = getFocusableElements(modal);
+          (focusable[0] || modal).focus();
+        }, 0);
+        return;
+      }
+
+      const previousFocus = modal.dataset.previousFocus ? document.getElementById(modal.dataset.previousFocus) : null;
+      if (previousFocus && typeof previousFocus.focus === 'function') previousFocus.focus();
+      modal.dataset.previousFocus = '';
+    });
+
+    observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  function enhanceAccessibleStructure(root = document) {
+    ensureFieldDescriptions(root);
+    enhanceSystemMessages(root);
+    enhanceTables(root);
+    enhanceDisabledLinks(root);
+    root.querySelectorAll('.modal-overlay').forEach(prepareAccessibleModal);
+  }
+
   window.hasUnsavedCriticalChanges = function hasUnsavedCriticalChanges() {
     return Array.from(document.querySelectorAll('form')).some(form => {
       if (!isTrackedForm(form)) return false;
@@ -337,6 +551,8 @@
   };
 
   document.addEventListener('DOMContentLoaded', () => {
+    enhanceAccessibleStructure(document);
+
     document.querySelectorAll('form').forEach(form => {
       restoreFormDraft(form);
 

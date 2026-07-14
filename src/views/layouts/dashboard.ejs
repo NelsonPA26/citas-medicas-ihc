@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body class="dashboard-body">
+  <a class="skip-link" href="#contenido-principal">Saltar al contenido principal</a>
 
   <svg class="field-icon-sprite" aria-hidden="true" focusable="false">
     <symbol id="field-icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 4 4"></path></symbol>
@@ -184,12 +185,49 @@
 
     </nav>
 
+    <section class="accessibility-panel" aria-labelledby="accessibilityPanelTitle">
+      <h3 id="accessibilityPanelTitle">
+        <i class="bi bi-eye" aria-hidden="true"></i>
+        <span>Accesibilidad visual</span>
+      </h3>
+
+      <span class="accessibility-group-label">Tama&ntilde;o de letra</span>
+      <div class="accessibility-control-group" role="group" aria-label="Ampliadores de texto">
+        <button type="button" class="accessibility-scale-button" data-visual-scale="normal" aria-pressed="true" title="Restablecer tamaño normal">
+          <span class="accessibility-letter accessibility-letter-normal" aria-hidden="true">A</span>
+          <span class="visually-hidden">Tamaño normal</span>
+        </button>
+        <button type="button" class="accessibility-scale-button" data-visual-scale="large" aria-pressed="false" title="Ampliar texto">
+          <span class="accessibility-letter accessibility-letter-large" aria-hidden="true">A</span>
+          <span class="visually-hidden">Texto grande</span>
+        </button>
+        <button type="button" class="accessibility-scale-button" data-visual-scale="xlarge" aria-pressed="false" title="Ampliar texto al máximo">
+          <span class="accessibility-letter accessibility-letter-xlarge" aria-hidden="true">A</span>
+          <span class="visually-hidden">Texto al tamaño máximo</span>
+        </button>
+      </div>
+      <p class="accessibility-scale-status" id="visualScaleLabel">Normal</p>
+
+      <div class="accessibility-contrast-row">
+        <span>Alto contraste</span>
+        <button type="button" class="accessibility-contrast-toggle" data-visual-contrast aria-pressed="false" aria-checked="false" role="switch">
+          <span class="visually-hidden">Activar alto contraste</span>
+        </button>
+      </div>
+
+      <p class="visually-hidden" id="accessibilityStatus" aria-live="polite"></p>
+    </section>
+
     <form action="/logout" method="POST" class="logout-form">
       <button type="submit">Cerrar sesión</button>
     </form>
   </aside>
 
-  <main class="dashboard-main">
+  <div class="icon-attribution visually-hidden" aria-hidden="true">
+    Iconos dise&ntilde;ados por <a href="https://www.flaticon.es/autores/tuktukdesign" title="tuktukdesign">tuktukdesign</a> from <a href="https://www.flaticon.es/" title="Flaticon">www.flaticon.es</a>
+  </div>
+
+  <main class="dashboard-main" id="contenido-principal" tabindex="-1">
     <%
       const helpRoles = ['paciente', 'medico', 'enfermera', 'administrativo'];
       let roleTopbarHelp = null;
@@ -247,9 +285,9 @@
       <% if (isAdminRole && (showAdminRegisterUserAction || roleTopbarHelp)) { %>
         <div class="topbar-action-group admin-topbar-actions">
           <% if (roleTopbarHelp) { %>
-            <button type="button" class="topbar-help-trigger topbar-help-trigger-compact" data-help-topic="<%= roleTopbarHelp %>" aria-label="Ver ayuda de este módulo" title="Ayuda de esta pantalla">
+            <button type="button" class="topbar-help-trigger" data-help-topic="<%= roleTopbarHelp %>" aria-label="Ver ayuda de este módulo" title="Ayuda de esta pantalla">
               <span>?</span>
-              <strong class="visually-hidden">¿Necesitas ayuda?</strong>
+              <strong>Ayuda</strong>
             </button>
           <% } %>
 
@@ -261,7 +299,7 @@
                 title="Registrar usuario"
                 aria-label="Registrar usuario"
               >
-                <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/reg_usuario.png" alt="" aria-hidden="true">
+                <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/usuario_reg2.png" alt="" aria-hidden="true">
                 <span>Registrar usuario</span>
               </a>
             </div>
@@ -270,7 +308,7 @@
       <% } else if (roleTopbarHelp) { %>
         <button type="button" class="topbar-help-trigger" data-help-topic="<%= roleTopbarHelp %>" aria-label="Ver ayuda de este módulo">
           <span>?</span>
-          <strong>¿Necesitas ayuda?</strong>
+          <strong>Ayuda</strong>
         </button>
       <% } %>
     </header>
@@ -300,8 +338,8 @@
     </div>
   <% } %>
 
-  <div class="modal-overlay hidden" id="globalConfirmModal">
-    <div class="confirm-modal confirm-modal-polished" role="dialog" aria-modal="true" aria-labelledby="globalConfirmTitle" aria-describedby="globalConfirmText">
+  <div class="modal-overlay hidden" id="globalConfirmModal" role="dialog" aria-modal="true" aria-labelledby="globalConfirmTitle" aria-describedby="globalConfirmText">
+    <div class="confirm-modal confirm-modal-polished">
       <button type="button" class="modal-close confirm-modal-close" id="globalConfirmClose" aria-label="Cerrar confirmación">&times;</button>
       <div class="confirm-modal-icon" aria-hidden="true">
         <i class="bi bi-check2-circle" id="globalConfirmIcon"></i>
@@ -347,6 +385,7 @@
 
   <script src="/js/ui-feedback.js"></script>
   <script src="/js/clinical-info-cards.js"></script>
+  <script src="/js/accessibility-preferences.js"></script>
 
   <script>
   const pageModuleDescription = document.getElementById('pageModuleDescription');

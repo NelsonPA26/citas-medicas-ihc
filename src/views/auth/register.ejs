@@ -46,6 +46,10 @@
       <label for="password">Contraseña</label>
       <input type="password" id="password" name="password" minlength="8" data-validate="strong-password" autocomplete="new-password" required>
       <small class="form-help">Mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.</small>
+      <div class="password-strength auth-password-strength" data-password-strength-for="password" aria-live="polite">
+        <span></span>
+        <p>Seguridad: sin evaluar</p>
+      </div>
       <small class="field-message" data-for="password"></small>
     </div>
 

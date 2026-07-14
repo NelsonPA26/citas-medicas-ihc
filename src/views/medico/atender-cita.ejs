@@ -169,7 +169,7 @@
         <textarea id="observaciones" name="observaciones" placeholder="Opcional: observaciones adicionales para uso interno." maxlength="800" data-validate="clinical-text" data-min="5"><%= cita.consulta_observaciones || '' %></textarea>
         <span class="field-message" data-for="observaciones"></span>
 
-        <label class="checkbox-line">
+        <label class="checkbox-line checkbox-line-compact">
           <input type="checkbox" name="privada" value="1" <%= cita.privada === 1 ? 'checked' : '' %>>
           <span>Ocultar estas observaciones al paciente</span>
         </label>
@@ -199,14 +199,14 @@
     </div>
   </div>
 
-  <div class="modal-overlay hidden" id="confirmConsultaModal">
+  <div class="modal-overlay hidden" id="confirmConsultaModal" role="dialog" aria-modal="true" aria-labelledby="confirmConsultaTitle" aria-describedby="confirmConsultaText">
     <div class="confirm-modal confirm-modal-polished" data-confirm-action="confirmar">
       <button type="button" class="modal-close confirm-modal-close" id="closeConfirmModalTop" aria-label="Cerrar confirmación">&times;</button>
       <div class="confirm-modal-icon" aria-hidden="true">
         <i class="bi bi-clipboard2-check"></i>
       </div>
-      <h3>Confirmar consulta</h3>
-      <p>Antes de completar la atención, verifica que el diagnóstico y el tratamiento/receta correspondan a la evaluación médica realizada.</p>
+      <h3 id="confirmConsultaTitle">Confirmar consulta</h3>
+      <p id="confirmConsultaText">Antes de completar la atención, verifica que el diagnóstico y el tratamiento/receta correspondan a la evaluación médica realizada.</p>
 
       <small class="confirm-modal-note">La consulta quedará finalizada y visible en el historial clínico.</small>
 

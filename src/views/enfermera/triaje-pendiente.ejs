@@ -1,12 +1,59 @@
 <div class="module-card citas-card">
+  <% const triajeFilters = filters || { q: '', fecha: '' }; %>
   <div class="module-header">
     <p>Registra los signos vitales de los pacientes antes de su atención médica.</p>
   </div>
 
+  <form action="/enfermera/triaje-pendiente" method="GET" class="filter-card js-role-validated-form" novalidate>
+    <div class="filter-grid clinical-filter-row">
+      <div class="form-group">
+        <label for="q" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-search"></use></svg>
+          <span>Buscar</span>
+        </label>
+        <input
+          type="text"
+          id="q"
+          name="q"
+          value="<%= triajeFilters.q || '' %>"
+          placeholder="Paciente, DNI, medico o motivo"
+          maxlength="100"
+          data-validate="search"
+        >
+        <span class="field-message" data-for="q"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="fecha" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-calendar"></use></svg>
+          <span>Fecha</span>
+        </label>
+        <input type="date" id="fecha" name="fecha" value="<%= triajeFilters.fecha || '' %>">
+      </div>
+    </div>
+
+    <div class="filter-actions">
+      <a href="/enfermera/triaje-pendiente" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
+        <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/limpiar.png" alt="" aria-hidden="true">
+        <span>Limpiar</span>
+      </a>
+      <button type="submit" class="btn-dark icon-action" title="Filtrar triajes pendientes" aria-label="Filtrar triajes pendientes">
+        <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/filtrar.png" alt="" aria-hidden="true">
+        <span>Filtrar</span>
+      </button>
+    </div>
+  </form>
+
   <% if (citas.length === 0) { %>
     <div class="empty-state">
-      <h3>No hay citas pendientes de triaje</h3>
-      <p>Cuando existan citas pendientes, aparecerán en esta sección.</p>
+      <h3><%= hasActiveFilters ? 'No se encontraron citas pendientes' : 'No hay citas pendientes de triaje' %></h3>
+      <p><%= hasActiveFilters ? 'No hay resultados con los filtros seleccionados.' : 'Cuando existan citas pendientes, apareceran en esta seccion.' %></p>
+      <% if (hasActiveFilters) { %>
+        <a href="/enfermera/triaje-pendiente" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
+          <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/limpiar.png" alt="" aria-hidden="true">
+          <span>Limpiar</span>
+        </a>
+      <% } %>
     </div>
   <% } else { %>
 

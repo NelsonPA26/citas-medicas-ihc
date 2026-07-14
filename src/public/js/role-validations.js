@@ -3,10 +3,13 @@ window.RoleValidation = (() => {
   const SEARCH_PATTERN = /^[\p{L}0-9 .,;:()\/-]+$/u;
   const ADDRESS_PATTERN = /^[\p{L}0-9 .,#;:()\/-]+$/u;
   const PERSONAL_NAME_PATTERN = /^[\p{L} ]+$/u;
-  const NON_PERSONAL_NAME_PATTERN = /[^\p{L} ]/gu;
 
   function normalizeSpaces(value) {
     return value.replace(/\s{2,}/g, ' ');
+  }
+
+  function keepPersonalName(value) {
+    return normalizeSpaces(value.replace(/[^\p{L} ]/gu, ''));
   }
 
   function keepOneDecimal(value) {
@@ -46,7 +49,7 @@ window.RoleValidation = (() => {
     }
 
     if (type === 'personal-name') {
-      field.value = normalizeSpaces(field.value.replace(NON_PERSONAL_NAME_PATTERN, ''));
+      field.value = keepPersonalName(field.value);
     }
 
     if (type === 'digits' || type === 'dni') {

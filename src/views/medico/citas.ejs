@@ -1,12 +1,71 @@
 <div class="module-card citas-card">
+  <% const citasFilters = filters || { q: '', fecha: '', estado: '' }; %>
   <div class="module-header">
     <p>Atiende las citas que ya cuentan con triaje registrado.</p>
   </div>
 
+  <form action="/medico/citas" method="GET" class="filter-card js-role-validated-form" novalidate>
+    <div class="filter-grid clinical-filter-row">
+      <div class="form-group">
+        <label for="q" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-search"></use></svg>
+          <span>Buscar</span>
+        </label>
+        <input
+          type="text"
+          id="q"
+          name="q"
+          value="<%= citasFilters.q || '' %>"
+          placeholder="Paciente, DNI o motivo"
+          maxlength="100"
+          data-validate="search"
+        >
+        <span class="field-message" data-for="q"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="fecha" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-calendar"></use></svg>
+          <span>Fecha</span>
+        </label>
+        <input type="date" id="fecha" name="fecha" value="<%= citasFilters.fecha || '' %>">
+      </div>
+
+      <div class="form-group">
+        <label for="estado" class="field-label-with-icon">
+          <svg class="field-icon" aria-hidden="true"><use href="#field-icon-activity"></use></svg>
+          <span>Estado</span>
+        </label>
+        <select id="estado" name="estado">
+          <option value="">Todos</option>
+          <option value="triaje_registrado" <%= citasFilters.estado === 'triaje_registrado' ? 'selected' : '' %>>Con triaje</option>
+          <option value="en_consulta" <%= citasFilters.estado === 'en_consulta' ? 'selected' : '' %>>En consulta</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="filter-actions">
+      <a href="/medico/citas" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
+        <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/limpiar.png" alt="" aria-hidden="true">
+        <span>Limpiar</span>
+      </a>
+      <button type="submit" class="btn-dark icon-action" title="Filtrar citas" aria-label="Filtrar citas">
+        <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/filtrar.png" alt="" aria-hidden="true">
+        <span>Filtrar</span>
+      </button>
+    </div>
+  </form>
+
   <% if (citas.length === 0) { %>
     <div class="empty-state">
-      <h3>No tienes citas listas para atención</h3>
-      <p>Cuando enfermería registre el triaje de una cita asignada, aparecerá aquí.</p>
+      <h3><%= hasActiveFilters ? 'No se encontraron citas por atender' : 'No tienes citas listas para atencion' %></h3>
+      <p><%= hasActiveFilters ? 'No hay resultados con los filtros seleccionados.' : 'Cuando enfermeria registre el triaje de una cita asignada, aparecera aqui.' %></p>
+      <% if (hasActiveFilters) { %>
+        <a href="/medico/citas" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
+          <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/limpiar.png" alt="" aria-hidden="true">
+          <span>Limpiar</span>
+        </a>
+      <% } %>
     </div>
   <% } else { %>
 

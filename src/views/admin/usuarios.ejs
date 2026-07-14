@@ -77,7 +77,15 @@
     </div>
   <% } else { %>
     <div class="table-responsive">
-      <table class="data-table">
+      <table class="data-table admin-users-table">
+        <colgroup>
+          <col class="admin-users-col-user">
+          <col class="admin-users-col-dni">
+          <col class="admin-users-col-phone">
+          <col class="admin-users-col-role">
+          <col class="admin-users-col-status">
+          <col class="admin-users-col-actions">
+        </colgroup>
         <thead>
           <%
             const sortQuery = (column) => {
@@ -107,7 +115,7 @@
             <% const relatedCount = Number(usuario.citas_paciente || 0) + Number(usuario.citas_medico || 0) + Number(usuario.triajes_enfermera || 0) + Number(usuario.antecedentes || 0); %>
             <% const nombreCompleto = `${usuario.nombres} ${usuario.apellido_paterno} ${usuario.apellido_materno || ''}`.trim(); %>
             <tr>
-              <td>
+              <td class="admin-users-cell-user">
                 <strong><%= nombreCompleto %></strong>
                 <br>
               </td>
@@ -129,7 +137,7 @@
                 <% } %>
               </td>
 
-              <td>
+              <td class="admin-users-cell-actions">
                 <div class="table-actions">
                   <a
                     href="/admin/usuarios/<%= usuario.id_usuario %>/editar"
@@ -224,7 +232,7 @@
   <% } %>
 </div>
 
-<div class="modal-overlay hidden" id="userStatusModal">
+<div class="modal-overlay hidden" id="userStatusModal" role="dialog" aria-modal="true" aria-labelledby="userStatusTitle" aria-describedby="userStatusText">
   <div class="confirm-modal confirm-modal-polished" data-confirm-action="desactivar">
     <button type="button" class="modal-close confirm-modal-close" id="closeUserStatusModalTop" aria-label="Cerrar confirmación">&times;</button>
     <div class="confirm-modal-icon" aria-hidden="true">

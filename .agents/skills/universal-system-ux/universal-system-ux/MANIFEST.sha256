@@ -1,0 +1,15 @@
+7373aace46d1d7f2b1b101689e36a22efab09395bc79f3fab1e9d9b2392e0a4d  ./README.md
+d998fbf8fa8315b86b3050d901d65331083866234305f57f4b344dd6e91c702b  ./SKILL.md
+670be05da31f61a794a06f11bc1e3a516a00fe8382df269d87efa8e7fb568bc3  ./agents/openai.yaml
+6f5645a5869b270d27a8f46375002cc23bbc06245fcfb03c4c7976c470148e6e  ./assets/context-brief-template.md
+2a4887ba520a3c731c91ca722bc6a30556a6cd1716fecb2b7de0305fd740b6ab  ./assets/definition-of-done-template.md
+a75763923ed75468b54c1dc7892587970dd994a694f6f9f4347e053c755104db  ./assets/heuristic-finding-template.md
+1a8b808aded2e8aa4af4712bc32ce315a6383331680115649be5369b44a9b14e  ./assets/usability-test-plan-template.md
+bf3e826fabc68f26f34bcbd592ac6b57eec41cb91fc719cb575dc23b60a5dc18  ./references/00-source-coverage.md
+72b9d6919bf485b4702de95d30ace44ff30d60845fc7fdce0c7889cfd97bc039  ./references/01-context-and-task-analysis.md
+7fe081c35e9d463cc0121dd06c60198e44af140b1747df24288b561b922ba43c  ./references/02-human-factors-and-interface-design.md
+1119135302c34bbded2c1db851c615a8d7bbc8c6853e0067ce7229744fe15053  ./references/03-heuristic-audit-expanded.md
+20ac21a7f352f1acc8caf3171a4409cc8136676ab45d1d79057c6749e93a69ed  ./references/04-accessibility-wcag22.md
+2d3a703d6e3e7195efdde5f11b89f1293b034f064c000f73ecc51c03356a52bf  ./references/05-prototyping-and-evaluation.md
+ed027f82fb2d0e9f61af37439647a214f472255cd6900f79cd1db2f2ee52d644  ./references/06-component-patterns.md
+4aac08f74297628a77b4dd6822bc74042848f3a51f9f02272095ca2e586117e8  ./references/07-quality-gates.md

@@ -295,6 +295,17 @@
     }
   }
 
+  function appointmentDateMessage() {
+    if (!fechaInput.value) return '';
+    if (fechaInput.validity.rangeUnderflow) return 'Selecciona una fecha actual o futura.';
+
+    const fechaSeleccionada = new Date(`${fechaInput.value}T00:00:00`);
+    const dia = fechaSeleccionada.getDay();
+    if (dia === 0 || dia === 6) return 'Solo puedes reservar citas de lunes a viernes.';
+
+    return '';
+  }
+
   function updateStep1State(showDoctorMessage = false) {
     const hasSpecialty = Boolean(especialidadSelect.value);
     const hasDoctor = Boolean(medicoSelect.value);
@@ -316,12 +327,17 @@
 
   function updateStep2State() {
     const hasDate = Boolean(fechaInput.value);
+    const dateMessage = appointmentDateMessage();
     const hasHour = Boolean(horaSelect.value);
     const hasReason = motivoInput.value.trim().length >= 5;
 
+    if (dateMessage) {
+      setAppointmentFieldMessage(fechaInput, dateMessage);
+    }
+
     setNextButtonState(
       nextStep2,
-      hasDate && hasHour && hasReason,
+      hasDate && !dateMessage && hasHour && hasReason,
       'Completa fecha, hora y motivo para continuar.'
     );
   }

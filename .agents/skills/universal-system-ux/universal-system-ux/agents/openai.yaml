@@ -1,0 +1,7 @@
+interface:
+  display_name: "Universal System UX"
+  short_description: "Diseña y audita sistemas usables, accesibles y centrados en usuarios"
+  brand_color: "#2563EB"
+  default_prompt: "Aplica $universal-system-ux para diseñar, implementar o auditar esta interfaz."
+policy:
+  allow_implicit_invocation: true

@@ -30,6 +30,18 @@ function textoClinicoValido(value, min = 5, max = 800) {
   return /^[\p{L}0-9 .,;:()/%+\-\n]+$/u.test(value);
 }
 
+function limpiarFiltroTexto(value, maxLength = 80) {
+  return String(value || '')
+    .trim()
+    .replace(/\s{2,}/g, ' ')
+    .replace(/[^\p{L}0-9 .,;:()/-]/gu, '')
+    .slice(0, maxLength);
+}
+
+function fechaFiltroValida(value) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(String(value || ''));
+}
+
 exports.dashboard = async (req, res) => {
   try {
     const medico = await obtenerMedicoPorPersona(req.session.user.id_persona);
@@ -81,45 +93,82 @@ exports.citasDelDia = async (req, res) => {
       return res.redirect('/medico/dashboard');
     }
 
-   const [citas] = await db.query(
-  `
-  SELECT 
-    c.id_cita,
-    c.fecha,
-    TIME_FORMAT(c.hora, '%H:%i') AS hora,
-    c.motivo,
-    c.sintomas AS sintomas_paciente,
-    c.estado,
+    const estadoValido = ['triaje_registrado', 'en_consulta'].includes(req.query.estado)
+      ? req.query.estado
+      : '';
+    const filters = {
+      q: limpiarFiltroTexto(req.query.q, 100),
+      fecha: fechaFiltroValida(req.query.fecha) ? req.query.fecha : '',
+      estado: estadoValido
+    };
 
-    per_paciente.nombres AS paciente_nombres,
-    per_paciente.apellido_paterno AS paciente_apellido_paterno,
-    per_paciente.apellido_materno AS paciente_apellido_materno,
-    per_paciente.dni AS paciente_dni,
+    const where = [
+      'c.id_medico = ?',
+      "c.estado IN ('triaje_registrado', 'en_consulta')",
+      '(con.id_consulta IS NULL OR con.borrador = 1)'
+    ];
+    const params = [medico.id_medico];
 
-    t.id_triaje,
+    if (filters.q) {
+      const search = `%${filters.q}%`;
+      where.push(`(
+        CONCAT_WS(' ', per_paciente.nombres, per_paciente.apellido_paterno, per_paciente.apellido_materno) LIKE ?
+        OR per_paciente.dni LIKE ?
+        OR c.motivo LIKE ?
+      )`);
+      params.push(search, search, search);
+    }
 
-    con.id_consulta,
-    con.borrador
-  FROM cita c
-  INNER JOIN paciente pac ON c.id_paciente = pac.id_paciente
-  INNER JOIN persona per_paciente ON pac.id_persona = per_paciente.id_persona
-  INNER JOIN triaje t ON c.id_cita = t.id_cita
-  LEFT JOIN consulta con ON c.id_cita = con.id_cita
-  WHERE c.id_medico = ?
-  AND c.estado IN ('triaje_registrado', 'en_consulta')
-  AND (con.id_consulta IS NULL OR con.borrador = 1)
-  ORDER BY
-    CASE WHEN c.estado = 'en_consulta' OR con.borrador = 1 THEN 0 ELSE 1 END ASC,
-    c.fecha ASC,
-    c.hora ASC
-  `,
-  [medico.id_medico]
-);
+    if (filters.fecha) {
+      where.push('c.fecha = ?');
+      params.push(filters.fecha);
+    }
+
+    if (filters.estado === 'en_consulta') {
+      where.push("(c.estado = 'en_consulta' OR con.borrador = 1)");
+    } else if (filters.estado === 'triaje_registrado') {
+      where.push("c.estado = 'triaje_registrado' AND (con.id_consulta IS NULL OR con.borrador IS NULL OR con.borrador = 0)");
+    }
+
+    const [citas] = await db.query(
+      `
+      SELECT 
+        c.id_cita,
+        c.fecha,
+        TIME_FORMAT(c.hora, '%H:%i') AS hora,
+        c.motivo,
+        c.sintomas AS sintomas_paciente,
+        c.estado,
+
+        per_paciente.nombres AS paciente_nombres,
+        per_paciente.apellido_paterno AS paciente_apellido_paterno,
+        per_paciente.apellido_materno AS paciente_apellido_materno,
+        per_paciente.dni AS paciente_dni,
+
+        t.id_triaje,
+
+        con.id_consulta,
+        con.borrador
+      FROM cita c
+      INNER JOIN paciente pac ON c.id_paciente = pac.id_paciente
+      INNER JOIN persona per_paciente ON pac.id_persona = per_paciente.id_persona
+      INNER JOIN triaje t ON c.id_cita = t.id_cita
+      LEFT JOIN consulta con ON c.id_cita = con.id_cita
+      WHERE ${where.join(' AND ')}
+      ORDER BY
+        CASE WHEN c.estado = 'en_consulta' OR con.borrador = 1 THEN 0 ELSE 1 END ASC,
+        c.fecha ASC,
+        c.hora ASC
+      `,
+      params
+    );
 
     res.render('medico/citas', {
       title: 'Citas por atender',
       layout: 'layouts/dashboard',
-      citas
+      citas,
+      filters,
+      hasActiveFilters: Boolean(filters.q || filters.fecha || filters.estado)
     });
   } catch (error) {
     console.error(error);

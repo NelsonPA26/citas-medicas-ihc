@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body class="auth-body">
+  <a class="skip-link" href="#auth-content">Saltar al formulario</a>
 
   <main class="auth-page">
     <section class="auth-hero">
@@ -17,7 +18,7 @@
 
     <img src="/img/logo-unt.png" alt="Logo Universidad Nacional de Trujillo" class="login-logo-unt">
 
-    <section class="auth-content">
+    <section class="auth-content" id="auth-content" tabindex="-1">
       <%- body %>
     </section>
   </main>
