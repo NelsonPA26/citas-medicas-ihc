@@ -222,7 +222,7 @@
         <a href="<%= backUrlSeguro %>" class="btn-light">Volver</a>
       <% } else { %>
         <a
-          href="<%= esModoEdicion ? '/enfermera/triajes' : '/enfermera/triaje-pendiente' %>"
+          href="<%= backUrlSeguro %>"
           class="btn-light js-cancel-triaje"
          data-cancel-message="<%= esModoEdicion ? 'Si cancelas, se perderán los cambios no guardados del triaje.' : 'Si cancelas, no se guardará el triaje de esta cita.' %>"
           title="Cancelar"

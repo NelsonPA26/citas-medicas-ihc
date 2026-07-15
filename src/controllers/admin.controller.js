@@ -29,7 +29,7 @@ exports.dashboard = async (req, res) => {
       FROM usuario u
       INNER JOIN persona p ON u.id_persona = p.id_persona
       ORDER BY u.fecha_creacion DESC, u.id_usuario DESC
-      LIMIT 5
+      LIMIT 7
       `
     );
 
@@ -498,13 +498,14 @@ function usuarioVacio(rol = 'paciente') {
 
 exports.nuevoUsuario = (req, res) => {
   const rolInicial = ROLES_PERMITIDOS.includes(req.query.rol) ? req.query.rol : 'paciente';
+  const backUrl = req.query.returnTo === 'dashboard' ? '/admin/dashboard' : '/admin/usuarios';
 
   res.render('admin/usuario-form', {
     title: 'Registrar usuario',
     layout: 'layouts/dashboard',
     modo: 'crear',
     actionUrl: '/admin/usuarios/nuevo',
-    backUrl: '/admin/usuarios',
+    backUrl,
     usuario: usuarioVacio(rolInicial),
     isSelf: false
   });
@@ -513,6 +514,7 @@ exports.nuevoUsuario = (req, res) => {
 exports.formEditarUsuario = async (req, res) => {
   try {
     const usuario = await obtenerUsuarioGestion(req.params.id_usuario);
+    const backUrl = req.query.returnTo === 'dashboard' ? '/admin/dashboard' : '/admin/usuarios';
 
     if (!usuario) {
       req.session.error = 'El usuario seleccionado no existe o ya fue modificado. Actualiza la lista e inténtalo nuevamente.';
@@ -524,7 +526,7 @@ exports.formEditarUsuario = async (req, res) => {
       layout: 'layouts/dashboard',
       modo: 'editar',
       actionUrl: `/admin/usuarios/${usuario.id_usuario}/editar`,
-      backUrl: '/admin/usuarios',
+      backUrl,
       usuario,
       isSelf: Number(usuario.id_usuario) === Number(req.session.user.id_usuario)
     });
@@ -554,7 +556,7 @@ exports.usuarios = async (req, res) => {
     const orderColumn = sortColumns[sort];
     const orderDirection = direction.toUpperCase();
 
-    const limit = 6;
+    const limit = 4;
     const currentPage = Math.max(parseInt(req.query.page, 10) || 1, 1);
     const offset = (currentPage - 1) * limit;
 

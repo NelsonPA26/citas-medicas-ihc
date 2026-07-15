@@ -1,102 +1,103 @@
+<%
+  const citasActivas = Number(stats.activas || 0);
+  const nextLabel = proximaCita
+    ? `${new Date(proximaCita.fecha).toLocaleDateString('es-PE')} - ${proximaCita.hora}`
+    : 'No hay próximas disponibles';
 
+  function statusLabel(estado) {
+    if (estado === 'pendiente') return 'Pendiente';
+    if (estado === 'triaje_registrado') return 'Triaje registrado';
+    if (estado === 'en_consulta') return 'En consulta';
+    return 'Activa';
+  }
+%>
 
 <div class="dashboard-grid dashboard-grid-compact">
-  <div class="stat-card highlight-card">
-    <h3><i class="bi bi-calendar-event" aria-hidden="true"></i>Próxima cita</h3>
+  <article class="stat-card dashboard-stat-card highlight-card">
+    <div class="dashboard-stat-copy">
+      <h3>Citas activas</h3>
+      <p class="stat-number"><%= citasActivas %></p>
+      <p class="dashboard-stat-detail"><%= nextLabel %></p>
+    </div>
+    <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-calendar-event-fill"></i></span>
+  </article>
 
-    <% if (proximaCita) { %>
-      <p>
-        <strong><%= new Date(proximaCita.fecha).toLocaleDateString('es-PE') %> - <%= proximaCita.hora %></strong>
-      </p>
-      <p>
-        Dr(a). <%= proximaCita.medico_nombres %> <%= proximaCita.medico_apellido_paterno %>
-      </p>
-      <p><%= proximaCita.especialidad %></p>
-      <span class="status-badge status-<%= proximaCita.estado %>">
-        <% if (proximaCita.estado === 'pendiente') { %>
-          Pendiente
-        <% } else if (proximaCita.estado === 'triaje_registrado') { %>
-          Triaje registrado
-        <% } else if (proximaCita.estado === 'en_consulta') { %>
-          En consulta
-        <% } %>
-      </span>
-    <% } else { %>
-      <p>No tienes citas próximas registradas.</p>
-      <a href="/paciente/reservar-cita" class="card-link">Reservar cita</a>
-    <% } %>
-  </div>
+  <article class="stat-card dashboard-stat-card">
+    <div class="dashboard-stat-copy">
+      <h3>Citas pendientes</h3>
+      <p class="stat-number"><%= stats.pendientes || 0 %></p>
+      <p class="dashboard-stat-detail">Reservas por atender</p>
+    </div>
+    <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-hourglass-split"></i></span>
+  </article>
 
-  <div class="stat-card">
-    <h3><i class="bi bi-hourglass-split" aria-hidden="true"></i>Citas pendientes</h3>
-    <p class="stat-number"><%= stats.pendientes || 0 %></p>
-    <a href="/paciente/mis-citas" class="card-link">Revisar citas</a>
-  </div>
+  <article class="stat-card dashboard-stat-card">
+    <div class="dashboard-stat-copy">
+      <h3>Consultas completadas</h3>
+      <p class="stat-number"><%= stats.completadas || 0 %></p>
+      <p class="dashboard-stat-detail">Disponibles en historial</p>
+    </div>
+    <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-clipboard2-check-fill"></i></span>
+  </article>
 
-  <div class="stat-card">
-    <h3><i class="bi bi-clipboard2-check" aria-hidden="true"></i>Consultas completadas</h3>
-    <p class="stat-number"><%= stats.completadas || 0 %></p>
-    <a href="/paciente/historial" class="card-link">Ver historial</a>
-  </div>
-
-  <div class="stat-card">
-    <h3><i class="bi bi-calendar-x" aria-hidden="true"></i>Citas canceladas</h3>
-    <p class="stat-number"><%= stats.canceladas || 0 %></p>
-    <a href="/paciente/mis-citas" class="card-link">Ver registros</a>
-  </div>
+  <article class="stat-card dashboard-stat-card">
+    <div class="dashboard-stat-copy">
+      <h3>Citas canceladas</h3>
+      <p class="stat-number"><%= stats.canceladas || 0 %></p>
+      <p class="dashboard-stat-detail">Registros conservados</p>
+    </div>
+    <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-calendar-x-fill"></i></span>
+  </article>
 </div>
 
 <div class="dashboard-secondary-grid dashboard-secondary-grid-even">
-  <%
-    const totalCitas = Number(stats.pendientes || 0) + Number(stats.completadas || 0) + Number(stats.canceladas || 0);
-    const estadoActual = proximaCita ? (
-      proximaCita.estado === 'pendiente' ? 'Pendiente' :
-      proximaCita.estado === 'triaje_registrado' ? 'Triaje registrado' :
-      proximaCita.estado === 'en_consulta' ? 'En consulta' : 'Activa'
-    ) : 'Sin cita activa';
-  %>
-
-  <section class="dashboard-info-card" aria-labelledby="patientRouteTitle">
+  <section class="dashboard-info-card dashboard-record-card" aria-labelledby="patientNextTitle">
     <div class="dashboard-info-heading">
-      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-signpost-2"></i></span>
+      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-calendar-week"></i></span>
       <div>
-        <h3 id="patientRouteTitle">Resumen general</h3>
-        <p>Informacion agrupada sin repetir los accesos superiores.</p>
+        <h3 id="patientNextTitle">Próximas citas</h3>
+        <p>Resumen breve de tus atenciones programadas.</p>
       </div>
     </div>
 
-    <div class="dashboard-info-list">
-      <div class="dashboard-info-row dashboard-info-row-static">
-        <span><i class="bi bi-calendar3" aria-hidden="true"></i>Total de citas registradas</span>
-        <strong><%= totalCitas %></strong>
+    <% if (proximasCitas && proximasCitas.length > 0) { %>
+      <div class="dashboard-record-list">
+        <% proximasCitas.forEach(function(cita) { %>
+          <a class="dashboard-record-row" href="/paciente/mis-citas/<%= cita.id_cita %>/resumen?returnTo=dashboard">
+            <span class="dashboard-record-icon" aria-hidden="true"><i class="bi bi-calendar-event"></i></span>
+            <span class="dashboard-record-copy">
+              <strong><%= new Date(cita.fecha).toLocaleDateString('es-PE') %> - <%= cita.hora %></strong>
+              <small>Dr(a). <%= cita.medico_nombres %> <%= cita.medico_apellido_paterno %> · <%= cita.especialidad %></small>
+            </span>
+            <span class="status-badge status-<%= cita.estado %>"><%= statusLabel(cita.estado) %></span>
+          </a>
+        <% }) %>
       </div>
-      <div class="dashboard-info-row dashboard-info-row-static">
-        <span><i class="bi bi-activity" aria-hidden="true"></i>Seguimiento actual</span>
-        <strong><%= estadoActual %></strong>
-      </div>
-      <div class="dashboard-info-row dashboard-info-row-static">
-        <span><i class="bi bi-folder2-open" aria-hidden="true"></i>Historial clinico</span>
-        <strong><%= Number(stats.completadas || 0) > 0 ? 'Disponible' : 'Sin registros' %></strong>
-      </div>
-    </div>
+    <% } else { %>
+      <p class="clinical-empty-text">No hay citas próximas disponibles.</p>
+    <% } %>
   </section>
 
-  <section class="dashboard-info-card" aria-labelledby="patientStatusTitle">
+  <section class="dashboard-info-card" aria-labelledby="patientQuickTitle">
     <div class="dashboard-info-heading">
-      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-person-check"></i></span>
+      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-lightning-charge"></i></span>
       <div>
-        <h3 id="patientStatusTitle">Datos personales</h3>
-        <p>Accesos complementarios que no repiten las tarjetas de citas.</p>
+        <h3 id="patientQuickTitle">Accesos rápidos</h3>
+        <p>Acciones principales sin repetir formularios dentro del panel.</p>
       </div>
     </div>
 
     <div class="dashboard-info-list">
-      <a href="/paciente/antecedentes" class="dashboard-info-row">
-        <span><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>Antecedentes medicos</span>
+      <a href="/paciente/reservar-cita?returnTo=dashboard" class="dashboard-info-row">
+        <span><i class="bi bi-calendar-plus" aria-hidden="true"></i>Reservar cita</span>
         <i class="bi bi-chevron-right" aria-hidden="true"></i>
       </a>
-      <a href="/perfil" class="dashboard-info-row">
-        <span><i class="bi bi-person" aria-hidden="true"></i>Mi perfil</span>
+      <a href="/paciente/mis-citas?returnTo=dashboard" class="dashboard-info-row">
+        <span><i class="bi bi-calendar3" aria-hidden="true"></i>Mis citas</span>
+        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="/paciente/antecedentes?returnTo=dashboard" class="dashboard-info-row">
+        <span><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>Antecedentes médicos</span>
         <i class="bi bi-chevron-right" aria-hidden="true"></i>
       </a>
     </div>

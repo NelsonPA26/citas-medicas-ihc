@@ -314,6 +314,13 @@
     </header>
 
     <section class="dashboard-content">
+      <% if (typeof returnToDashboard !== 'undefined' && returnToDashboard && dashboardReturnUrl && currentPath !== dashboardReturnUrl) { %>
+        <a class="context-back-link" href="<%= dashboardReturnUrl %>">
+          <i class="bi bi-arrow-left" aria-hidden="true"></i>
+          <span>Volver al inicio</span>
+        </a>
+      <% } %>
+
       <%- body %>
     </section>
   </main>
@@ -434,7 +441,7 @@
     setTimeout(dismissToast, Number(alert.dataset.duration || 4500));
   });
 
-  const TABLE_PAGE_SIZE = 6;
+  const TABLE_PAGE_SIZE = 4;
   const COMPACT_CENTER_HEADERS = new Set([
     'accion',
     'acciones',

@@ -541,6 +541,37 @@
     root.querySelectorAll('.modal-overlay').forEach(prepareAccessibleModal);
   }
 
+  function openDatePickerFromArrow(event) {
+    const field = event.target;
+    if (!(field instanceof HTMLInputElement) || field.type !== 'date') return;
+    if (field.disabled || field.readOnly || typeof field.showPicker !== 'function') return;
+    if (event.button != null && event.button !== 0) return;
+    if (field.dataset.datePickerOpening === '1') return;
+
+    const rect = field.getBoundingClientRect();
+    const arrowArea = Math.min(48, Math.max(38, rect.width * 0.25));
+    const direction = window.getComputedStyle(field).direction;
+    const isArrowClick = direction === 'rtl'
+      ? event.clientX <= rect.left + arrowArea
+      : event.clientX >= rect.right - arrowArea;
+
+    if (!isArrowClick) return;
+
+    event.preventDefault();
+    field.focus({ preventScroll: true });
+
+    try {
+      field.dataset.datePickerOpening = '1';
+      field.showPicker();
+    } catch (error) {
+      field.click();
+    } finally {
+      window.setTimeout(() => {
+        delete field.dataset.datePickerOpening;
+      }, 0);
+    }
+  }
+
   window.hasUnsavedCriticalChanges = function hasUnsavedCriticalChanges() {
     return Array.from(document.querySelectorAll('form')).some(form => {
       if (!isTrackedForm(form)) return false;
@@ -565,6 +596,10 @@
       prepareProgressiveSubmit(form);
     });
   });
+
+  document.addEventListener('pointerdown', openDatePickerFromArrow, true);
+  document.addEventListener('mousedown', openDatePickerFromArrow, true);
+  document.addEventListener('click', openDatePickerFromArrow, true);
 
   document.addEventListener('submit', event => {
     const form = event.target;

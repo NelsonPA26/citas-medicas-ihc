@@ -182,7 +182,7 @@
     </div>
 
     <div class="form-actions">
-      <a href="/medico/citas" class="btn-light" title="Cancelar" aria-label="Cancelar">
+      <a href="<%= typeof backUrl !== 'undefined' ? backUrl : '/medico/citas' %>" class="btn-light" title="Cancelar" aria-label="Cancelar">
         <img class="action-metaphor" src="/img/action-metaphors/medico/consultas/cancelar.png" alt="" aria-hidden="true">
         <span>Cancelar</span>
       </a>

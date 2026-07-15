@@ -64,6 +64,8 @@ app.use((req, res, next) => {
   res.locals.success = req.session.success || null;
 
   res.locals.currentPath = req.path;
+  res.locals.returnToDashboard = req.query.returnTo === 'dashboard';
+  res.locals.dashboardReturnUrl = res.locals.user ? dashboardByRole(res.locals.user.rol) : '/login';
 
   delete req.session.error;
   delete req.session.errorField;

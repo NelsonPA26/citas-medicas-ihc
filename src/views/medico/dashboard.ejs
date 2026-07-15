@@ -1,72 +1,98 @@
+<%
+  const cargaActiva = Number(stats.listas_atencion || 0) + Number(stats.borradores || 0);
 
+  function statusLabel(estado) {
+    if (estado === 'triaje_registrado') return 'Con triaje';
+    if (estado === 'en_consulta') return 'En consulta';
+    return 'Lista';
+  }
+%>
 
 <div class="dashboard-grid dashboard-grid-compact">
-  <div class="stat-card highlight-card">
-    <h3><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>Citas listas para atención</h3>
-    <p class="stat-number"><%= stats.listas_atencion || 0 %></p>
-    <a href="/medico/citas" class="card-link">Ver citas</a>
-  </div>
+  <article class="stat-card dashboard-stat-card highlight-card">
+    <div class="dashboard-stat-copy">
+      <h3>Citas listas para atención</h3>
+      <p class="stat-number"><%= stats.listas_atencion || 0 %></p>
+      <p class="dashboard-stat-detail"><%= proximasCitas && proximasCitas.length ? 'Con pacientes en agenda' : 'No hay próximas disponibles' %></p>
+    </div>
+    <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-clipboard2-pulse-fill"></i></span>
+  </article>
 
-  <div class="stat-card">
-    <h3><i class="bi bi-pencil-square" aria-hidden="true"></i>Consultas en progreso</h3>
-    <p class="stat-number"><%= stats.borradores || 0 %></p>
-    <a href="/medico/citas" class="card-link">Continuar consultas</a>
-  </div>
+  <article class="stat-card dashboard-stat-card">
+    <div class="dashboard-stat-copy">
+      <h3>Consultas en progreso</h3>
+      <p class="stat-number"><%= stats.borradores || 0 %></p>
+      <p class="dashboard-stat-detail">Borradores por cerrar</p>
+    </div>
+    <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-pencil-square"></i></span>
+  </article>
 
-  <div class="stat-card">
-    <h3><i class="bi bi-clipboard2-check" aria-hidden="true"></i>Consultas completadas</h3>
-    <p class="stat-number"><%= stats.completadas || 0 %></p>
-    <a href="/medico/pacientes" class="card-link">Ver historiales</a>
-  </div>
+  <article class="stat-card dashboard-stat-card">
+    <div class="dashboard-stat-copy">
+      <h3>Consultas completadas</h3>
+      <p class="stat-number"><%= stats.completadas || 0 %></p>
+      <p class="dashboard-stat-detail">Atenciones finalizadas</p>
+    </div>
+    <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-clipboard2-check-fill"></i></span>
+  </article>
 
-  <div class="stat-card">
-    <h3><i class="bi bi-person-check" aria-hidden="true"></i>Pacientes atendidos</h3>
-    <p class="stat-number"><%= stats.pacientes_atendidos || 0 %></p>
-    <a href="/medico/pacientes" class="card-link">Ver pacientes</a>
-  </div>
+  <article class="stat-card dashboard-stat-card">
+    <div class="dashboard-stat-copy">
+      <h3>Pacientes atendidos</h3>
+      <p class="stat-number"><%= stats.pacientes_atendidos || 0 %></p>
+      <p class="dashboard-stat-detail">Historiales disponibles</p>
+    </div>
+    <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-person-check-fill"></i></span>
+  </article>
 </div>
 
 <div class="dashboard-secondary-grid dashboard-secondary-grid-even">
-  <%
-    const cargaActiva = Number(stats.listas_atencion || 0) + Number(stats.borradores || 0);
-  %>
-
-  <section class="dashboard-info-card" aria-labelledby="doctorPriorityTitle">
+  <section class="dashboard-info-card dashboard-record-card" aria-labelledby="doctorNextTitle">
     <div class="dashboard-info-heading">
-      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-clipboard2-pulse"></i></span>
+      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-stethoscope"></i></span>
       <div>
-        <h3 id="doctorPriorityTitle">Carga clinica</h3>
-        <p>Resumen operativo sin repetir los enlaces superiores.</p>
+        <h3 id="doctorNextTitle">Consultas por atender</h3>
+        <p>Pacientes listos para continuar atención médica.</p>
       </div>
     </div>
 
-    <div class="dashboard-info-list">
-      <div class="dashboard-info-row dashboard-info-row-static">
-        <span><i class="bi bi-activity" aria-hidden="true"></i>Carga activa</span>
-        <strong><%= cargaActiva %></strong>
+    <% if (proximasCitas && proximasCitas.length > 0) { %>
+      <div class="dashboard-record-list">
+        <% proximasCitas.forEach(function(cita) { %>
+          <a class="dashboard-record-row" href="/medico/citas/<%= cita.id_cita %>/atender?returnTo=dashboard">
+            <span class="dashboard-record-icon" aria-hidden="true"><i class="bi bi-person-vcard"></i></span>
+            <span class="dashboard-record-copy">
+              <strong><%= cita.paciente_nombres %> <%= cita.paciente_apellido_paterno %></strong>
+              <small><%= new Date(cita.fecha).toLocaleDateString('es-PE') %> - <%= cita.hora %> · DNI <%= cita.paciente_dni || 'No registrado' %></small>
+            </span>
+            <span class="status-badge status-<%= cita.estado %>"><%= statusLabel(cita.estado) %></span>
+          </a>
+        <% }) %>
       </div>
-      <div class="dashboard-info-row dashboard-info-row-static">
-        <span><i class="bi bi-pencil-square" aria-hidden="true"></i>Continuidad pendiente</span>
-        <strong><%= Number(stats.borradores || 0) > 0 ? 'Revisar' : 'Estable' %></strong>
-      </div>
-      <div class="dashboard-info-row dashboard-info-row-static">
-        <span><i class="bi bi-person-check" aria-hidden="true"></i>Cobertura de pacientes</span>
-        <strong><%= stats.pacientes_atendidos || 0 %></strong>
-      </div>
-    </div>
+    <% } else { %>
+      <p class="clinical-empty-text">No hay consultas disponibles para atender.</p>
+    <% } %>
   </section>
 
-  <section class="dashboard-info-card" aria-labelledby="doctorSummaryTitle">
+  <section class="dashboard-info-card" aria-labelledby="doctorQuickTitle">
     <div class="dashboard-info-heading">
-      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-bar-chart-line"></i></span>
+      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-lightning-charge"></i></span>
       <div>
-        <h3 id="doctorSummaryTitle">Acceso complementario</h3>
-        <p>Opciones que no duplican las tarjetas principales.</p>
+        <h3 id="doctorQuickTitle">Accesos rápidos</h3>
+        <p>Entradas breves a los módulos completos de atención.</p>
       </div>
     </div>
 
     <div class="dashboard-info-list">
-      <a href="/perfil" class="dashboard-info-row">
+      <a href="/medico/citas?returnTo=dashboard" class="dashboard-info-row">
+        <span><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>Citas por atender</span>
+        <strong><%= cargaActiva %></strong>
+      </a>
+      <a href="/medico/pacientes?returnTo=dashboard" class="dashboard-info-row">
+        <span><i class="bi bi-folder2-open" aria-hidden="true"></i>Pacientes</span>
+        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="/perfil?returnTo=dashboard" class="dashboard-info-row">
         <span><i class="bi bi-person" aria-hidden="true"></i>Mi perfil</span>
         <i class="bi bi-chevron-right" aria-hidden="true"></i>
       </a>

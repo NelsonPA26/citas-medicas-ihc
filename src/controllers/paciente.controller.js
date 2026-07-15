@@ -147,6 +147,7 @@ exports.dashboard = async (req, res) => {
     const [[proximaCita]] = await db.query(
       `
       SELECT 
+        c.id_cita,
         c.fecha,
         TIME_FORMAT(c.hora, '%H:%i') AS hora,
         c.motivo,
@@ -166,9 +167,33 @@ exports.dashboard = async (req, res) => {
       [paciente.id_paciente]
     );
 
+    const [proximasCitas] = await db.query(
+      `
+      SELECT
+        c.id_cita,
+        c.fecha,
+        TIME_FORMAT(c.hora, '%H:%i') AS hora,
+        c.motivo,
+        c.estado,
+        m.especialidad,
+        p.nombres AS medico_nombres,
+        p.apellido_paterno AS medico_apellido_paterno
+      FROM cita c
+      INNER JOIN medico m ON c.id_medico = m.id_medico
+      INNER JOIN persona p ON m.id_persona = p.id_persona
+      WHERE c.id_paciente = ?
+      AND c.estado IN ('pendiente', 'triaje_registrado', 'en_consulta')
+      AND c.fecha >= CURDATE()
+      ORDER BY c.fecha ASC, c.hora ASC
+      LIMIT 4
+      `,
+      [paciente.id_paciente]
+    );
+
     const [[stats]] = await db.query(
       `
       SELECT
+        SUM(CASE WHEN estado IN ('pendiente', 'triaje_registrado', 'en_consulta') THEN 1 ELSE 0 END) AS activas,
         SUM(CASE WHEN estado = 'pendiente' THEN 1 ELSE 0 END) AS pendientes,
         SUM(CASE WHEN estado = 'completada' THEN 1 ELSE 0 END) AS completadas,
         SUM(CASE WHEN estado = 'cancelada' THEN 1 ELSE 0 END) AS canceladas
@@ -182,6 +207,7 @@ exports.dashboard = async (req, res) => {
       title: 'Panel del Paciente',
       layout: 'layouts/dashboard',
       proximaCita,
+      proximasCitas,
       stats
     });
   } catch (error) {
@@ -742,10 +768,13 @@ exports.resumenCita = async (req, res) => {
       return res.redirect('/paciente/mis-citas');
     }
 
+    const backUrl = req.query.returnTo === 'dashboard' ? '/paciente/dashboard' : '/paciente/mis-citas';
+
     return res.render('paciente/resumen-cita', {
       title: 'Resumen de cita',
       layout: 'layouts/dashboard',
-      cita: rows[0]
+      cita: rows[0],
+      backUrl
     });
   } catch (error) {
     console.error(error);

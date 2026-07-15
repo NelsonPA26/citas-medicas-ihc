@@ -65,10 +65,36 @@ exports.dashboard = async (req, res) => {
       [medico.id_medico]
     );
 
+    const [proximasCitas] = await db.query(
+      `
+      SELECT
+        c.id_cita,
+        c.fecha,
+        TIME_FORMAT(c.hora, '%H:%i') AS hora,
+        c.motivo,
+        c.estado,
+        p.nombres AS paciente_nombres,
+        p.apellido_paterno AS paciente_apellido_paterno,
+        p.dni AS paciente_dni
+      FROM cita c
+      INNER JOIN paciente pac ON c.id_paciente = pac.id_paciente
+      INNER JOIN persona p ON pac.id_persona = p.id_persona
+      WHERE c.id_medico = ?
+        AND c.estado IN ('triaje_registrado', 'en_consulta')
+      ORDER BY
+        CASE WHEN c.fecha >= CURDATE() THEN 0 ELSE 1 END,
+        c.fecha ASC,
+        c.hora ASC
+      LIMIT 4
+      `,
+      [medico.id_medico]
+    );
+
     res.render('medico/dashboard', {
       title: 'Panel del Médico',
       layout: 'layouts/dashboard',
-      stats
+      stats,
+      proximasCitas
     });
   } catch (error) {
     console.error(error);
@@ -248,10 +274,13 @@ exports.showAtenderCita = async (req, res) => {
       return res.redirect('/medico/citas');
     }
 
+    const backUrl = req.query.returnTo === 'dashboard' ? '/medico/dashboard' : '/medico/citas';
+
     res.render('medico/atender-cita', {
       title: 'Atender cita',
       layout: 'layouts/dashboard',
-      cita: rows[0]
+      cita: rows[0],
+      backUrl
     });
   } catch (error) {
     console.error(error);

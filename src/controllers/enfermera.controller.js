@@ -129,10 +129,38 @@ exports.dashboard = async (req, res) => {
       [enfermera.id_enfermera, enfermera.id_enfermera, enfermera.id_enfermera]
     );
 
+    const [proximasCitas] = await db.query(
+      `
+      SELECT
+        c.id_cita,
+        c.fecha,
+        TIME_FORMAT(c.hora, '%H:%i') AS hora,
+        c.motivo,
+        p.nombres AS paciente_nombres,
+        p.apellido_paterno AS paciente_apellido_paterno,
+        p.dni AS paciente_dni,
+        pm.nombres AS medico_nombres,
+        pm.apellido_paterno AS medico_apellido_paterno,
+        m.especialidad
+      FROM cita c
+      INNER JOIN paciente pac ON c.id_paciente = pac.id_paciente
+      INNER JOIN persona p ON pac.id_persona = p.id_persona
+      INNER JOIN medico m ON c.id_medico = m.id_medico
+      INNER JOIN persona pm ON m.id_persona = pm.id_persona
+      WHERE c.estado = 'pendiente'
+      ORDER BY
+        CASE WHEN c.fecha >= CURDATE() THEN 0 ELSE 1 END,
+        c.fecha ASC,
+        c.hora ASC
+      LIMIT 4
+      `
+    );
+
     res.render('enfermera/dashboard', {
       title: 'Panel de Enfermería',
       layout: 'layouts/dashboard',
-      stats
+      stats,
+      proximasCitas
     });
   } catch (error) {
     console.error(error);
@@ -284,6 +312,8 @@ exports.showRegistrarTriaje = async (req, res) => {
       return res.redirect('/enfermera/triaje-pendiente');
     }
 
+    const backUrl = req.query.returnTo === 'dashboard' ? '/enfermera/dashboard' : '/enfermera/triaje-pendiente';
+
     res.render('enfermera/registrar-triaje', {
       title: 'Registrar triaje',
       layout: 'layouts/dashboard',
@@ -291,7 +321,8 @@ exports.showRegistrarTriaje = async (req, res) => {
       triaje: {},
       modoEdicion: false,
       sintomasTriaje: SINTOMAS_TRIAJE,
-      actionUrl: `/enfermera/triaje/${id_cita}/registrar`
+      actionUrl: `/enfermera/triaje/${id_cita}/registrar`,
+      backUrl
     });
   } catch (error) {
     console.error(error);

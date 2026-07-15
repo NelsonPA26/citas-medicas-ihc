@@ -1,31 +1,5 @@
-
-<div class="dashboard-grid dashboard-grid-compact">
-  <div class="stat-card highlight-card">
-    <h3><i class="bi bi-people" aria-hidden="true"></i>Usuarios registrados</h3>
-    <p class="stat-number"><%= stats.usuarios || 0 %></p>
-    <a href="/admin/usuarios" class="card-link">Gestionar usuarios</a>
-  </div>
-
-  <div class="stat-card">
-    <h3><i class="bi bi-calendar3" aria-hidden="true"></i>Citas registradas</h3>
-    <p class="stat-number"><%= stats.citas || 0 %></p>
-    <a href="/admin/citas" class="card-link">Ver citas</a>
-  </div>
-
-  <div class="stat-card">
-    <h3><i class="bi bi-hourglass-split" aria-hidden="true"></i>Citas pendientes</h3>
-    <p class="stat-number"><%= stats.citas_pendientes || 0 %></p>
-    <a href="/admin/citas?estado=pendiente" class="card-link">Revisar pendientes</a>
-  </div>
-
-  <div class="stat-card">
-    <h3><i class="bi bi-calendar-check" aria-hidden="true"></i>Citas completadas</h3>
-    <p class="stat-number"><%= stats.citas_completadas || 0 %></p>
-    <a href="/admin/citas?estado=completada" class="card-link">Ver completadas</a>
-  </div>
-</div>
-
 <%
+  const personalAsistencial = Number(stats.medicos || 0) + Number(stats.enfermeras || 0);
   const roleLabel = {
     paciente: 'Paciente',
     medico: 'Doctor',
@@ -45,74 +19,102 @@
   }
 %>
 
+<div class="dashboard-grid dashboard-grid-compact">
+  <article class="stat-card dashboard-stat-card highlight-card">
+    <div class="dashboard-stat-copy">
+      <h3>Usuarios registrados</h3>
+      <p class="stat-number"><%= stats.usuarios || 0 %></p>
+      <p class="dashboard-stat-detail"><%= personalAsistencial %> usuarios asistenciales</p>
+    </div>
+    <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-people-fill"></i></span>
+  </article>
+
+  <article class="stat-card dashboard-stat-card">
+    <div class="dashboard-stat-copy">
+      <h3>Citas registradas</h3>
+      <p class="stat-number"><%= stats.citas || 0 %></p>
+      <p class="dashboard-stat-detail"><%= stats.citas_pendientes || 0 %> pendientes</p>
+    </div>
+    <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-calendar3"></i></span>
+  </article>
+
+  <article class="stat-card dashboard-stat-card">
+    <div class="dashboard-stat-copy">
+      <h3>Citas pendientes</h3>
+      <p class="stat-number"><%= stats.citas_pendientes || 0 %></p>
+      <p class="dashboard-stat-detail">Requieren seguimiento</p>
+    </div>
+    <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-hourglass-split"></i></span>
+  </article>
+
+  <article class="stat-card dashboard-stat-card">
+    <div class="dashboard-stat-copy">
+      <h3>Citas completadas</h3>
+      <p class="stat-number"><%= stats.citas_completadas || 0 %></p>
+      <p class="dashboard-stat-detail">Atenciones cerradas</p>
+    </div>
+    <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-calendar-check-fill"></i></span>
+  </article>
+</div>
+
 <div class="dashboard-secondary-grid dashboard-secondary-grid-admin">
   <section class="admin-recent-users-card" aria-labelledby="recentUsersTitle">
     <div class="admin-recent-users-heading">
       <span class="admin-recent-users-icon" aria-hidden="true"><i class="bi bi-people"></i></span>
       <div>
         <h3 id="recentUsersTitle">Usuarios recientes</h3>
-        <p>Ultimos usuarios registrados en el sistema</p>
+        <p>Últimos registros creados en el sistema</p>
       </div>
     </div>
 
     <% if (recentUsers && recentUsers.length > 0) { %>
-      <div class="admin-recent-users-table" role="table" aria-label="Usuarios recientes">
-        <div class="admin-recent-users-row admin-recent-users-header" role="row">
-          <span role="columnheader">Nombre</span>
-          <span role="columnheader">Rol</span>
-          <span role="columnheader">Fecha de registro</span>
-          <span role="columnheader" class="visually-hidden">Abrir</span>
-        </div>
-
+      <div class="admin-recent-users-table admin-recent-users-list" aria-label="Usuarios recientes">
         <% recentUsers.forEach(function(usuario, index) { %>
-          <a class="admin-recent-users-row" href="/admin/usuarios/<%= usuario.id_usuario %>/editar" role="row">
-            <span class="admin-recent-user-name" role="cell">
+          <a class="admin-recent-users-row" href="/admin/usuarios/<%= usuario.id_usuario %>/editar?returnTo=dashboard">
+            <span class="admin-recent-user-name">
               <span class="admin-recent-avatar admin-recent-avatar-<%= index % 5 %>" aria-hidden="true"><%= userInitials(usuario) %></span>
-              <strong><%= usuario.nombres %> <%= usuario.apellido_paterno %> <%= usuario.apellido_materno || '' %></strong>
+              <span class="admin-recent-user-copy">
+                <strong><%= usuario.nombres %> <%= usuario.apellido_paterno %> <%= usuario.apellido_materno || '' %></strong>
+                <small><%= roleLabel[usuario.rol] || usuario.rol %></small>
+              </span>
             </span>
-            <span role="cell"><%= roleLabel[usuario.rol] || usuario.rol %></span>
-            <span role="cell"><%= formatRecentDate(usuario.fecha_creacion) %></span>
-            <span class="admin-recent-open" role="cell" aria-hidden="true"><i class="bi bi-chevron-right"></i></span>
+            <time class="admin-recent-date" datetime="<%= usuario.fecha_creacion ? new Date(usuario.fecha_creacion).toISOString().slice(0, 10) : '' %>"><%= formatRecentDate(usuario.fecha_creacion) %></time>
+            <span class="admin-recent-open" aria-hidden="true"><i class="bi bi-chevron-right"></i></span>
           </a>
         <% }) %>
       </div>
 
-      <a class="admin-recent-users-all" href="/admin/usuarios">
-        <span>Ver todos los usuarios</span>
+      <a class="admin-recent-users-all" href="/admin/usuarios?returnTo=dashboard">
+        <span>Ver gestión completa</span>
         <i class="bi bi-arrow-right" aria-hidden="true"></i>
       </a>
     <% } else { %>
-      <p class="clinical-empty-text">Aun no hay usuarios registrados para mostrar.</p>
+      <p class="clinical-empty-text">No hay usuarios recientes disponibles.</p>
     <% } %>
   </section>
 
-  <section class="dashboard-info-card" aria-labelledby="adminOpsTitle">
+  <section class="dashboard-info-card" aria-labelledby="adminQuickTitle">
     <div class="dashboard-info-heading">
-      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-shield-check"></i></span>
+      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-lightning-charge"></i></span>
       <div>
-        <h3 id="adminOpsTitle">Control operativo</h3>
-        <p>Resumen rapido para supervisar acceso y atencion.</p>
+        <h3 id="adminQuickTitle">Accesos rápidos</h3>
+        <p>Entradas directas a tareas frecuentes, sin duplicar formularios.</p>
       </div>
     </div>
 
     <div class="dashboard-info-list">
-      <a href="/admin/usuarios?rol=medico" class="dashboard-info-row">
-        <span><i class="bi bi-person-badge" aria-hidden="true"></i>Medicos registrados</span>
-        <strong><%= stats.medicos || 0 %></strong>
+      <a href="/admin/usuarios?returnTo=dashboard" class="dashboard-info-row">
+        <span><i class="bi bi-people" aria-hidden="true"></i>Usuarios</span>
+        <i class="bi bi-chevron-right" aria-hidden="true"></i>
       </a>
-      <a href="/admin/usuarios?rol=enfermera" class="dashboard-info-row">
-        <span><i class="bi bi-heart-pulse" aria-hidden="true"></i>Enfermeras registradas</span>
-        <strong><%= stats.enfermeras || 0 %></strong>
+      <a href="/admin/usuarios/nuevo?returnTo=dashboard" class="dashboard-info-row">
+        <span><i class="bi bi-person-plus" aria-hidden="true"></i>Registrar usuario</span>
+        <i class="bi bi-chevron-right" aria-hidden="true"></i>
       </a>
-      <div class="dashboard-info-row dashboard-info-row-static">
-        <span><i class="bi bi-person-gear" aria-hidden="true"></i>Personal asistencial</span>
-        <strong><%= Number(stats.medicos || 0) + Number(stats.enfermeras || 0) %></strong>
-      </div>
+      <a href="/admin/citas?returnTo=dashboard" class="dashboard-info-row">
+        <span><i class="bi bi-calendar3" aria-hidden="true"></i>Citas</span>
+        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+      </a>
     </div>
-
-    <a class="dashboard-info-link" href="/admin/citas">
-      <span>Supervisar agenda</span>
-      <i class="bi bi-arrow-right" aria-hidden="true"></i>
-    </a>
   </section>
 </div>
