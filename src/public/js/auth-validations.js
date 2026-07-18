@@ -56,6 +56,9 @@
     const type = field.dataset.validate;
     const value = field.value.trim();
 
+    if (field.required && !value && type === 'birth-date') {
+      return 'Completa la fecha de nacimiento.';
+    }
     if (field.required && !value) return 'Este campo es obligatorio.';
     if (!field.required && !value) return '';
 
@@ -90,7 +93,7 @@
     }
 
     if (type === 'login-identifier' && /\s/.test(value)) {
-      return 'El usuario o correo no debe contener espacios.';
+      return 'El correo institucional no debe contener espacios.';
     }
 
     if (type === 'strong-password') {
@@ -175,6 +178,7 @@
       updatePasswordStrength(field);
       field.addEventListener('input', () => validateField(field));
       field.addEventListener('change', () => validateField(field));
+      field.addEventListener('blur', () => validateField(field));
     });
 
     form.addEventListener('submit', event => {

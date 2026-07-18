@@ -1,7 +1,13 @@
+<%
+  const esAdmision = Boolean(esAdministrativoAdmision);
+  const rolesVisibles = rolesDisponibles || [];
+  const etiquetaGestion = esAdmision ? 'pacientes registrados' : 'usuarios registrados en el sistema';
+%>
+
 <div class="module-card usuarios-card">
   <div class="module-header module-header-row admin-users-header">
     <div class="module-header-copy">
-      <p>Administra datos, roles y acceso de los usuarios registrados en el sistema.</p>
+      <p>Administra datos y acceso de los <%= etiquetaGestion %>.</p>
     </div>
   </div>
 
@@ -20,7 +26,7 @@
           id="q"
           name="q"
           value="<%= filters.q || '' %>"
-          placeholder="Nombre, DNI o usuario"
+          placeholder="Nombre, DNI o correo institucional"
           maxlength="120"
           data-validate="search"
         >
@@ -32,13 +38,18 @@
           <svg class="field-icon" aria-hidden="true"><use href="#field-icon-user"></use></svg>
           <span>Rol</span>
         </label>
-        <select id="rol" name="rol">
-          <option value="">Todos</option>
-          <option value="paciente" <%= filters.rol === 'paciente' ? 'selected' : '' %>>Paciente</option>
-          <option value="medico" <%= filters.rol === 'medico' ? 'selected' : '' %>>Médico</option>
-          <option value="enfermera" <%= filters.rol === 'enfermera' ? 'selected' : '' %>>Enfermera</option>
-          <option value="administrativo" <%= filters.rol === 'administrativo' ? 'selected' : '' %>>Administrativo</option>
-        </select>
+        <% if (rolesVisibles.length === 1) { %>
+          <input type="hidden" name="rol" value="<%= rolesVisibles[0] %>">
+          <input type="text" value="Paciente" readonly>
+        <% } else { %>
+          <select id="rol" name="rol">
+            <option value="">Todos</option>
+            <% if (rolesVisibles.includes('paciente')) { %><option value="paciente" <%= filters.rol === 'paciente' ? 'selected' : '' %>>Paciente</option><% } %>
+            <% if (rolesVisibles.includes('medico')) { %><option value="medico" <%= filters.rol === 'medico' ? 'selected' : '' %>>Médico</option><% } %>
+            <% if (rolesVisibles.includes('enfermera')) { %><option value="enfermera" <%= filters.rol === 'enfermera' ? 'selected' : '' %>>Enfermera</option><% } %>
+            <% if (rolesVisibles.includes('administrativo')) { %><option value="administrativo" <%= filters.rol === 'administrativo' ? 'selected' : '' %>>Administrativo</option><% } %>
+          </select>
+        <% } %>
       </div>
 
       <div class="form-group">
@@ -127,6 +138,9 @@
                 <span class="role-badge role-<%= usuario.rol %>">
                   <%= usuario.rol %>
                 </span>
+                <% if (usuario.rol === 'administrativo') { %>
+                  <small class="user-access-level"><%= usuario.administrativo_nivel_acceso === 'principal' ? 'Administrador principal' : 'Administrativo operativo' %></small>
+                <% } %>
               </td>
 
               <td>
@@ -139,6 +153,10 @@
 
               <td class="admin-users-cell-actions">
                 <div class="table-actions">
+                  <% const canManageAdministrativeAccount = isPrincipalAdministrador || usuario.rol !== 'administrativo'; %>
+                  <% if (!canManageAdministrativeAccount) { %>
+                    <span class="text-muted user-action-note">Solo administrador principal</span>
+                  <% } else { %>
                   <a
                     href="/admin/usuarios/<%= usuario.id_usuario %>/editar"
                     class="btn-light btn-table-action icon-action"
@@ -185,6 +203,7 @@
                         </form>
                       <% } %>
                     <% } %>
+                  <% } %>
                 </div>
               </td>
             </tr>

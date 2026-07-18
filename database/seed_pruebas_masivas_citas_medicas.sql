@@ -7,6 +7,7 @@ USE citas_medicas_ihc;
 -- =========================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE sesion_usuario;
 TRUNCATE TABLE password_reset_token;
 TRUNCATE TABLE notificacion;
 TRUNCATE TABLE consulta;
@@ -18,6 +19,7 @@ TRUNCATE TABLE enfermera;
 TRUNCATE TABLE medico;
 TRUNCATE TABLE paciente;
 TRUNCATE TABLE usuario;
+TRUNCATE TABLE consentimiento_privacidad;
 TRUNCATE TABLE persona;
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -32,16 +34,24 @@ INSERT INTO persona (nombres, apellido_paterno, apellido_materno, dni, fecha_nac
 SET @admin01_persona := LAST_INSERT_ID();
 INSERT INTO usuario (id_persona, username, password_hash, rol, activo, debe_cambiar_password) VALUES (@admin01_persona, 'admin01', @HASH, 'administrativo', 1, 0);
 SET @admin01_usuario := LAST_INSERT_ID();
-INSERT INTO administrativo (id_persona, cargo, anexo) VALUES (@admin01_persona, 'Responsable de Bienestar Universitario', '101');
+INSERT INTO administrativo (id_persona, cargo, nivel_acceso) VALUES (@admin01_persona, 'Gestión de usuarios', 'principal');
 SET @admin01 := LAST_INSERT_ID();
 
 -- Usuario admin02 (administrativo)
 INSERT INTO persona (nombres, apellido_paterno, apellido_materno, dni, fecha_nacimiento, sexo, correo, telefono, direccion) VALUES ('Jorge Manuel', 'Campos', 'Vera', '45678902', '1986-04-19', 'Masculino', 'admin02@unitru.edu.pe', '954321099', 'Módulo de atención administrativa');
 SET @admin02_persona := LAST_INSERT_ID();
-INSERT INTO usuario (id_persona, username, password_hash, rol, activo, debe_cambiar_password) VALUES (@admin02_persona, 'admin02', @HASH, 'administrativo', 0, 0);
+INSERT INTO usuario (id_persona, username, password_hash, rol, activo, debe_cambiar_password) VALUES (@admin02_persona, 'admin02', @HASH, 'administrativo', 1, 0);
 SET @admin02_usuario := LAST_INSERT_ID();
-INSERT INTO administrativo (id_persona, cargo, anexo) VALUES (@admin02_persona, 'Apoyo administrativo', '102');
+INSERT INTO administrativo (id_persona, cargo, nivel_acceso) VALUES (@admin02_persona, 'Admisión', 'operativo');
 SET @admin02 := LAST_INSERT_ID();
+
+-- Usuario admin03 (administrativo operativo de gestion de usuarios)
+INSERT INTO persona (nombres, apellido_paterno, apellido_materno, dni, fecha_nacimiento, sexo, correo, telefono, direccion) VALUES ('Mariana Sofia', 'Paredes', 'Vega', '45678903', '1992-09-08', 'Femenino', 'admin03@unitru.edu.pe', '954321100', 'Oficina de Bienestar Universitario');
+SET @admin03_persona := LAST_INSERT_ID();
+INSERT INTO usuario (id_persona, username, password_hash, rol, activo, debe_cambiar_password) VALUES (@admin03_persona, 'admin03', @HASH, 'administrativo', 1, 0);
+SET @admin03_usuario := LAST_INSERT_ID();
+INSERT INTO administrativo (id_persona, cargo, nivel_acceso) VALUES (@admin03_persona, 'Gestión de usuarios', 'operativo');
+SET @admin03 := LAST_INSERT_ID();
 
 -- Usuario medico01 (medico)
 INSERT INTO persona (nombres, apellido_paterno, apellido_materno, dni, fecha_nacimiento, sexo, correo, telefono, direccion) VALUES ('Carlos Alberto', 'Gómez', 'Fernández', '23456789', '1980-03-15', 'Masculino', 'medico01@unitru.edu.pe', '976543210', 'Consultorio 1');
@@ -302,6 +312,11 @@ SET @pac20_usuario := LAST_INSERT_ID();
 INSERT INTO paciente (id_persona, codigo_estudiante, escuela, facultad, contexto_universitario) VALUES (@pac20_persona, '2019123020', 'Ingeniería Industrial', 'Ingeniería', 'Estudiante regular');
 SET @pac20 := LAST_INSERT_ID();
 INSERT INTO antecedente (id_paciente, alergias, enfermedades_previas, medicacion_actual, cirugias, antecedentes_familiares, observaciones) VALUES (@pac20, 'No refiere alergias conocidas.', 'Asma leve controlada.', 'Loratadina ocasional según síntomas alérgicos.', 'No registra cirugías previas.', 'Madre con diabetes mellitus tipo 2.', 'Antecedentes declarados por el paciente para pruebas del sistema.');
+
+-- El correo institucional es la única credencial visible de acceso.
+UPDATE usuario u
+INNER JOIN persona p ON p.id_persona = u.id_persona
+SET u.username = p.correo;
 
 -- cita01: paciente @pac01, médico @medico01, estado pendiente
 INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac01, @medico01, DATE_ADD(@SEMANA_SIG, INTERVAL 0 DAY), '09:00:00', 'Malestar general, Cansancio', 'Reserva pendiente para validación de triaje', 'pendiente');
@@ -579,6 +594,13 @@ SET @cita52 := LAST_INSERT_ID();
 -- cita53: paciente @pac15, médico @medico03, estado cancelada
 INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac15, @medico03, DATE_ADD(@SEMANA_SIG, INTERVAL 2 DAY), '13:00:00', 'Dolor abdominal', 'Cita cancelada para validar filtros y estados', 'cancelada');
 SET @cita53 := LAST_INSERT_ID();
+
+-- =========================================================
+-- CONSENTIMIENTO DE PRIVACIDAD PARA CUENTAS DE PACIENTE DE PRUEBA
+-- =========================================================
+INSERT INTO consentimiento_privacidad (id_persona, version_politica, finalidad)
+SELECT p.id_persona, '2026-07', 'Datos sinteticos de prueba para Bienestar UNT'
+FROM paciente p;
 
 -- =========================================================
 -- NOTIFICACIONES DE PRUEBA

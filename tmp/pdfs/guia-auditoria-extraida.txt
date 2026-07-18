@@ -1,0 +1,1815 @@
+
+
+===== PAGINA 1 =====
+GUIA PRACTICA DE AUDITORIA
+DE USABILIDAD, INTERFAZ Y ACCESIBILIDAD
+Lista de verificacion para sistemas web, moviles y de escritorio
+USABILIDAD FACTOR HUMANO ACCESIBILIDAD
+Proposito de la guia
+Permitir que un evaluador revise una interfaz de forma sistematica, registre evidencia, detecte problemas y determine si 
+el producto permite completar tareas con eficacia, eficiencia, seguridad, accesibilidad y satisfaccion.
+Sistema / proyecto
+Version evaluada
+Roles incluidos
+Evaluador(es)
+Fecha
+Sintesis de materiales de Interaccion Persona-Ordenador, usabilidad, factor humano, metaforas, diseno, evaluacion y 
+accesibilidad.
+Edicion 2026
+
+===== PAGINA 2 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 2
+Contenido de la guia
+Seccion Contenido
+1 Como utilizar esta guia
+2 Criterios de decision, evidencia y puntuacion
+3 Ficha de contexto: usuarios, tareas y entorno
+4 Auditoria rapida de los 10 principios de usabilidad
+5 Factor humano y modelos mentales
+6 Metaforas, iconos y lenguaje visual
+7 Diseno centrado en el usuario y estructura de la interfaz
+8 Accesibilidad: color, contraste, vision reducida y 
+ampliadores
+9 Metodo de evaluacion recomendado
+10 Plantilla para pruebas con usuarios y metricas
+11 Informe de hallazgos y decision final
+Anexo A Auditoria heuristica ampliada: 306 preguntas
+Anexo B Puertas de calidad y fuentes utilizadas
+
+===== PAGINA 3 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 3
+1. Como utilizar esta guia
+Esta guia no debe utilizarse como una lista mecanica ni como una certificacion automatica. La usabilidad depende de 
+los usuarios, sus objetivos y el contexto de uso. Una misma interfaz puede funcionar bien para un perfil y fallar para 
+otro.
+Regla principal
+No marque CUMPLE por intuicion. Cada respuesta debe apoyarse en evidencia: una captura, una ruta recorrida, una 
+comprobacion de codigo, una medicion, una prueba de teclado o la observacion de una persona usuaria.
+Paso Accion
+1 Defina el alcance: roles, modulos, dispositivos, navegadores 
+y flujos incluidos.
+2 Complete la ficha de contexto antes de revisar detalles 
+visuales.
+3 Recorra todas las tareas principales, alternativas y errores.
+4 Aplique la auditoria rapida y despues la auditoria ampliada 
+en los modulos de mayor riesgo.
+5 Realice las pruebas de accesibilidad manuales, no solo una 
+herramienta automatica.
+6 Valide con usuarios representativos mediante tareas y 
+pensamiento en voz alta.
+7 Registre, priorice, corrija y vuelva a evaluar los hallazgos.
+Estados de respuesta
+Estado Significado
+C - Cumple El criterio fue comprobado y existe evidencia suficiente.
+P - Parcial Se cumple en algunas vistas, estados o dispositivos, pero 
+no de forma completa.
+NC - No cumple Existe una barrera, inconsistencia o riesgo comprobado.
+NA - No aplica El criterio no corresponde al alcance. Debe justificarse.
+NV - No verificado No se pudo ejecutar la prueba. No equivale a cumple.
+
+===== PAGINA 4 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 4
+2. Criterios de decision, evidencia y puntuacion
+2.1 Severidad y frecuencia
+Severidad Interpretacion
+0 No es un problema.
+1 Cosmetico: no bloquea la tarea.
+2 Menor: causa friccion o errores recuperables.
+3 Mayor: dificulta seriamente una tarea importante.
+4 Critico: bloquea, excluye, causa perdida de datos, riesgo o 
+dano.
+Frecuencia
+Frecuencia Interpretacion
+0 No ocurre.
+1 Raro.
+2 Ocasional.
+3 Frecuente.
+4 Casi siempre o afecta a la mayoria.
+Prioridad
+Puede calcularse como severidad + frecuencia. Sin embargo, seguridad, privacidad, perdida de datos y barreras graves 
+de accesibilidad tienen prioridad aunque ocurran pocas veces.
+2.2 Puntuacion orientativa
+Asigne 2 puntos a C, 1 punto a P y 0 puntos a NC. Excluya NA y no asigne puntos a NV. El porcentaje es: puntos obtenidos 
+/ (2 x criterios aplicables) x 100.
+Resultado Interpretacion Condicion
+90-100 % Aprobacion condicionada Solo si no hay criterios criticos parciales, 
+no cumplidos o no verificados.
+75-89 % Cumplimiento parcial Requiere correcciones antes de declarar 
+la interfaz terminada.
+< 75 % No aprobado Existen problemas importantes o 
+cobertura insuficiente.
+Importante
+Un promedio alto no compensa un bloqueo critico. Para afirmar que un sistema cumple completamente, todas las tareas 
+esenciales y criterios criticos deben estar comprobados y sin incumplimientos.
+
+===== PAGINA 5 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 5
+3. Ficha de contexto: usuarios, tareas y entorno
+El diseno debe partir del usuario, las tareas y el escenario de uso. Complete esta seccion antes de juzgar si una 
+pantalla es correcta.
+ID Criterio de verificacion Estado Evidencia / observacion
+CTX-1 ¿Se identificaron todos los 
+roles que utilizan el sistema?
+CTX-2 ¿Se conocen sus objetivos 
+principales y las tareas que 
+realizan con mayor 
+frecuencia?
+CTX-3 ¿Se distinguieron tareas 
+frecuentes, criticas, 
+ocasionales e irreversibles?
+CTX-4 ¿Se conocen las habilidades 
+fisicas, sensoriales y 
+cognitivas relevantes?
+CTX-5 ¿Se consideraron personas 
+novatas, expertas, ocasionales 
+y con distinto conocimiento del 
+dominio?
+CTX-6 ¿Se usa el vocabulario real del 
+trabajo y no el de la base de 
+datos o del codigo?
+CTX-7 ¿Se conoce el dispositivo, 
+tamano de pantalla, navegador 
+y metodo de entrada?
+CTX-8 ¿Se consideraron iluminacion, 
+ruido, conectividad, presion de 
+tiempo y entorno social?
+CTX-9 ¿Se identificaron datos 
+sensibles, riesgos y 
+consecuencias de errores?
+CTX-10 ¿Se definieron criterios 
+observables de exito para 
+cada tarea?
+Plantilla de tarea
+Elemento Descripcion
+Actor / rol
+Objetivo de la persona
+Disparador
+Precondiciones
+Camino principal
+Alternativas
+Errores previsibles
+Recuperacion
+Resultado esperado
+Criterio de exito
+
+===== PAGINA 6 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 6
+4. Auditoria rapida de los 10 principios de usabilidad
+Esta primera pasada permite localizar los problemas mas importantes. Para una revision exhaustiva utilice el Anexo 
+A.
+1. Visibilidad del estado del sistema
+ID Criterio de verificacion Estado Evidencia / observacion
+H1-1 ¿Cada pantalla tiene un titulo 
+claro y muestra la ubicacion 
+actual?
+H1-2 ¿La opcion activa, el registro 
+seleccionado y los filtros 
+aplicados permanecen 
+visibles?
+H1-3 ¿Toda accion produce 
+retroalimentacion oportuna 
+cerca del resultado?
+H1-4 ¿Los procesos largos 
+muestran carga o progreso y 
+evitan dobles envios?
+H1-5 ¿Los estados pendiente, 
+completado, cancelado, 
+bloqueado o fallido son 
+inequívocos?
+H1-6 ¿El usuario sabe si un cambio 
+fue guardado, enviado, 
+publicado o solo almacenado 
+como borrador?
+2. Correspondencia con el mundo real
+ID Criterio de verificacion Estado Evidencia / observacion
+H2-1 ¿La interfaz utiliza palabras y 
+conceptos familiares para el 
+usuario?
+H2-2 ¿Las acciones siguen el orden 
+natural de la tarea?
+H2-3 ¿Fechas, horas, monedas, 
+unidades y formatos son 
+familiares?
+H2-4 ¿Los iconos y metaforas 
+representan correctamente la 
+funcion?
+H2-5 ¿Se evita mostrar codigos 
+internos, nombres tecnicos o 
+estructura de la base de 
+datos?
+H2-6 ¿La relacion entre cada control 
+y su efecto es evidente?
+3. Control y libertad
+ID Criterio de verificacion Estado Evidencia / observacion
+H3-1 ¿Se puede cancelar, volver o 
+salir de un estado no 
+deseado?
+H3-2 ¿La navegacion hacia atras 
+conserva la informacion 
+valida?
+H3-3 ¿Las acciones reversibles 
+importantes ofrecen deshacer 
+o recuperacion?
+
+===== PAGINA 7 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 7
+ID Criterio de verificacion Estado Evidencia / observacion
+H3-4 ¿Las acciones destructivas 
+explican el objeto y la 
+consecuencia?
+H3-5 ¿Los errores no obligan a 
+reiniciar todo el proceso?
+H3-6 ¿El usuario puede corregir 
+datos antes de confirmar?
+4. Consistencia y estandares
+ID Criterio de verificacion Estado Evidencia / observacion
+H4-1 ¿La misma accion usa siempre 
+el mismo nombre, icono y 
+comportamiento?
+H4-2 ¿Los campos, botones, tablas, 
+modales y mensajes 
+mantienen patrones 
+uniformes?
+H4-3 ¿La interfaz respeta 
+convenciones del sistema 
+operativo, navegador y 
+dominio?
+H4-4 ¿Los estados activo, foco, 
+error y deshabilitado se 
+representan de forma 
+consistente?
+H4-5 ¿La navegacion y ubicacion de 
+acciones globales son 
+predecibles?
+H4-6 ¿No se utilizan palabras 
+distintas para referirse al 
+mismo objeto?
+5. Prevencion de errores
+ID Criterio de verificacion Estado Evidencia / observacion
+H5-1 ¿Los campos restringen 
+entradas invalidas y explican 
+el formato antes del envio?
+H5-2 ¿Los valores predeterminados 
+son seguros?
+H5-3 ¿Se evita el doble envio y la 
+ejecucion accidental?
+H5-4 ¿Las acciones destructivas se 
+separan de las acciones 
+seguras?
+H5-5 ¿El sistema detecta conflictos, 
+duplicados o datos imposibles 
+antes de guardar?
+H5-6 ¿La confirmacion se utiliza 
+solo cuando el riesgo lo 
+justifica?
+6. Reconocimiento antes que recuerdo
+ID Criterio de verificacion Estado Evidencia / observacion
+H6-1 ¿Las opciones necesarias 
+estan visibles cuando se 
+necesitan?
+H6-2 ¿Se conserva el contexto entre 
+pasos, pantallas y modales?
+
+===== PAGINA 8 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 8
+ID Criterio de verificacion Estado Evidencia / observacion
+H6-3 ¿El sistema recuerda datos 
+que ya conoce y evita pedirlos 
+nuevamente?
+H6-4 ¿Las instrucciones y formatos 
+permanecen cerca del campo 
+correspondiente?
+H6-5 ¿Los menus, filtros e 
+historiales reducen la 
+necesidad de memorizar?
+H6-6 ¿La interfaz no obliga a 
+recordar informacion de una 
+pantalla anterior?
+7. Flexibilidad y eficiencia
+ID Criterio de verificacion Estado Evidencia / observacion
+H7-1 ¿El camino basico es claro 
+para personas novatas?
+H7-2 ¿Las personas expertas tienen 
+atajos, busqueda, 
+autocompletado o reutilizacion 
+de datos?
+H7-3 ¿Todas las acciones 
+frecuentes pueden realizarse 
+con teclado cuando 
+corresponde?
+H7-4 ¿Los atajos no interfieren con 
+escritura, navegador o 
+tecnologias asistivas?
+H7-5 ¿Las tareas repetitivas pueden 
+completarse con menos 
+pasos?
+H7-6 ¿La personalizacion es 
+opcional y puede 
+restablecerse?
+8. Diseno estetico y minimalista
+ID Criterio de verificacion Estado Evidencia / observacion
+H8-1 ¿La pantalla muestra solo 
+informacion necesaria para la 
+tarea?
+H8-2 ¿Existe una jerarquia clara 
+entre titulo, contenido, 
+acciones y datos secundarios?
+H8-3 ¿Los elementos relacionados 
+estan agrupados y los 
+diferentes estan separados?
+H8-4 ¿Se evita el exceso de iconos, 
+tarjetas, colores, bordes y 
+mensajes simultaneos?
+H8-5 ¿La interfaz sigue siendo 
+legible con contenido real, 
+textos largos y pantallas 
+pequenas?
+H8-6 ¿Las acciones primarias no 
+compiten visualmente con 
+acciones secundarias?
+
+===== PAGINA 9 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 9
+9. Reconocimiento, diagnostico y recuperacion de errores
+ID Criterio de verificacion Estado Evidencia / observacion
+H9-1 ¿Los mensajes explican que 
+ocurrio en lenguaje claro?
+H9-2 ¿Se indica exactamente el 
+campo, dato o accion que 
+produjo el problema?
+H9-3 ¿El mensaje dice como 
+corregirlo y conserva los datos 
+validos?
+H9-4 ¿Se evita mostrar codigos 
+tecnicos o culpar al usuario?
+H9-5 ¿Los errores de servicio 
+permiten reintentar o continuar 
+de forma segura?
+H9-6 ¿El foco se mueve o anuncia 
+correctamente el error sin 
+desorientar?
+10. Ayuda y documentacion
+ID Criterio de verificacion Estado Evidencia / observacion
+H10-1 ¿La ayuda se encuentra 
+facilmente desde la tarea 
+actual?
+H10-2 ¿Esta organizada por objetivos 
+del usuario y no por estructura 
+tecnica?
+H10-3 ¿Las instrucciones son breves, 
+concretas y muestran pasos 
+reales?
+H10-4 ¿La ayuda coincide con la 
+version actual de la interfaz?
+H10-5 ¿Los formularios y acciones 
+complejas tienen ayuda 
+contextual?
+H10-6 ¿La ayuda es accesible por 
+teclado y tecnologias 
+asistivas?
+
+===== PAGINA 10 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 10
+5. Factor humano y modelos mentales
+Las personas tienen limites de atencion, memoria y percepcion; cometen errores y construyen modelos mentales a 
+partir de experiencias previas. La interfaz debe reducir el esfuerzo mental y favorecer la comprension.
+Atencion y carga cognitiva
+ID Criterio de verificacion Estado Evidencia / observacion
+FH1-1 ¿La pantalla evita presentar 
+demasiados mensajes, alertas 
+y acciones al mismo tiempo?
+FH1-2 ¿La accion principal destaca 
+sin ocultar alternativas 
+necesarias?
+FH1-3 ¿Las tareas complejas se 
+dividen en pasos 
+comprensibles?
+FH1-4 ¿La interfaz evita 
+interrupciones innecesarias y 
+conserva el contexto?
+FH1-5 ¿La informacion critica no 
+compite visualmente con 
+contenido decorativo?
+FH1-6 ¿Las animaciones, sonidos y 
+cambios automaticos no 
+distraen de la tarea?
+Memoria y aprendizaje
+ID Criterio de verificacion Estado Evidencia / observacion
+FH2-1 ¿Se prioriza reconocer 
+opciones en lugar de recordar 
+comandos o datos?
+FH2-2 ¿Los menus y listas se 
+agrupan en categorias 
+comprensibles?
+FH2-3 ¿Se mantienen visibles 
+instrucciones, unidades y 
+ejemplos necesarios?
+FH2-4 ¿La interfaz reutiliza datos ya 
+ingresados sin obligar a 
+memorizarlos?
+FH2-5 ¿La terminologia permanece 
+estable para favorecer 
+aprendizaje y retencion?
+FH2-6 ¿Los usuarios ocasionales 
+pueden retomar una tarea sin 
+reaprender todo el sistema?
+Percepcion y organizacion visual
+ID Criterio de verificacion Estado Evidencia / observacion
+FH3-1 ¿La proximidad agrupa 
+elementos relacionados?
+FH3-2 ¿La similitud se utiliza para 
+indicar funciones o estados 
+equivalentes?
+FH3-3 ¿Las regiones, bordes y 
+espacios expresan 
+agrupaciones sin exceso de 
+contenedores?
+
+===== PAGINA 11 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 11
+ID Criterio de verificacion Estado Evidencia / observacion
+FH3-4 ¿La alineacion facilita 
+comparar etiquetas, numeros y 
+campos?
+FH3-5 ¿La figura principal se 
+distingue claramente del 
+fondo?
+FH3-6 ¿El orden visual coincide con 
+el orden de lectura y de 
+teclado?
+Modelos mentales y conducta
+ID Criterio de verificacion Estado Evidencia / observacion
+FH4-1 ¿La estructura del sistema 
+coincide con la forma en que 
+el usuario entiende su trabajo?
+FH4-2 ¿Las consecuencias de una 
+accion pueden predecirse 
+antes de ejecutarla?
+FH4-3 ¿Los nombres y 
+representaciones permiten 
+transferir conocimientos 
+previos?
+FH4-4 ¿Las personas novatas y 
+expertas reciben rutas 
+adecuadas sin crear dos 
+sistemas contradictorios?
+FH4-5 ¿Los errores frecuentes 
+indican una diferencia entre el 
+modelo del usuario y el 
+modelo del sistema?
+FH4-6 ¿Se observan conductas 
+reales en lugar de confiar solo 
+en lo que las personas dicen 
+que harian?
+Diferencias humanas y contexto
+ID Criterio de verificacion Estado Evidencia / observacion
+FH5-1 ¿Se consideraron diferencias 
+de edad, experiencia, cultura, 
+idioma y alfabetizacion digital?
+FH5-2 ¿Los controles son utilizables 
+con distintas capacidades 
+motoras y sensoriales?
+FH5-3 ¿La interfaz funciona en 
+condiciones de estres, prisa, 
+ruido o iluminacion deficiente?
+FH5-4 ¿Las tareas criticas minimizan 
+dependencia de memoria, 
+precision y velocidad?
+FH5-5 ¿Los mensajes mantienen un 
+tono respetuoso y no 
+culpabilizan?
+FH5-6 ¿El diseno permite 
+recuperarse de lapsos de 
+atencion o equivocaciones?
+
+===== PAGINA 12 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 12
+6. Metaforas, iconos y lenguaje visual
+Una metafora visual permite comprender una funcion mediante objetos o acciones familiares. Debe ayudar al 
+aprendizaje, no decorar ni prometer comportamientos falsos.
+ID Criterio de verificacion Estado Evidencia / observacion
+MET-1 ¿La metafora elegida es 
+conocida por el publico 
+objetivo y su cultura?
+MET-2 ¿La funcion representada 
+mantiene una relacion clara 
+con el objeto o accion real?
+MET-3 ¿El icono puede 
+comprenderse sin explicacion 
+cuando es una convencion 
+ampliamente conocida?
+MET-4 ¿Las acciones criticas o 
+ambiguas incluyen texto visible 
+ademas del icono?
+MET-5 ¿El mismo icono no representa 
+funciones diferentes?
+MET-6 ¿Una misma accion no cambia 
+de icono entre pantallas?
+MET-7 ¿El estilo de los iconos es 
+uniforme en tamano, trazo y 
+nivel de detalle?
+MET-8 ¿Los iconos no se confunden 
+con elementos decorativos?
+MET-9 ¿Las acciones opuestas 
+utilizan señales claramente 
+distintas?
+MET-10 ¿La metafora no se extiende 
+mas alla de lo que realmente 
+hace el sistema?
+MET-11 ¿Se evita copiar literalmente 
+objetos fisicos cuando reduce 
+eficiencia o accesibilidad?
+MET-12 ¿Las etiquetas utilizan verbos 
+concretos y orientados al 
+resultado?
+MET-13 ¿Los simbolos mantienen 
+suficiente contraste y tamano?
+MET-14 ¿El significado no depende 
+unicamente del color, forma o 
+posicion?
+MET-15 ¿La metafora fue comprobada 
+con personas representativas?
+Ejemplo
+Un reloj puede apoyar el estado Pendiente, pero debe aparecer junto al texto "Pendiente". Un icono por si solo puede 
+ser ambiguo y una persona con deficiencia de color no debe depender del amarillo para comprender el estado.
+
+===== PAGINA 13 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 13
+7. Diseno centrado en el usuario y estructura de la interfaz
+Arquitectura de informacion y navegacion
+ID Criterio de verificacion Estado Evidencia / observacion
+DIS1-1 ¿La navegacion se organiza 
+por tareas del usuario y no por 
+modulos tecnicos internos?
+DIS1-2 ¿Los nombres de secciones 
+son unicos y no se solapan?
+DIS1-3 ¿La ubicacion actual es visible 
+y el retorno es predecible?
+DIS1-4 ¿Las rutas principales son 
+suficientemente cortas?
+DIS1-5 ¿Las acciones globales y 
+locales se distinguen?
+DIS1-6 ¿La informacion importante 
+aparece antes que la 
+secundaria?
+Formularios y entrada de datos
+ID Criterio de verificacion Estado Evidencia / observacion
+DIS2-1 ¿Cada campo tiene etiqueta 
+persistente y comprensible?
+DIS2-2 ¿Los requisitos se muestran 
+antes del envio?
+DIS2-3 ¿Los campos se agrupan por 
+significado y siguen un orden 
+natural?
+DIS2-4 ¿La validacion ocurre en el 
+momento adecuado y no 
+interrumpe prematuramente?
+DIS2-5 ¿Los errores conservan los 
+datos validos?
+DIS2-6 ¿Los botones nombran el 
+resultado real: Guardar 
+paciente, Reservar cita, Enviar 
+solicitud?
+Tablas, tarjetas y visualizaciones
+ID Criterio de verificacion Estado Evidencia / observacion
+DIS3-1 ¿La representacion elegida 
+facilita comparar y actuar 
+sobre los datos?
+DIS3-2 ¿Las columnas y acciones 
+prioritarias permanecen 
+visibles?
+DIS3-3 ¿Los encabezados describen 
+claramente el contenido?
+DIS3-4 ¿Los estados vacios explican 
+que significa la ausencia de 
+datos y que hacer?
+DIS3-5 ¿Los graficos incluyen 
+etiquetas o patrones y no 
+dependen solo del color?
+DIS3-6 ¿Existe una estrategia 
+comprensible para pantallas 
+pequenas y ampliacion?
+
+===== PAGINA 14 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 14
+Modales, mensajes y estados
+ID Criterio de verificacion Estado Evidencia / observacion
+DIS4-1 ¿Los modales se utilizan solo 
+cuando la decision debe 
+resolverse antes de continuar?
+DIS4-2 ¿El titulo y las acciones del 
+modal explican claramente la 
+tarea?
+DIS4-3 ¿El foco entra y regresa 
+correctamente al cerrar?
+DIS4-4 ¿Los mensajes de exito 
+rutinarios no bloquean 
+innecesariamente?
+DIS4-5 ¿Las acciones destructivas se 
+confirman de forma 
+especifica?
+DIS4-6 ¿Se contemplan carga, vacio, 
+error, sin permisos, 
+desconexion y recuperacion?
+Responsive y contenido real
+ID Criterio de verificacion Estado Evidencia / observacion
+DIS5-1 ¿El diseno funciona con textos 
+largos, nombres extensos y 
+datos extremos?
+DIS5-2 ¿No existen alturas fijas que 
+corten textos o botones?
+DIS5-3 ¿Las tarjetas y columnas se 
+reorganizan al reducir el 
+ancho?
+DIS5-4 ¿Se evita desplazamiento 
+horizontal general?
+DIS5-5 ¿Los objetivos tactiles son 
+suficientemente grandes y 
+separados?
+DIS5-6 ¿La prioridad del contenido se 
+mantiene en diferentes 
+resoluciones?
+
+===== PAGINA 15 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 15
+8. Accesibilidad: color, contraste, vision reducida y 
+ampliadores
+La accesibilidad permite que personas con distintas capacidades puedan percibir, comprender, navegar e interactuar 
+con el sistema. Un boton de accesibilidad no demuestra cumplimiento: debe comprobarse el comportamiento 
+completo de cada flujo.
+8.1 Deficiencia visual relacionada con el color
+Problema: algunas personas no distinguen determinadas combinaciones de color. La barrera aparece cuando un estado, 
+accion o error solo puede interpretarse por rojo, verde, amarillo u otra diferencia cromatica.
+ID Criterio de verificacion Estado Evidencia / observacion
+AC-COL-1 ¿Ninguna informacion 
+importante depende 
+exclusivamente del color?
+AC-COL-2 ¿Los estados usan texto + 
+icono o forma + color como 
+refuerzo?
+AC-COL-3 ¿Los errores de formulario 
+incluyen mensaje textual y no 
+solo borde rojo?
+AC-COL-4 ¿La opcion seleccionada se 
+reconoce sin depender solo de 
+un borde o fondo de color?
+AC-COL-5 ¿Los enlaces pueden 
+distinguirse del texto sin 
+depender exclusivamente del 
+color?
+AC-COL-6 ¿Los graficos incluyen 
+etiquetas, patrones, formas o 
+valores?
+AC-COL-7 ¿Los estados siguen siendo 
+comprensibles en escala de 
+grises?
+AC-COL-8 ¿Se probaron simulaciones de 
+protanopia, deuteranopia y 
+tritanopia?
+AC-COL-9 ¿Los pares de color mantienen 
+diferencia suficiente cuando 
+aparecen juntos?
+AC-COL-10 ¿El modo de alto contraste no 
+elimina el significado de 
+iconos, bordes o estados?
+8.2 Contraste
+ID Criterio de verificacion Estado Evidencia / observacion
+AC-CON-1 ¿El texto normal alcanza al 
+menos 4.5:1 respecto a su 
+fondo?
+AC-CON-2 ¿El texto grande alcanza al 
+menos 3:1?
+AC-CON-3 ¿Los iconos, bordes y 
+controles necesarios alcanzan 
+al menos 3:1 respecto a 
+colores adyacentes?
+AC-CON-4 ¿Los textos secundarios, 
+placeholders y estados al 
+pasar el puntero siguen siendo 
+legibles?
+
+===== PAGINA 16 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 16
+ID Criterio de verificacion Estado Evidencia / observacion
+AC-CON-5 ¿El indicador de foco es 
+claramente visible?
+AC-CON-6 ¿El texto sobre imagen utiliza 
+fondo, capa o tratamiento que 
+garantice legibilidad?
+AC-CON-7 ¿Los controles deshabilitados 
+siguen siendo comprensibles 
+sin confundirse con elementos 
+activos?
+AC-CON-8 ¿Se comprobo contraste en 
+modo normal, alto contraste y 
+estados de error/seleccion?
+8.3 Vision reducida y ampliadores
+Problema: la persona conserva parte de la vision, pero necesita aumentar textos o zonas de la pantalla. Los ampliadores 
+facilitan la lectura, aunque pueden causar perdida de orientacion al mostrar solo una parte del contenido.
+ID Criterio de verificacion Estado Evidencia / observacion
+AC-VR-1 ¿El texto puede ampliarse al 
+200 % sin perdida de 
+contenido o funcionalidad?
+AC-VR-2 ¿El sistema funciona con 
+zoom del navegador y 
+ampliadores del sistema 
+operativo?
+AC-VR-3 ¿Los botones A, A+ y A++ 
+amplian contenido de forma 
+coherente y no solo algunas 
+etiquetas?
+AC-VR-4 ¿Las tarjetas y columnas se 
+redistribuyen al aumentar el 
+contenido?
+AC-VR-5 ¿Ningun texto, boton, modal o 
+mensaje se corta o 
+superpone?
+AC-VR-6 ¿El sidebar permite 
+desplazamiento y mantiene 
+accesibles todas las opciones?
+AC-VR-7 ¿Se evita el desplazamiento 
+horizontal de toda la pagina?
+AC-VR-8 ¿Los campos conservan 
+etiquetas, instrucciones y 
+mensajes al ampliarse?
+AC-VR-9 ¿Se utilizan tamanos relativos 
+y contenedores flexibles 
+cuando corresponde?
+AC-VR-10 ¿No se bloquea el zoom del 
+navegador?
+AC-VR-11 ¿El usuario mantiene 
+orientacion mediante titulos, 
+ubicacion actual y foco visible?
+AC-VR-12 ¿Las tablas tienen una 
+estrategia para ampliacion: 
+reflow, tarjetas o scroll local?
+AC-VR-13 ¿Las preferencias de tamano y 
+contraste se conservan al 
+cambiar de pantalla?
+AC-VR-14 ¿La interfaz fue probada al 
+100 %, 125 %, 150 %, 200 % 
+y, cuando corresponda, 400 
+%?
+
+===== PAGINA 17 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 17
+ID Criterio de verificacion Estado Evidencia / observacion
+Aplicacion al sistema clinico
+Una cita no debe identificarse solo con una franja amarilla. Debe incluir, por ejemplo, icono de reloj, texto "Pendiente" y 
+color como apoyo. Al seleccionar A++, las cuatro tarjetas del dashboard deben reorganizarse en dos o una columna sin 
+cortar datos ni ocultar el panel de accesibilidad.
+8.4 Comprobaciones accesibles complementarias
+ID Criterio de verificacion Estado Evidencia / observacion
+AC-GEN-1 ¿Todo el flujo puede 
+completarse con teclado?
+AC-GEN-2 ¿El orden de foco es logico y 
+el foco no queda atrapado?
+AC-GEN-3 ¿Todo control tiene nombre, 
+rol, estado y valor accesibles?
+AC-GEN-4 ¿Los campos tienen etiquetas 
+asociadas y los errores se 
+anuncian?
+AC-GEN-5 ¿Las imagenes relevantes 
+tienen alternativa textual?
+AC-GEN-6 ¿Los encabezados y regiones 
+estructuran la pantalla?
+AC-GEN-7 ¿El movimiento puede 
+reducirse y no existen 
+destellos peligrosos?
+AC-GEN-8 ¿Las acciones por arrastre o 
+gestos tienen alternativa?
+AC-GEN-9 ¿Los cambios dinamicos 
+importantes se anuncian sin 
+robar foco?
+AC-GEN-10 ¿La revision automatica se 
+complemento con pruebas 
+manuales?
+
+===== PAGINA 18 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 18
+9. Metodo de evaluacion recomendado
+Para evaluar un sistema completo no conviene utilizar un unico metodo. La combinacion recomendada es una 
+inspeccion experta seguida de pruebas con usuarios.
+Metodo Como se aplica Que aporta Costo relativo
+1. Evaluacion heuristica 3 a 5 evaluadores revisan de 
+forma independiente los flujos y 
+registran problemas segun los 
+principios.
+Detectar rapidamente 
+inconsistencias, errores de 
+diseno y barreras conocidas.
+Bajo a medio
+2. Prueba con usuarios + 
+pensamiento en voz alta
+Personas representativas 
+realizan tareas reales y 
+verbalizan lo que piensan.
+Descubrir problemas reales, 
+modelos mentales, confusion y 
+estrategias inesperadas.
+Medio a alto
+3. Cuestionario SUS o 
+equivalente
+Se aplica despues de usar el 
+sistema.
+Obtener una medida comparable 
+de percepcion de facilidad de 
+uso.
+Bajo
+4. Revision de accesibilidad Pruebas automaticas y 
+manuales de teclado, contraste, 
+zoom, reflow y tecnologia 
+asistiva.
+Detectar barreras que una 
+prueba visual normal no revela.
+Medio
+5. Logs y observacion de uso Se analizan rutas, errores, 
+abandonos y tiempos reales.
+Detectar patrones en produccion 
+y tareas con pasos innecesarios.
+Variable
+9.1 Procedimiento de evaluacion heuristica
+[ ] Prepare el alcance, usuarios, tareas, escenarios y datos de prueba.
+[ ] Entregue a cada evaluador los principios y esta guia.
+[ ] Cada evaluador revisa de forma independiente; no se discuten hallazgos durante la inspeccion.
+[ ] Realice al menos dos pasadas: vision general y revision detallada por tareas.
+[ ] Registre ubicacion, evidencia, principio, consecuencia, recomendacion, severidad y frecuencia.
+[ ] Al finalizar, combine duplicados y debata diferencias.
+[ ] Priorice hallazgos criticos y vuelva a evaluar despues de corregir.
+Duracion orientativa
+Una sesion puede durar entre 1 y 2 horas por alcance. Un sistema complejo debe dividirse por roles, modulos o tareas. 
+Los materiales recomiendan varios evaluadores, normalmente de 3 a 5, para aumentar la cobertura.
+9.2 Por que no basta la evaluacion heuristica
+La inspeccion encuentra incumplimientos conocidos, pero no demuestra que una persona pueda completar la tarea. Los 
+usuarios pueden interpretar la interfaz de forma distinta, seguir caminos inesperados o crear estrategias para compensar 
+problemas. Por eso se requiere observacion directa.
+
+===== PAGINA 19 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 19
+10. Plantilla para pruebas con usuarios y metricas
+10.1 Plan de prueba
+Elemento Definicion
+Objetivo del test
+Perfil y cantidad de participantes
+Modalidad: presencial / remota
+Dispositivo y entorno
+Tareas criticas
+Datos de prueba
+Facilitador y observador
+Consentimiento y privacidad
+Criterios de exito
+10.2 Guion de tarea
+Campo Registro
+Tarea / escenario
+Objetivo expresado al participante
+Punto de inicio
+Resultado correcto
+Tiempo estimado
+Ayuda permitida
+Errores o caminos observados
+Comentarios verbales
+Resultado: exito / parcial / fallo
+10.3 Metricas recomendadas
+Dimension Datos a registrar
+Eficacia Porcentaje de tareas completadas correctamente; tareas 
+parciales y fallidas.
+Eficiencia Tiempo de finalizacion; pasos; retrocesos; comparacion con el 
+tiempo esperado.
+Errores Cantidad, tipo, gravedad y capacidad de recuperacion.
+Ayuda Numero de veces que se consulta ayuda, manual o facilitador.
+Conducta Confusion, frustracion, dudas, abandonos, comentarios 
+positivos y negativos.
+Satisfaccion Valoraciones posteriores a cada tarea y cuestionario SUS o 
+equivalente.
+Accesibilidad Tareas completadas con teclado, zoom, alto contraste y 
+tecnologia asistiva.
+10.4 Reglas para facilitar la prueba
+[ ] No ensene el camino correcto ni convierta la sesion en una capacitacion.
+[ ] Pida que la persona diga que intenta hacer, que espera y que interpreta.
+[ ] No culpe a la persona cuando comete un error; el objetivo es evaluar la interfaz.
+[ ] Observe lo que hace, no solo lo que dice que hace.
+[ ] Use tareas realistas, con contexto y datos suficientes.
+[ ] Registre hechos por separado de interpretaciones.
+[ ] No concluya a partir de una sola metrica; combine datos cuantitativos y cualitativos.
+
+===== PAGINA 20 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 20
+10.5 Hoja SUS (opcional)
+Despues de utilizar el sistema, la persona valora cada afirmacion de 1 (totalmente en desacuerdo) a 5 (totalmente de 
+acuerdo). Mantenga el orden y la alternancia positiva/negativa.
+N Afirmacion Valor
+1 Creo que utilizaria este sistema con 
+frecuencia.
+1  2  3  4  5
+2 El sistema me parecio innecesariamente 
+complejo.
+1  2  3  4  5
+3 El sistema me parecio facil de usar. 1  2  3  4  5
+4 Creo que necesitaria ayuda tecnica para 
+utilizarlo.
+1  2  3  4  5
+5 Las funciones del sistema estan bien 
+integradas.
+1  2  3  4  5
+6 El sistema presenta demasiadas 
+inconsistencias.
+1  2  3  4  5
+7 La mayoria de las personas aprenderia a 
+utilizarlo rapidamente.
+1  2  3  4  5
+8 El sistema me resulto engorroso o dificil 
+de recorrer.
+1  2  3  4  5
+9 Me senti seguro al utilizar el sistema. 1  2  3  4  5
+10 Necesite aprender muchas cosas antes 
+de poder utilizarlo.
+1  2  3  4  5
+Calculo: en items impares reste 1 a la respuesta; en items pares reste la respuesta a 5. Sume los diez valores y multiplique por 
+2.5. El resultado va de 0 a 100 y debe interpretarse junto con las observaciones y metricas de tarea.
+
+===== PAGINA 21 =====
+GUIA DE AUDITORIA DE INTERFACES
+Pagina 21
+11. Informe de hallazgos y decision final
+11.1 Registro de hallazgos
+ID Pantalla / 
+tarea
+Problema y 
+evidencia Principio Impacto Sev. Freq. Correccion
+1
+2
+3
+4
+5
+6
+7
+8
+11.2 Resumen por area
+Area C P NC NV Observacion 
+principal
+Contexto y tareas
+10 heuristicas
+Factor humano
+Metaforas
+Diseno y responsive
+Color y contraste
+Vision reducida y 
+ampliadores
+Teclado y semantica
+Prueba con usuarios
+11.3 Decision
+Decision Condicion
+APROBADO Todas las tareas esenciales y criterios criticos cumplen con 
+evidencia suficiente.
+APROBADO CON RIESGOS No hay bloqueos criticos, pero existen pendientes menores 
+documentados.
+NO APROBADO Existe un bloqueo critico, una barrera grave, una ruta esencial 
+no comprobada o afirmaciones sin evidencia.
+Declaracion final sugerida
+"Se evaluaron los roles, flujos, dispositivos y version indicados. La conclusion se basa en inspeccion experta, pruebas 
+manuales y evidencia registrada. Las rutas no verificadas y riesgos residuales se detallan en el informe."
+
+===== PAGINA 22 =====
+ANEXO A. Auditoria heuristica ampliada - 306 preguntas
+Marque C, P, NC, NA o NV. Registre los detalles de cada incumplimiento en la plantilla de hallazgos. Las secciones 11 a 13 son complementarias y amplian las diez heuristicas clasicas.
+
+===== PAGINA 23 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 23
+1. Visibilidad del estado del sistema
+Identidad y ubicación
+ID Pregunta de verificacion Estado Evidencia / nota
+1.1 ¿Cada pantalla tiene un título que describe su 
+contenido o tarea?
+1.2 ¿El usuario puede saber dónde está dentro del 
+sistema?
+1.3 ¿La navegación muestra la sección activa?
+1.4 ¿En flujos de varios pasos se indica el paso actual, los 
+completados y los restantes?
+1.5 ¿Las páginas relacionadas muestran su relación 
+mediante títulos, secuencia o navegación?
+1.6 ¿La ventana, pestaña, panel o registro activo se 
+distingue claramente?
+1.7 ¿El contexto seleccionado —paciente, cuenta, 
+proyecto, fecha— permanece visible?
+Selección y estado
+ID Pregunta de verificacion Estado Evidencia / nota
+1.8 ¿Los elementos seleccionados se distinguen sin 
+depender solo del color?
+1.9 ¿Los estados activo, inactivo, bloqueado, pendiente, 
+completado y fallido son inequívocos?
+1.10 ¿Un control deshabilitado comunica por qué no está 
+disponible cuando la causa no es obvia?
+1.11 ¿Los menús y listas muestran qué opción está 
+enfocada, seleccionada o ya elegida?
+1.12 ¿Las selecciones múltiples permanecen visibles antes 
+de confirmar?
+1.13 ¿Los objetos movidos, editados o actualizados 
+muestran el cambio?
+1.14 ¿Los filtros, orden y búsqueda activos son visibles y 
+fáciles de limpiar?
+Retroalimentación
+ID Pregunta de verificacion Estado Evidencia / nota
+1.15 ¿Toda acción produce una respuesta perceptible?
+1.16 ¿La respuesta aparece cerca de la acción o del 
+contenido afectado?
+1.17 ¿Después de completar una tarea se confirma qué 
+ocurrió y sobre qué objeto?
+
+===== PAGINA 24 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 24
+ID Pregunta de verificacion Estado Evidencia / nota
+1.18 ¿La confirmación distingue entre guardado definitivo, 
+borrador y envío pendiente?
+1.19 ¿El sistema evita confirmar éxito antes de recibir una 
+respuesta real del servidor?
+1.20 ¿Los cambios automáticos se anuncian o resaltan de 
+forma comprensible?
+1.21 ¿Los procesos en segundo plano muestran su estado 
+y permiten consultar el resultado?
+Espera y progreso
+ID Pregunta de verificacion Estado Evidencia / nota
+1.22 ¿Las esperas apreciables muestran carga o progreso?
+1.23 ¿La interfaz explica qué se está procesando en 
+operaciones largas?
+1.24 ¿El usuario sabe si puede continuar, cancelar o cerrar 
+durante la espera?
+1.25 ¿Se evita que una acción se envíe dos veces?
+1.26 ¿El progreso es determinado cuando puede calcularse 
+y no una animación indefinida innecesaria?
+1.27 ¿Si una operación tarda más de lo previsto, se informa 
+sin culpar al usuario?
+1.28 ¿Los tiempos de respuesta son adecuados para la 
+tarea y el contexto?
+1.29 ¿La aplicación conserva la continuidad de 
+pensamiento evitando pausas innecesarias entre 
+pasos dependientes?
+
+===== PAGINA 25 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 25
+2. Correspondencia entre el sistema y el mundo real
+Lenguaje
+ID Pregunta de verificacion Estado Evidencia / nota
+2.1 ¿La interfaz usa palabras que las personas usuarias 
+emplean en su trabajo?
+2.2 ¿Evita nombres de tablas, endpoints, códigos internos 
+y jerga técnica?
+2.3 ¿Las preguntas, instrucciones y mensajes son simples 
+y directos?
+2.4 ¿Los nombres de acciones son específicos en vez de 
+genéricos?
+2.5 ¿Los verbos describen el resultado real: “Guardar cita”, 
+“Cancelar solicitud”, “Descargar informe”?
+2.6 ¿Las abreviaturas son conocidas, explicadas y 
+consistentes?
+2.7 ¿Los códigos de datos son comprensibles o se 
+acompañan de su significado?
+2.8 ¿El estilo gramatical es uniforme dentro de menús y 
+acciones?
+2.9 ¿Los mensajes usan la variante lingüística y formato 
+local apropiados?
+Orden y agrupación
+ID Pregunta de verificacion Estado Evidencia / nota
+2.10 ¿Las opciones aparecen en el orden lógico para el 
+usuario y no para la implementación?
+2.11 ¿Las secuencias naturales del proceso se respetan?
+2.12 ¿Los campos relacionados aparecen juntos?
+2.13 ¿Las categorías de menú tienen significado único y no 
+se solapan de forma confusa?
+2.14 ¿La estructura de navegación coincide con la 
+estructura de las tareas?
+2.15 ¿Fechas, horas, monedas, unidades y nombres se 
+presentan en formatos familiares?
+2.16 ¿Los valores se alinean de modo que puedan 
+compararse fácilmente?
+Metáforas y mapeo
+ID Pregunta de verificacion Estado Evidencia / nota
+2.17 ¿Los iconos son familiares o incluyen una etiqueta?
+
+===== PAGINA 26 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 26
+ID Pregunta de verificacion Estado Evidencia / nota
+2.18 ¿Las formas y colores respetan convenciones del 
+dominio sin depender solo de ellas?
+2.19 ¿La relación entre un control y su efecto es evidente?
+2.20 ¿Los botones virtuales utilizan nombres coherentes 
+con la acción?
+2.21 ¿Las acciones opuestas no tienen nombres o iconos 
+casi idénticos?
+2.22 ¿Las metáforas no prometen funciones que el sistema 
+no realiza?
+2.23 ¿La interfaz evita copiar literalmente un objeto físico 
+cuando eso empeora accesibilidad o eficiencia?
+Entrada de datos
+ID Pregunta de verificacion Estado Evidencia / nota
+2.24 ¿El formato solicitado se expresa en términos 
+comprensibles?
+2.25 ¿El sistema aplica separadores, símbolos o formato 
+automáticamente sin alterar el valor?
+2.26 ¿La entrada acepta variaciones razonables como 
+mayúsculas/minúsculas, espacios o separadores?
+2.27 ¿Los ejemplos usan datos plausibles del dominio?
+2.28 ¿Las unidades están visibles junto al valor y no 
+dependen de memoria?
+
+===== PAGINA 27 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 27
+3. Control y libertad del usuario
+Salida y cancelación
+ID Pregunta de verificacion Estado Evidencia / nota
+3.1 ¿El usuario puede cancelar una operación en progreso 
+cuando sea técnicamente seguro?
+3.2 ¿Puede cerrar un modal, menú o panel sin completar 
+una acción secundaria?
+3.3 ¿Existe una salida clara de estados no deseados?
+3.4 ¿Al cancelar se explica qué datos se conservarán o 
+perderán?
+3.5 ¿La navegación hacia atrás no elimina información sin 
+advertencia?
+3.6 ¿Un flujo de preguntas permite volver al paso anterior 
+cuando el dominio lo admite?
+Corrección y reversibilidad
+ID Pregunta de verificacion Estado Evidencia / nota
+3.7 ¿Los datos pueden editarse antes de confirmar?
+3.8 ¿Existe deshacer para acciones reversibles de alto 
+valor?
+3.9 ¿Las acciones destructivas ofrecen recuperación, 
+papelera o periodo de gracia cuando sea viable?
+3.10 ¿El usuario puede revertir varias acciones cuando la 
+tarea lo necesita?
+3.11 ¿Los campos permiten mover el cursor, seleccionar, 
+copiar y corregir normalmente?
+3.12 ¿Los errores no obligan a reiniciar todo el flujo?
+3.13 ¿Se conservan filtros, posición y contexto tras editar un 
+registro?
+Navegación
+ID Pregunta de verificacion Estado Evidencia / nota
+3.14 ¿Es fácil cambiar entre secciones, ventanas o registros 
+relacionados?
+3.15 ¿Los menús profundos ofrecen retorno visible al nivel 
+anterior?
+3.16 ¿El usuario puede avanzar y retroceder entre páginas 
+de un formulario?
+3.17 ¿Cambiar una decisión previa recalcula de forma clara 
+sus consecuencias?
+3.18 ¿No se secuestra el botón Atrás del navegador?
+
+===== PAGINA 28 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 28
+ID Pregunta de verificacion Estado Evidencia / nota
+3.19 ¿Los enlaces abren en la misma pestaña salvo una 
+razón clara y anunciada?
+Personalización y elección
+ID Pregunta de verificacion Estado Evidencia / nota
+3.20 ¿El usuario puede elegir preferencias relevantes sin 
+configurar detalles innecesarios?
+3.21 ¿La personalización tiene valores por defecto seguros?
+3.22 ¿Las preferencias pueden restablecerse?
+3.23 ¿La interfaz permite rutas equivalentes por teclado y 
+puntero?
+3.24 ¿Las tareas frecuentes pueden acelerarse sin ocultar 
+el camino estándar?
+Confirmaciones
+ID Pregunta de verificacion Estado Evidencia / nota
+3.25 ¿Se confirma solo cuando la consecuencia es 
+destructiva, irreversible, costosa o de gran alcance?
+3.26 ¿La confirmación nombra el objeto y la consecuencia 
+concreta?
+3.27 ¿La acción segura no aparece visualmente igual que la 
+destructiva?
+3.28 ¿No se utilizan confirmaciones repetitivas que el 
+usuario aprende a ignorar?
+
+===== PAGINA 29 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 29
+4. Consistencia y estándares
+Sistema y plataforma
+ID Pregunta de verificacion Estado Evidencia / nota
+4.1 ¿Los componentes siguen el sistema de diseño 
+existente?
+4.2 ¿Los controles nativos mantienen comportamiento 
+esperado de la plataforma?
+4.3 ¿La misma acción usa siempre el mismo nombre, 
+icono y ubicación relativa?
+4.4 ¿El mismo estado usa la misma representación en 
+todo el producto?
+4.5 ¿Los comandos y atajos respetan convenciones 
+conocidas?
+4.6 ¿Las funciones críticas no se asignan a gestos o teclas 
+inesperadas?
+4.7 ¿Los formatos institucionales o del sector se respetan 
+cuando corresponden?
+Títulos, etiquetas y texto
+ID Pregunta de verificacion Estado Evidencia / nota
+4.8 ¿Toda pantalla, modal y panel tiene título adecuado?
+4.9 ¿Las etiquetas de campos siguen la misma estructura 
+y posición?
+4.10 ¿Los campos obligatorios y opcionales se marcan de 
+forma consistente?
+4.11 ¿Las instrucciones aparecen en lugares previsibles?
+4.12 ¿Las acciones usan un estilo gramatical uniforme?
+4.13 ¿Se evita abuso de mayúsculas, puntuación y 
+abreviaturas inconsistentes?
+4.14 ¿Los nombres de objetos no cambian entre 
+navegación, formulario y mensaje de éxito?
+Iconos y señales
+ID Pregunta de verificacion Estado Evidencia / nota
+4.15 ¿Los iconos poseen nombre accesible y etiqueta 
+visible cuando la comprensión lo requiere?
+4.16 ¿La familia de iconos comparte estilo y nivel de 
+detalle?
+4.17 ¿Un icono no representa acciones distintas?
+4.18 ¿La ventana o pestaña activa se distingue de forma 
+consistente?
+
+===== PAGINA 30 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 30
+ID Pregunta de verificacion Estado Evidencia / nota
+4.19 ¿Los elementos deshabilitados, seleccionados y en 
+foco mantienen patrones uniformes?
+Menús y navegación
+ID Pregunta de verificacion Estado Evidencia / nota
+4.20 ¿Los menús se organizan de la misma forma en todas 
+las secciones?
+4.21 ¿Las acciones globales y locales se distinguen?
+4.22 ¿“Salir”, “Cerrar sesión” o acciones equivalentes 
+aparecen en una ubicación predecible?
+4.23 ¿La jerarquía de opciones coincide con títulos y 
+categorías?
+4.24 ¿Las opciones inactivas se ocultan o deshabilitan con 
+una regla consistente?
+4.25 ¿El movimiento por teclado sigue patrones estándar?
+Datos y formularios
+ID Pregunta de verificacion Estado Evidencia / nota
+4.26 ¿La estructura de entrada se mantiene entre pantallas 
+equivalentes?
+4.27 ¿Fechas, números, monedas y unidades siguen el 
+mismo formato?
+4.28 ¿La alineación de números facilita comparación?
+4.29 ¿El orden de tabulación es coherente?
+4.30 ¿El método para avanzar o retroceder entre campos es 
+estándar?
+4.31 ¿Los botones principales y secundarios mantienen 
+jerarquía y orden?
+Énfasis
+ID Pregunta de verificacion Estado Evidencia / nota
+4.32 ¿Color, tamaño, tipografía, sonido y movimiento se 
+usan con reglas consistentes?
+4.33 ¿El énfasis se reserva para información importante?
+4.34 ¿Los colores semánticos no cambian de significado?
+4.35 ¿Se proporciona una leyenda cuando existe una 
+codificación compleja?
+4.36 ¿El contraste y la legibilidad se mantienen en todos los 
+temas?
+
+===== PAGINA 31 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 31
+5. Prevención de errores
+Restricciones y entradas
+ID Pregunta de verificacion Estado Evidencia / nota
+5.1 ¿La interfaz impide valores imposibles antes del 
+envío?
+5.2 ¿Los formatos válidos y límites se muestran antes de 
+que ocurra un error?
+5.3 ¿Los controles adecuados reemplazan texto libre 
+cuando existe un conjunto pequeño de opciones?
+5.4 ¿Las opciones son claramente distintas y, cuando 
+corresponde, mutuamente excluyentes?
+5.5 ¿Los campos dependientes aparecen solo cuando son 
+necesarios?
+5.6 ¿Los valores por defecto son seguros y plausibles?
+5.7 ¿La entrada acepta variaciones benignas y normaliza 
+el formato?
+5.8 ¿Se evita mezclar caracteres que se confunden, como 
+O/0 o I/1, en códigos generados?
+5.9 ¿Los campos muestran longitud o formato sin obligar a 
+contar caracteres?
+5.10 ¿El sistema evita duplicados o advierte antes de 
+crearlos?
+Acciones de riesgo
+ID Pregunta de verificacion Estado Evidencia / nota
+5.11 ¿Las acciones destructivas están separadas de las 
+frecuentes?
+5.12 ¿El botón destructivo describe la acción específica?
+5.13 ¿Se muestra el alcance: un elemento, selección o 
+todos los resultados?
+5.14 ¿La confirmación evita opciones predeterminadas 
+peligrosas?
+5.15 ¿Las operaciones masivas muestran una vista previa o 
+resumen?
+5.16 ¿Se previene abandonar un formulario con cambios no 
+guardados cuando existe pérdida real?
+5.17 ¿Los permisos impiden ejecutar acciones no 
+autorizadas, no solo ocultarlas?
+
+===== PAGINA 32 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 32
+Doble ejecución y concurrencia
+ID Pregunta de verificacion Estado Evidencia / nota
+5.18 ¿Los botones se protegen contra doble envío?
+5.19 ¿Las operaciones son idempotentes cuando 
+corresponde?
+5.20 ¿Se detectan cambios concurrentes para no 
+sobrescribir datos silenciosamente?
+5.21 ¿El sistema explica conflictos y ofrece opciones de 
+resolución?
+5.22 ¿Los estados de red inestable no producen registros 
+duplicados?
+Anticipación
+ID Pregunta de verificacion Estado Evidencia / nota
+5.23 ¿El sistema alerta antes de un error serio, no 
+después?
+5.24 ¿Las consecuencias de una elección compleja se 
+muestran antes de confirmar?
+5.25 ¿La próxima acción probable se facilita sin ejecutarla 
+automáticamente de forma peligrosa?
+5.26 ¿La interfaz evita cambios de contexto inesperados?
+5.27 ¿Las tareas largas pueden guardarse como borrador?
+
+===== PAGINA 33 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 33
+6. Reconocimiento antes que recuerdo
+Contexto visible
+ID Pregunta de verificacion Estado Evidencia / nota
+6.1 ¿Toda la información necesaria para decidir está 
+disponible en el paso actual?
+6.2 ¿El usuario no debe memorizar datos de una pantalla 
+anterior?
+6.3 ¿Se muestra un resumen en flujos largos?
+6.4 ¿Los valores elegidos permanecen visibles?
+6.5 ¿El objeto sobre el que se actúa se identifica 
+claramente?
+6.6 ¿Las instrucciones aparecen donde se necesitan?
+Organización perceptible
+ID Pregunta de verificacion Estado Evidencia / nota
+6.7 ¿Preguntas, instrucciones, campos y respuestas se 
+distinguen visualmente?
+6.8 ¿Los grupos lógicos tienen encabezados?
+6.9 ¿El espacio en blanco guía la lectura sin separar 
+elementos relacionados?
+6.10 ¿Las etiquetas están próximas a sus controles?
+6.11 ¿Los bordes se usan para grupos significativos y no 
+como ruido?
+6.12 ¿Las listas largas se dividen en secciones, filtros o 
+búsqueda?
+6.13 ¿La jerarquía tipográfica refleja importancia y no solo 
+decoración?
+Opciones y disponibilidad
+ID Pregunta de verificacion Estado Evidencia / nota
+6.14 ¿Se distingue selección única de selección múltiple?
+6.15 ¿Los elementos inactivos se identifican y, cuando 
+ayuda, explican su estado?
+6.16 ¿Existen valores por defecto cuando reducen esfuerzo 
+sin inducir errores?
+6.17 ¿Los menús muestran las opciones válidas en vez de 
+exigir comandos memorizados?
+6.18 ¿Las funciones frecuentes son visibles o fáciles de 
+descubrir?
+
+===== PAGINA 34 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 34
+ID Pregunta de verificacion Estado Evidencia / nota
+6.19 ¿Los atajos muestran su combinación junto a la 
+acción?
+6.20 ¿Existe búsqueda o mapa cuando la navegación es 
+compleja?
+Color, forma y redundancia
+ID Pregunta de verificacion Estado Evidencia / nota
+6.21 ¿La codificación de color es consistente?
+6.22 ¿El color se combina con texto, icono, patrón o 
+posición?
+6.23 ¿Existe contraste suficiente entre contenido y fondo?
+6.24 ¿Las relaciones entre controles y resultados son 
+perceptibles?
+6.25 ¿Los elementos seleccionables parecen interactivos?
+6.26 ¿Las secuencias largas se fragmentan en bloques 
+legibles?
+6.27 ¿Se evitan pares de datos o símbolos frecuentemente 
+confundidos?
+Formularios
+ID Pregunta de verificacion Estado Evidencia / nota
+6.28 ¿Los opcionales se identifican claramente?
+6.29 ¿Los campos condicionales solo aparecen cuando 
+corresponden?
+6.30 ¿Los ejemplos de formato están próximos al campo?
+6.31 ¿El sistema recuerda datos ya ingresados de manera 
+segura?
+6.32 ¿Las opciones recientes o frecuentes se ofrecen sin 
+ocultar las demás?
+
+===== PAGINA 35 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 35
+7. Flexibilidad y eficiencia de uso
+Personas novatas y expertas
+ID Pregunta de verificacion Estado Evidencia / nota
+7.1 ¿El camino básico es comprensible sin conocer 
+atajos?
+7.2 ¿Las personas expertas disponen de aceleradores no 
+intrusivos?
+7.3 ¿Los mensajes pueden ofrecer detalle adicional sin 
+abrumar inicialmente?
+7.4 ¿La densidad de información se adapta al tipo de 
+tarea?
+7.5 ¿La ayuda distingue orientación inicial de referencia 
+avanzada?
+Entrada eficiente
+ID Pregunta de verificacion Estado Evidencia / nota
+7.6 ¿Existen atajos para acciones frecuentes?
+7.7 ¿Se puede navegar por teclado entre campos, listas y 
+acciones?
+7.8 ¿Se permite seleccionar directamente con puntero sin 
+perder alternativa de teclado?
+7.9 ¿El autocompletado reduce escritura y sigue siendo 
+corregible?
+7.10 ¿El sistema completa entradas parciales solo cuando 
+son inequívocas?
+7.11 ¿Se pueden copiar o reutilizar datos existentes con 
+control?
+7.12 ¿Es posible guardar borradores de formularios largos?
+7.13 ¿Las plantillas reducen trabajo repetitivo?
+7.14 ¿Las acciones masivas son seguras y transparentes?
+Búsqueda y navegación
+ID Pregunta de verificacion Estado Evidencia / nota
+7.15 ¿La búsqueda permite siguiente/anterior o navegación 
+clara entre resultados?
+7.16 ¿Los filtros frecuentes pueden persistir o guardarse?
+7.17 ¿La interfaz recuerda contexto al regresar de un 
+detalle?
+7.18 ¿Los usuarios expertos pueden saltar pasos 
+opcionales sin perder validaciones críticas?
+
+===== PAGINA 36 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 36
+ID Pregunta de verificacion Estado Evidencia / nota
+7.19 ¿Los menús cortos permiten selección directa y los 
+largos ofrecen búsqueda?
+Personalización
+ID Pregunta de verificacion Estado Evidencia / nota
+7.20 ¿El usuario puede configurar preferencias realmente 
+útiles?
+7.21 ¿La personalización no rompe consistencia ni 
+accesibilidad?
+7.22 ¿Existe una forma de restaurar valores 
+predeterminados?
+7.23 ¿Las opciones avanzadas se ocultan mediante 
+divulgación progresiva, no mediante descubrimiento 
+accidental?
+
+===== PAGINA 37 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 37
+8. Diseño estético y minimalista
+Relevancia
+ID Pregunta de verificacion Estado Evidencia / nota
+8.1 ¿Cada elemento visible ayuda a comprender, decidir o 
+actuar?
+8.2 ¿La pantalla muestra primero la información esencial?
+8.3 ¿Los datos raros o avanzados están disponibles sin 
+competir con lo principal?
+8.4 ¿Se eliminaron repeticiones que no aportan contexto?
+8.5 ¿Las tarjetas, iconos e ilustraciones tienen propósito 
+funcional?
+8.6 ¿La interfaz evita métricas de vanidad o contenido de 
+relleno?
+Claridad visual
+ID Pregunta de verificacion Estado Evidencia / nota
+8.7 ¿Existe una jerarquía evidente entre título, contenido y 
+acciones?
+8.8 ¿La acción principal destaca sin convertir toda la 
+pantalla en énfasis?
+8.9 ¿Los grupos relacionados están próximos y los 
+distintos separados?
+8.10 ¿Los iconos se distinguen por significado y no solo por 
+detalles pequeños?
+8.11 ¿El contenido mantiene suficiente espacio para 
+respirar?
+8.12 ¿Los títulos son breves, claros y distintivos?
+8.13 ¿Las etiquetas de campos son familiares y 
+descriptivas?
+Densidad y responsive
+ID Pregunta de verificacion Estado Evidencia / nota
+8.14 ¿La densidad corresponde a la frecuencia y 
+experiencia del usuario?
+8.15 ¿En móvil se prioriza contenido en lugar de reducir 
+todo?
+8.16 ¿La información secundaria puede expandirse bajo 
+demanda?
+8.17 ¿Las tablas conservan comprensión al adaptarse?
+8.18 ¿No se ocultan acciones críticas dentro de menús solo 
+para lograr una apariencia limpia?
+
+===== PAGINA 38 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 38
+Diálogo
+ID Pregunta de verificacion Estado Evidencia / nota
+8.19 ¿Los mensajes están escritos en voz activa y tono 
+respetuoso?
+8.20 ¿Cada modal contiene solo la decisión necesaria?
+8.21 ¿Los niveles inferiores de navegación pertenecen a 
+una categoría inequívoca?
+8.22 ¿Los menús emergentes no mezclan navegación, 
+configuración y acciones destructivas sin separación?
+
+===== PAGINA 39 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 39
+9. Ayudar a reconocer, diagnosticar y recuperarse de errores
+Lenguaje y tono
+ID Pregunta de verificacion Estado Evidencia / nota
+9.1 ¿El mensaje explica el problema en lenguaje claro?
+9.2 ¿Evita códigos internos, trazas y jerga técnica?
+9.3 ¿No culpa, ridiculiza ni amenaza al usuario?
+9.4 ¿Evita humor en situaciones graves o frustrantes?
+9.5 ¿Mantiene gramática, terminología y formato 
+consistentes?
+9.6 ¿Distingue error, advertencia e información?
+9.7 ¿El tono transmite que la situación puede resolverse?
+Localización y diagnóstico
+ID Pregunta de verificacion Estado Evidencia / nota
+9.8 ¿El campo o zona con error queda identificado visual y 
+programáticamente?
+9.9 ¿El foco se dirige al primer error cuando corresponde 
+sin provocar pérdida de contexto?
+9.10 ¿Se ofrece un resumen de errores en formularios 
+largos?
+9.11 ¿El mensaje indica qué valor o condición es inválida?
+9.12 ¿Explica la causa probable cuando es útil?
+9.13 ¿Distingue errores del usuario, del sistema, de red y de 
+permisos?
+9.14 ¿La severidad y consecuencia se comunican con 
+precisión?
+Recuperación
+ID Pregunta de verificacion Estado Evidencia / nota
+9.15 ¿El mensaje indica la acción concreta para resolver el 
+problema?
+9.16 ¿Los datos correctos se conservan?
+9.17 ¿La corrección puede hacerse en el mismo contexto?
+9.18 ¿Existe reintento seguro para fallos temporales?
+9.19 ¿Se evita repetir una operación que ya pudo 
+completarse?
+9.20 ¿Se proporciona contacto o escalamiento cuando el 
+usuario no puede resolverlo?
+
+===== PAGINA 40 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 40
+ID Pregunta de verificacion Estado Evidencia / nota
+9.21 ¿Los errores críticos incluyen identificador de soporte 
+sin exponer información sensible?
+9.22 ¿Las personas novatas pueden acceder a explicación 
+adicional y las expertas a detalle técnico apropiado?
+
+===== PAGINA 41 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 41
+10. Ayuda y documentación
+Acceso
+ID Pregunta de verificacion Estado Evidencia / nota
+10.1 ¿La ayuda es visible y fácil de encontrar?
+10.2 ¿Existe ayuda contextual en tareas complejas?
+10.3 ¿Se puede entrar y salir de la ayuda sin perder el 
+trabajo?
+10.4 ¿Al cerrar la ayuda se retorna al elemento o paso 
+anterior?
+10.5 ¿La ayuda es operable por teclado y accesible?
+10.6 ¿La ubicación de ayuda es consistente en todo el 
+sistema?
+Contenido
+ID Pregunta de verificacion Estado Evidencia / nota
+10.7 ¿La ayuda está centrada en tareas reales?
+10.8 ¿Las instrucciones siguen el orden de las acciones?
+10.9 ¿La información es exacta, completa y actualizada?
+10.10 ¿Explica qué puede hacerse con el sistema?
+10.11 ¿Describe para qué sirve un objeto o función?
+10.12 ¿Indica cómo completar una tarea?
+10.13 ¿Explica por qué ocurrió un resultado inesperado?
+10.14 ¿Ayuda a saber dónde está el usuario?
+10.15 ¿Incluye ejemplos representativos?
+10.16 ¿Evita párrafos extensos cuando un procedimiento 
+breve es suficiente?
+Búsqueda y presentación
+ID Pregunta de verificacion Estado Evidencia / nota
+10.17 ¿La información puede buscarse con palabras del 
+usuario?
+10.18 ¿Los resultados de ayuda priorizan la tarea actual?
+10.19 ¿La estructura visual de la ayuda es legible?
+10.20 ¿Los enlaces tienen nombres descriptivos?
+10.21 ¿Las capturas o instrucciones coinciden con la versión 
+actual?
+
+===== PAGINA 42 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 42
+ID Pregunta de verificacion Estado Evidencia / nota
+10.22 ¿El usuario puede cambiar el nivel de detalle?
+10.23 ¿Las opciones ambiguas ofrecen explicación adicional 
+sin obligar a abandonar el flujo?
+
+===== PAGINA 43 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 43
+11. Habilidades y ampliación de capacidades
+General
+ID Pregunta de verificacion Estado Evidencia / nota
+11.1 ¿El sistema aprovecha conocimiento previo del 
+usuario?
+11.2 ¿La interacción es fácil de aprender y recordar?
+11.3 ¿Existen varios niveles de detalle cuando los perfiles lo 
+necesitan?
+11.4 ¿El usuario inicia acciones en lugar de responder 
+continuamente a interrupciones?
+11.5 ¿El sistema transforma, calcula o completa datos que 
+no requieren juicio humano?
+11.6 ¿El foco inicial se coloca en el control más probable sin 
+impedir navegación?
+11.7 ¿El método para moverse entre campos es simple y 
+visible?
+11.8 ¿Los dispositivos y métodos de entrada corresponden 
+a las capacidades y al entorno?
+11.9 ¿Las funciones frecuentes son más accesibles que las 
+raras?
+11.10 ¿El sistema anticipa la próxima actividad sin ejecutarla 
+de forma invasiva?
+11.11 ¿Se permite elegir entre texto, iconos u otras 
+presentaciones cuando aporta accesibilidad o 
+eficiencia?
+
+===== PAGINA 44 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 44
+12. Interacción placentera y respetuosa
+General
+ID Pregunta de verificacion Estado Evidencia / nota
+12.1 ¿La interfaz trata al usuario con respeto incluso 
+cuando se equivoca?
+12.2 ¿Los iconos forman una familia coherente y sin detalle 
+excesivo?
+12.3 ¿El color se utiliza con discreción y propósito?
+12.4 ¿La gestión de ventanas, paneles y modales se 
+mantiene al mínimo?
+12.5 ¿La interfaz coincide con documentos o procesos 
+físicos solo cuando esa correspondencia ayuda?
+12.6 ¿El usuario puede desactivar automatizaciones 
+visuales innecesarias?
+12.7 ¿Se minimiza escritura repetitiva?
+12.8 ¿Los dispositivos y gestos son adecuados al entorno 
+de uso?
+12.9 ¿Se minimizan movimientos de mano y vista entre 
+controles?
+12.10 ¿Existe alternativa a tareas que requieran puntero 
+preciso?
+12.11 ¿Las acciones frecuentes se encuentran en posiciones 
+accesibles?
+12.12 ¿Las entradas parciales inequívocas pueden 
+completarse con confirmación o fácil corrección?
+12.13 ¿El sistema evita patrones manipuladores, culpa, 
+urgencia falsa y obstáculos para cancelar?
+
+===== PAGINA 45 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 45
+13. Privacidad
+General
+ID Pregunta de verificacion Estado Evidencia / nota
+13.1 ¿Las áreas protegidas requieren autorización real del 
+servidor?
+13.2 ¿La interfaz no revela existencia o contenido sensible 
+a personas sin permisos?
+13.3 ¿Los controles de acceso se prueban y no dependen 
+solo de ocultar botones?
+13.4 ¿Se recopilan únicamente los datos necesarios?
+13.5 ¿El propósito de los datos se explica en el momento de 
+recopilarlos?
+13.6 ¿Los valores sensibles se ocultan por defecto cuando 
+corresponde?
+13.7 ¿El usuario puede revisar y corregir datos antes de 
+enviarlos?
+13.8 ¿Las notificaciones evitan mostrar información sensible 
+en pantallas bloqueadas o compartidas?
+13.9 ¿Los registros y mensajes de error no exponen 
+secretos ni datos personales?
+13.10 ¿Las sesiones expiran de forma proporcional al riesgo 
+y permiten guardar trabajo cuando sea seguro?
+13.11 ¿Las acciones sobre datos personales dejan 
+trazabilidad apropiada?
+13.12 ¿Eliminar, exportar o compartir datos comunica 
+alcance y consecuencias?
+
+===== PAGINA 46 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 46
+ANEXO B. Puertas de calidad antes de declarar terminado
+G0. Integridad, seguridad y dominio
+N Criterio C / P / NC / NA / NV
+1 No se introducen perdidas, duplicados ni corrupcion de datos.
+2 Las acciones sensibles verifican identidad, autorizacion y alcance.
+3 Los datos personales se muestran y registran solo cuando 
+corresponde.
+4 Las acciones irreversibles explican consecuencias y ofrecen 
+prevencion o recuperacion.
+5 Los errores no exponen secretos, trazas o datos de otras personas.
+G1. Usuarios, tareas y flujo
+N Criterio C / P / NC / NA / NV
+1 Roles, objetivos, tareas, frecuencia, criticidad y contexto estan 
+identificados.
+2 El camino principal es visible, comprensible y suficientemente corto.
+3 Alternativas, errores, recuperacion y resultado final estan definidos.
+4 La navegacion mantiene ubicacion y evita perdida accidental.
+5 Los supuestos no confirmados estan documentados.
+G2. Componentes y estados
+N Criterio C / P / NC / NA / NV
+1 Controles, etiquetas y proposito son inequívocos.
+2 Foco, seleccionado, deshabilitado, carga, vacio, exito y error estan 
+contemplados.
+3 Cada accion produce respuesta oportuna.
+4 Los errores conservan informacion valida y permiten recuperacion.
+5 No se utilizan modales de manera innecesaria.
+G3. Heuristicas y factor humano
+N Criterio C / P / NC / NA / NV
+1 Las diez heuristicas aplicables fueron revisadas.
+2 La interfaz respeta atencion, memoria, percepcion y capacidad 
+motora.
+3 La jerarquia, densidad y lenguaje reducen carga cognitiva.
+
+===== PAGINA 47 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 47
+N Criterio C / P / NC / NA / NV
+4 Las personas novatas y expertas disponen de rutas adecuadas.
+5 Los problemas fueron registrados con evidencia y severidad.
+G4. Accesibilidad
+N Criterio C / P / NC / NA / NV
+1 Estructura, nombres, roles, estados y valores son accesibles.
+2 El flujo completo funciona con teclado y foco visible.
+3 El significado no depende solo de color, sonido, forma o posicion.
+4 Contraste, zoom, reflow, responsive y ampliadores fueron 
+comprobados.
+5 La revision automatica fue complementada con pruebas manuales.
+G5. Validacion y evidencia
+N Criterio C / P / NC / NA / NV
+1 Compilacion, lint y pruebas relevantes fueron ejecutados o limitados 
+documentados.
+2 Las rutas modificadas se recorrieron con datos representativos.
+3 No se rompieron permisos, rutas, componentes compartidos ni estilos 
+globales.
+4 Las correcciones importantes fueron reevaluadas.
+5 Los riesgos residuales y pruebas pendientes se comunican 
+explicitamente.
+
+===== PAGINA 48 =====
+ANEXO A - AUDITORIA HEURISTICA AMPLIADA
+Pagina 48
+Fuentes y criterio de sintesis
+La guia transforma teoria academica en preguntas verificables. Los contenidos historicos se conservaron por su intencion y se actualizaron cuando fue necesario para evitar reglas obsoletas.
+Fuente Aporte utilizado
+S01-02 - Material-Introduccion y Usabilidad.pdf Interaccion persona-ordenador, definicion de usabilidad, eficacia, eficiencia, satisfaccion y diseno centrado en 
+usuario.
+S02 - Material-Usabilidad.pdf Contexto de uso, dimensiones, principios, metricas y experiencia de usuario.
+S03-Material.pdf y S04-Material.pdf Factor humano: percepcion, atencion, memoria, modelos mentales, Gestalt y limites cognitivos.
+S06-Material.pdf Metaforas verbales y visuales, lenguaje visual y riesgos de representaciones incorrectas.
+S07-Material (1).pdf Casos de uso esenciales, prototipado y evaluacion temprana.
+S08-Material_MetodosEvaluacion_01.pdf Inspeccion, indagacion, test, evaluacion heuristica, 10 reglas, evaluadores y metricas.
+S09-Material_MetodosEvaluacion_02.pdf Pruebas con usuarios, tareas, pensamiento en voz alta, SUS, observacion, logs y analisis.
+S11-Material (2).pdf Planificacion y preguntas ampliadas de evaluacion heuristica.
+S12-material_Diseno.pdf Analisis de usuarios, tareas, entorno, modelos conceptual y mental, ciclo iterativo de diseno.
+S13-material_Accecibilidad.pdf Diseno universal, deficiencia de color, vision reducida, ampliadores y comprobacion de accesibilidad.
+material_accesibilidad_02.pdf Accesibilidad web, WAI-ARIA, uso del color, contraste, estructura y tecnologias asistivas.
+W3C - Web Content Accessibility Guidelines (WCAG) 2.2 Referencia practica actual para color, contraste, cambio de tamano, reflow, teclado y foco.
+Criterio de contradicciones
+Si una recomendacion historica contradice evidencia de usuarios, una convencion moderna de plataforma o un criterio actual de accesibilidad, se conserva su objetivo - claridad, 
+prevencion, consistencia o reduccion de carga - y se aplica mediante una solucion actual.
+FIN DE LA GUIA
+Auditar - registrar evidencia - corregir - volver a evaluar

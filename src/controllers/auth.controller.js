@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const db = require('../config/database');
+const { sendPasswordResetEmail } = require('../services/smtp-mail.service');
 
 const MAX_FAILED_LOGIN_ATTEMPTS = 5;
 const LOGIN_LOCK_MINUTES = 10;
@@ -55,12 +56,35 @@ exports.showLogin = (req, res) => {
   });
 };
 
+exports.showPrivacy = (req, res) => {
+  res.render('auth/privacy', {
+    title: 'Privacidad y tratamiento de datos'
+  });
+};
+
+function regenerateSession(req) {
+  return new Promise((resolve, reject) => {
+    req.session.regenerate(error => {
+      if (error) reject(error);
+      else resolve();
+    });
+  });
+}
+
 exports.login = async (req, res) => {
   try {
     const { identificador, password } = req.body;
 
-    if (!identificador || !password) {
-      req.session.error = 'Ingresa tu usuario/correo y contraseña.';
+    const correoInstitucional = (identificador || '').trim().toLowerCase();
+
+    if (!correoInstitucional || !password) {
+      req.session.error = 'Ingresa tu correo institucional y contraseña.';
+      return res.redirect('/login');
+    }
+
+    if (!correoValido(correoInstitucional)) {
+      req.session.error = 'Ingresa un correo institucional válido.';
+      req.session.errorField = 'identificador';
       return res.redirect('/login');
     }
 
@@ -75,6 +99,8 @@ exports.login = async (req, res) => {
         u.debe_cambiar_password,
         u.failed_attempts,
         u.locked_until,
+        adm.nivel_acceso AS nivel_acceso_administrativo,
+        adm.cargo AS area_administrativa,
         p.id_persona,
         p.nombres,
         p.apellido_paterno,
@@ -82,14 +108,15 @@ exports.login = async (req, res) => {
         p.correo
       FROM usuario u
       INNER JOIN persona p ON u.id_persona = p.id_persona
-      WHERE u.username = ? OR p.correo = ?
+      LEFT JOIN administrativo adm ON adm.id_persona = u.id_persona
+      WHERE p.correo = ?
       LIMIT 1
       `,
-      [identificador, identificador]
+      [correoInstitucional]
     );
 
     if (rows.length === 0) {
-      req.session.error = 'No encontramos una cuenta con ese usuario o correo.';
+      req.session.error = 'No encontramos una cuenta con ese correo institucional.';
       req.session.errorField = 'identificador';
       return res.redirect('/login');
     }
@@ -151,11 +178,15 @@ exports.login = async (req, res) => {
       [user.id_usuario]
     );
 
+    await regenerateSession(req);
+
     req.session.user = {
       id_usuario: user.id_usuario,
       id_persona: user.id_persona,
       username: user.username,
       rol: user.rol,
+      nivel_acceso_administrativo: user.nivel_acceso_administrativo || null,
+      area_administrativa: user.area_administrativa || null,
       nombres: user.nombres,
       apellido_paterno: user.apellido_paterno,
       correo: user.correo
@@ -197,6 +228,7 @@ exports.register = async (req, res) => {
       telefono,
       password,
       confirm_password,
+      acepta_privacidad,
     } = req.body;
 
     const nombresLimpio = limpiarTexto(nombres);
@@ -212,10 +244,11 @@ exports.register = async (req, res) => {
       apellido_materno: apellidoMaternoLimpio,
       dni: dniLimpio,
       correo: correoLimpio,
-      telefono: telefonoLimpio
+      telefono: telefonoLimpio,
+      acepta_privacidad: acepta_privacidad === 'si'
     };
 
-    if (!nombresLimpio || !apellidoPaternoLimpio || !dniLimpio || !correoLimpio || !telefonoLimpio || !password || !confirm_password) {
+    if (!nombresLimpio || !apellidoPaternoLimpio || !dniLimpio || !correoLimpio || !telefonoLimpio || !password || !confirm_password || acepta_privacidad !== 'si') {
       return res.render('auth/register', {
         title: 'Crear Cuenta',
         error: 'Completa todos los campos obligatorios.',
@@ -357,6 +390,14 @@ exports.register = async (req, res) => {
       [idPersona, 'Estudiante UNT']
     );
 
+    await connection.query(
+      `
+      INSERT INTO consentimiento_privacidad (id_persona, version_politica, finalidad)
+      VALUES (?, '2026-07', 'Creacion y gestion de cuenta de Bienestar UNT')
+      `,
+      [idPersona]
+    );
+
     await connection.commit();
 
     req.session.success = 'Cuenta creada correctamente. Ahora puedes iniciar sesión.';
@@ -396,9 +437,10 @@ exports.showForgotPassword = (req, res) => {
 exports.forgotPassword = async (req, res) => {
   try {
     const { identificador } = req.body;
+    const correoInstitucional = (identificador || '').trim().toLowerCase();
 
-    if (!identificador) {
-      req.session.error = 'Ingresa tu correo o usuario para continuar.';
+    if (!correoInstitucional || !correoValido(correoInstitucional)) {
+      req.session.error = 'Ingresa un correo institucional válido para continuar.';
       return res.redirect('/forgot-password');
     }
 
@@ -412,10 +454,10 @@ exports.forgotPassword = async (req, res) => {
         p.nombres
       FROM usuario u
       INNER JOIN persona p ON u.id_persona = p.id_persona
-      WHERE u.username = ? OR p.correo = ?
+      WHERE p.correo = ?
       LIMIT 1
       `,
-      [identificador, identificador]
+      [correoInstitucional]
     );
 
     // Mensaje genérico para no revelar si el usuario existe o no
@@ -439,7 +481,7 @@ exports.forgotPassword = async (req, res) => {
       [user.id_usuario]
     );
 
-    await db.query(
+    const [tokenResult] = await db.query(
       `
       INSERT INTO password_reset_token (
         id_usuario,
@@ -453,12 +495,22 @@ exports.forgotPassword = async (req, res) => {
     const appUrl = process.env.APP_URL || 'http://localhost:3000';
     const resetUrl = `${appUrl}/reset-password/${resetToken}`;
 
-    console.log('========================================');
-    console.log('ENLACE DE RECUPERACIÓN PARA PRUEBAS');
-    console.log(`Usuario: ${user.username}`);
-    console.log(resetUrl);
-    console.log('Este enlace expira en 15 minutos.');
-    console.log('========================================');
+    try {
+      await sendPasswordResetEmail({
+        to: user.correo,
+        name: user.nombres,
+        resetUrl
+      });
+    } catch (mailError) {
+      await db.query(
+        'UPDATE password_reset_token SET used_at = NOW() WHERE id_token = ?',
+        [tokenResult.insertId]
+      );
+
+      console.error('No se pudo enviar el correo de recuperacion.', mailError.message);
+      req.session.error = 'El servicio de recuperacion no esta disponible en este momento. Intentalo mas tarde.';
+      return res.redirect('/forgot-password');
+    }
 
     req.session.success = 'Si la cuenta existe, se generaron instrucciones para restablecer la contraseña.';
     return res.redirect('/login');

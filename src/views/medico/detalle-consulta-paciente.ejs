@@ -4,33 +4,33 @@
   </div>
 
   <div class="clinical-overview patient-history-overview">
-    <section class="triaje-summary clinical-panel">
+    <section class="triaje-summary clinical-panel detail-info-panel detail-info-panel-two consistent-info-panel">
       <h3>Consulta médica</h3>
-      <div class="triaje-summary-grid compact-clinical-grid">
+      <div class="triaje-summary-grid compact-clinical-grid consistent-info-grid">
         <div><span>Fecha</span><strong><%= new Date(consulta.fecha).toLocaleDateString('es-PE') %></strong></div>
         <div><span>Hora</span><strong><%= consulta.hora %></strong></div>
         <div class="full-row"><span>Motivo</span><strong><%= consulta.motivo %></strong></div>
       </div>
     </section>
 
-    <section class="triaje-summary clinical-panel">
+    <section class="triaje-summary clinical-panel detail-info-panel detail-info-panel-two consistent-info-panel">
       <h3>Triaje registrado</h3>
-      <div class="triaje-summary-grid compact-clinical-grid">
+      <div class="triaje-summary-grid compact-clinical-grid consistent-info-grid">
         <div><span>Temperatura</span><strong><%= consulta.temperatura || 'N/R' %> °C</strong></div>
         <div><span>Presión arterial</span><strong><%= consulta.presion_arterial || 'N/R' %></strong></div>
         <div><span>Frecuencia cardíaca</span><strong><%= consulta.frecuencia_cardiaca || 'N/R' %> lpm</strong></div>
         <div><span>Saturación O2</span><strong><%= consulta.saturacion || 'N/R' %>%</strong></div>
-        <div class="full-row"><span>Síntomas verificados</span><strong><%= consulta.sintomas || 'No registrados' %></strong></div>
+        <div><span>Síntomas verificados</span><strong><%= consulta.sintomas || 'No registrados' %></strong></div>
         <% if (consulta.triaje_observaciones) { %>
-          <div class="full-row"><span>Observaciones de enfermería</span><strong><%= consulta.triaje_observaciones %></strong></div>
+          <div><span>Observaciones de enfermería</span><strong><%= consulta.triaje_observaciones %></strong></div>
         <% } %>
       </div>
     </section>
   </div>
 
-  <section class="triaje-summary">
+  <section class="triaje-summary detail-info-panel consulta-medica-section consistent-info-panel">
     <h3>Atención médica</h3>
-    <div class="consulta-detail-grid consulta-detail-grid-two">
+    <div class="consulta-detail-grid consulta-detail-grid-two consulta-medica-grid consistent-info-grid">
       <div>
         <span>Diagnóstico</span>
         <strong><%= consulta.diagnostico %></strong>

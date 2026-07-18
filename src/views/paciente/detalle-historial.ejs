@@ -4,9 +4,10 @@
   </div>
 
   <div class="clinical-overview patient-history-overview">
-    <section class="patient-summary clinical-panel">
+    <section class="patient-summary clinical-panel detail-info-panel detail-info-panel-two consistent-info-panel consistent-info-direct-panel">
       <h3>Datos de la cita</h3>
 
+      <div class="consistent-info-grid">
       <div>
         <span>Fecha</span>
         <strong><%= new Date(consulta.fecha).toLocaleDateString('es-PE') %></strong>
@@ -27,17 +28,18 @@
         <strong><%= consulta.especialidad %></strong>
       </div>
 
-      <div class="full-row">
+      <div>
         <span>Motivo de consulta</span>
         <strong><%= consulta.motivo %></strong>
       </div>
+      </div>
     </section>
 
-    <section class="triaje-summary clinical-panel">
+    <section class="triaje-summary clinical-panel detail-info-panel detail-info-panel-two consistent-info-panel">
       <h3>Triaje registrado</h3>
 
       <% if (consulta.temperatura) { %>
-        <div class="triaje-summary-grid compact-clinical-grid">
+        <div class="triaje-summary-grid compact-clinical-grid consistent-info-grid">
           <div>
             <span>Temperatura</span>
             <strong><%= consulta.temperatura %> &deg;C</strong>
@@ -58,14 +60,14 @@
             <strong><%= consulta.saturacion || 'No registrada' %>%</strong>
           </div>
 
-          <div class="full-row">
-            <span>S&iacute;ntomas</span>
-            <strong><%= consulta.sintomas || 'No registrados' %></strong>
-          </div>
-
-          <div class="full-row">
+          <div>
             <span>Observaciones de enfermer&iacute;a</span>
             <strong><%= consulta.triaje_observaciones || 'Sin observaciones' %></strong>
+          </div>
+
+          <div>
+            <span>S&iacute;ntomas</span>
+            <strong><%= consulta.sintomas || 'No registrados' %></strong>
           </div>
         </div>
       <% } else { %>
@@ -74,26 +76,26 @@
     </section>
   </div>
 
-  <section class="consulta-detail-section">
+  <section class="consulta-detail-section consulta-medica-section detail-info-panel consistent-info-panel">
     <h3>Consulta m&eacute;dica</h3>
 
-    <div class="consulta-detail-grid">
-      <div class="full-row">
+    <div class="consulta-detail-grid consulta-medica-grid consistent-info-grid">
+      <div>
         <span>Diagn&oacute;stico</span>
         <strong><%= consulta.diagnostico %></strong>
       </div>
 
-      <div class="full-row">
+      <div>
         <span>Tratamiento, receta e indicaciones</span>
         <strong><%= consulta.tratamiento %></strong>
       </div>
 
-      <div class="full-row">
+      <div>
         <span>Recomendaciones al paciente</span>
         <strong><%= consulta.recomendaciones || 'Sin recomendaciones registradas' %></strong>
       </div>
 
-      <div class="full-row">
+      <div>
         <span>Observaciones</span>
 
         <% if (consulta.privada === 1) { %>

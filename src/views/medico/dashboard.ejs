@@ -1,5 +1,10 @@
 <%
   const cargaActiva = Number(stats.listas_atencion || 0) + Number(stats.borradores || 0);
+  const quickIcons = {
+    citas: '<svg class="menu-svg dashboard-action-icon" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4M16 3v4M4 9h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01M16 17h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    pacientes: '<svg class="menu-svg dashboard-action-icon" viewBox="0 0 24 24" fill="none"><path d="M16 11a4 4 0 1 0-8 0M3 21a7 7 0 0 1 14 0M18 8a3 3 0 0 1 0 6M19 17a5 5 0 0 1 2 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    perfil: '<svg class="menu-svg dashboard-action-icon" viewBox="0 0 24 24" fill="none"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+  };
 
   function statusLabel(estado) {
     if (estado === 'triaje_registrado') return 'Con triaje';
@@ -49,7 +54,6 @@
 <div class="dashboard-secondary-grid dashboard-secondary-grid-even">
   <section class="dashboard-info-card dashboard-record-card" aria-labelledby="doctorNextTitle">
     <div class="dashboard-info-heading">
-      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-stethoscope"></i></span>
       <div>
         <h3 id="doctorNextTitle">Consultas por atender</h3>
         <p>Pacientes listos para continuar atención médica.</p>
@@ -76,7 +80,6 @@
 
   <section class="dashboard-info-card" aria-labelledby="doctorQuickTitle">
     <div class="dashboard-info-heading">
-      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-lightning-charge"></i></span>
       <div>
         <h3 id="doctorQuickTitle">Accesos rápidos</h3>
         <p>Entradas breves a los módulos completos de atención.</p>
@@ -85,15 +88,15 @@
 
     <div class="dashboard-info-list">
       <a href="/medico/citas?returnTo=dashboard" class="dashboard-info-row">
-        <span><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>Citas por atender</span>
+        <span><%- quickIcons.citas %>Citas por atender</span>
         <strong><%= cargaActiva %></strong>
       </a>
       <a href="/medico/pacientes?returnTo=dashboard" class="dashboard-info-row">
-        <span><i class="bi bi-folder2-open" aria-hidden="true"></i>Pacientes</span>
+        <span><%- quickIcons.pacientes %>Pacientes</span>
         <i class="bi bi-chevron-right" aria-hidden="true"></i>
       </a>
       <a href="/perfil?returnTo=dashboard" class="dashboard-info-row">
-        <span><i class="bi bi-person" aria-hidden="true"></i>Mi perfil</span>
+        <span><%- quickIcons.perfil %>Mi perfil</span>
         <i class="bi bi-chevron-right" aria-hidden="true"></i>
       </a>
     </div>

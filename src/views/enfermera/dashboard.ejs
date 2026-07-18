@@ -1,6 +1,11 @@
 <%
   const hoy = new Date().toISOString().slice(0, 10);
   const cargaTriaje = Number(stats.triajes_pendientes || 0) + Number(stats.citas_con_triaje || 0);
+  const quickIcons = {
+    triaje: '<svg class="menu-svg dashboard-action-icon" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-4.5 7-11a7 7 0 1 0-14 0c0 6.5 7 11 7 11z" stroke="currentColor" stroke-width="2"/><path d="M12 7v6M9 10h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    citas: '<svg class="menu-svg dashboard-action-icon" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4M16 3v4M4 9h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01M16 17h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    historial: '<svg class="menu-svg dashboard-action-icon" viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 1 0 2.35-5.65" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 5.5v4h4M12 8v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  };
 %>
 
 <div class="dashboard-grid dashboard-grid-compact">
@@ -8,7 +13,7 @@
     <div class="dashboard-stat-copy">
       <h3>Triajes pendientes</h3>
       <p class="stat-number"><%= stats.triajes_pendientes || 0 %></p>
-      <p class="dashboard-stat-detail"><%= proximasCitas && proximasCitas.length ? 'Con citas por evaluar' : 'No hay disponibles' %></p>
+      <p class="dashboard-stat-detail">Citas por evaluar</p>
     </div>
     <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-activity"></i></span>
   </article>
@@ -17,7 +22,7 @@
     <div class="dashboard-stat-copy">
       <h3>Triajes activos</h3>
       <p class="stat-number"><%= stats.triajes_realizados || 0 %></p>
-      <p class="dashboard-stat-detail">Seguimientos en curso</p>
+      <p class="dashboard-stat-detail">En espera o consulta</p>
     </div>
     <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-clipboard2-pulse-fill"></i></span>
   </article>
@@ -26,7 +31,7 @@
     <div class="dashboard-stat-copy">
       <h3>Triajes de hoy</h3>
       <p class="stat-number"><%= stats.triajes_hoy || 0 %></p>
-      <p class="dashboard-stat-detail">Actividad del día</p>
+      <p class="dashboard-stat-detail">Registrados hoy</p>
     </div>
     <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-calendar-day-fill"></i></span>
   </article>
@@ -35,7 +40,7 @@
     <div class="dashboard-stat-copy">
       <h3>En espera médica</h3>
       <p class="stat-number"><%= stats.citas_con_triaje || 0 %></p>
-      <p class="dashboard-stat-detail">Derivadas a consulta</p>
+      <p class="dashboard-stat-detail">Listos para consulta</p>
     </div>
     <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-send-check-fill"></i></span>
   </article>
@@ -44,7 +49,6 @@
 <div class="dashboard-secondary-grid dashboard-secondary-grid-even">
   <section class="dashboard-info-card dashboard-record-card" aria-labelledby="nurseNextTitle">
     <div class="dashboard-info-heading">
-      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-heart-pulse"></i></span>
       <div>
         <h3 id="nurseNextTitle">Citas para triaje</h3>
         <p>Citas pendientes ordenadas por fecha y hora.</p>
@@ -71,7 +75,6 @@
 
   <section class="dashboard-info-card" aria-labelledby="nurseQuickTitle">
     <div class="dashboard-info-heading">
-      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-lightning-charge"></i></span>
       <div>
         <h3 id="nurseQuickTitle">Accesos rápidos</h3>
         <p>Atajos a seguimiento, no una segunda lista de trabajo.</p>
@@ -80,15 +83,15 @@
 
     <div class="dashboard-info-list">
       <a href="/enfermera/triaje-pendiente?returnTo=dashboard" class="dashboard-info-row">
-        <span><i class="bi bi-activity" aria-hidden="true"></i>Triaje pendiente</span>
+        <span><%- quickIcons.triaje %>Triaje pendiente</span>
         <strong><%= stats.triajes_pendientes || 0 %></strong>
       </a>
       <a href="/enfermera/triajes?desde=<%= hoy %>&hasta=<%= hoy %>&returnTo=dashboard" class="dashboard-info-row">
-        <span><i class="bi bi-calendar-day" aria-hidden="true"></i>Triajes de hoy</span>
+        <span><%- quickIcons.citas %>Triajes de hoy</span>
         <strong><%= stats.triajes_hoy || 0 %></strong>
       </a>
       <a href="/enfermera/historial-triajes?returnTo=dashboard" class="dashboard-info-row">
-        <span><i class="bi bi-clock-history" aria-hidden="true"></i>Historial de triajes</span>
+        <span><%- quickIcons.historial %>Historial de triajes</span>
         <i class="bi bi-chevron-right" aria-hidden="true"></i>
       </a>
     </div>

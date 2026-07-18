@@ -1,5 +1,10 @@
 <%
   const citasActivas = Number(stats.activas || 0);
+  const quickIcons = {
+    reservar: '<svg class="menu-svg dashboard-action-icon" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4M16 3v4M4 9h16M12 12.5v5M9.5 15h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    citas: '<svg class="menu-svg dashboard-action-icon" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4M16 3v4M4 9h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01M16 17h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    antecedentes: '<svg class="menu-svg dashboard-action-icon" viewBox="0 0 24 24" fill="none"><path d="M9 5h6M9 5a3 3 0 0 1 6 0M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 11v5M9.5 13.5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'
+  };
   const nextLabel = proximaCita
     ? `${new Date(proximaCita.fecha).toLocaleDateString('es-PE')} - ${proximaCita.hora}`
     : 'No hay próximas disponibles';
@@ -15,7 +20,7 @@
 <div class="dashboard-grid dashboard-grid-compact">
   <article class="stat-card dashboard-stat-card highlight-card">
     <div class="dashboard-stat-copy">
-      <h3>Citas activas</h3>
+      <h3>Citas en proceso</h3>
       <p class="stat-number"><%= citasActivas %></p>
       <p class="dashboard-stat-detail"><%= nextLabel %></p>
     </div>
@@ -24,9 +29,9 @@
 
   <article class="stat-card dashboard-stat-card">
     <div class="dashboard-stat-copy">
-      <h3>Citas pendientes</h3>
+      <h3>Pendientes de triaje</h3>
       <p class="stat-number"><%= stats.pendientes || 0 %></p>
-      <p class="dashboard-stat-detail">Reservas por atender</p>
+      <p class="dashboard-stat-detail">Reservas aun sin triaje</p>
     </div>
     <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-hourglass-split"></i></span>
   </article>
@@ -53,7 +58,6 @@
 <div class="dashboard-secondary-grid dashboard-secondary-grid-even">
   <section class="dashboard-info-card dashboard-record-card" aria-labelledby="patientNextTitle">
     <div class="dashboard-info-heading">
-      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-calendar-week"></i></span>
       <div>
         <h3 id="patientNextTitle">Próximas citas</h3>
         <p>Resumen breve de tus atenciones programadas.</p>
@@ -80,7 +84,6 @@
 
   <section class="dashboard-info-card" aria-labelledby="patientQuickTitle">
     <div class="dashboard-info-heading">
-      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-lightning-charge"></i></span>
       <div>
         <h3 id="patientQuickTitle">Accesos rápidos</h3>
         <p>Acciones principales sin repetir formularios dentro del panel.</p>
@@ -89,15 +92,15 @@
 
     <div class="dashboard-info-list">
       <a href="/paciente/reservar-cita?returnTo=dashboard" class="dashboard-info-row">
-        <span><i class="bi bi-calendar-plus" aria-hidden="true"></i>Reservar cita</span>
+        <span><%- quickIcons.reservar %>Reservar cita</span>
         <i class="bi bi-chevron-right" aria-hidden="true"></i>
       </a>
       <a href="/paciente/mis-citas?returnTo=dashboard" class="dashboard-info-row">
-        <span><i class="bi bi-calendar3" aria-hidden="true"></i>Mis citas</span>
+        <span><%- quickIcons.citas %>Mis citas</span>
         <i class="bi bi-chevron-right" aria-hidden="true"></i>
       </a>
       <a href="/paciente/antecedentes?returnTo=dashboard" class="dashboard-info-row">
-        <span><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>Antecedentes médicos</span>
+        <span><%- quickIcons.antecedentes %>Antecedentes médicos</span>
         <i class="bi bi-chevron-right" aria-hidden="true"></i>
       </a>
     </div>

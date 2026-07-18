@@ -49,9 +49,6 @@
       <p>Registra tus antecedentes para que enfermería y medicina los revisen durante la atención.</p>
     </div>
 
-    <div class="antecedentes-meta">
-      <span>Última actualización: <strong><%= fechaLegible(antecedentes.fecha_actualizacion) %></strong></span>
-    </div>
   </div>
 
   <form action="/paciente/antecedentes" method="POST" class="antecedentes-form js-patient-validated-form" id="antecedentesForm" novalidate>
@@ -316,9 +313,14 @@
 </div>
 
 <div class="modal-overlay hidden" id="leaveAntecedentesModal" role="dialog" aria-modal="true" aria-labelledby="leaveAntecedentesTitle" aria-describedby="leaveAntecedentesText">
-  <div class="confirm-modal">
+  <div class="confirm-modal confirm-modal-polished" data-confirm-action="cancelar">
+    <button type="button" class="modal-close confirm-modal-close" id="closeLeaveAntecedentesTop" aria-label="Cerrar confirmación">&times;</button>
+    <div class="confirm-modal-icon" aria-hidden="true">
+      <i class="bi bi-exclamation-triangle"></i>
+    </div>
     <h3 id="leaveAntecedentesTitle">Abandonar antecedentes</h3>
     <p id="leaveAntecedentesText">Existen cambios sin guardar en tus antecedentes médicos. Si sales ahora, esos cambios se perderán.</p>
+    <small class="confirm-modal-note">Puedes permanecer en la pantalla y guardar antes de salir.</small>
     <div class="modal-actions">
       <button type="button" class="btn-light icon-action" id="stayAntecedentes" title="Permanecer editando" aria-label="Permanecer editando">
         <img class="action-metaphor" src="/img/action-metaphors/paciente/antecedentes/volver.svg" alt="" aria-hidden="true">
@@ -340,6 +342,7 @@
   const antecedentesMessage = document.getElementById('antecedentesMessage');
   const leaveAntecedentesModal = document.getElementById('leaveAntecedentesModal');
   const stayAntecedentes = document.getElementById('stayAntecedentes');
+  const closeLeaveAntecedentesTop = document.getElementById('closeLeaveAntecedentesTop');
   const confirmLeaveAntecedentes = document.getElementById('confirmLeaveAntecedentes');
   let allowAntecedentesLeave = false;
   let userTouchedAntecedentes = false;
@@ -460,6 +463,11 @@
   });
 
   stayAntecedentes.addEventListener('click', () => {
+    leaveAntecedentesModal.classList.add('hidden');
+    pendingAntecedentesHref = '';
+  });
+
+  closeLeaveAntecedentesTop.addEventListener('click', () => {
     leaveAntecedentesModal.classList.add('hidden');
     pendingAntecedentesHref = '';
   });

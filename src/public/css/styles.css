@@ -6133,6 +6133,22 @@ textarea.field-error {
   background: #ffffff !important;
 }
 
+/* La acción final solo se habilita después de la confirmación explícita del médico. */
+.confirm-modal-polished[data-confirm-action="confirmar"] .confirm-consulta-actions {
+  margin-top: 24px !important;
+}
+
+.confirm-modal-polished[data-confirm-action="confirmar"] .modal-actions #confirmConsultaButton:disabled,
+.confirm-modal-polished[data-confirm-action="confirmar"] .modal-actions #confirmConsultaButton[aria-disabled="true"],
+.confirm-modal-polished[data-confirm-action="confirmar"] .modal-actions #confirmConsultaButton:disabled:hover,
+.confirm-modal-polished[data-confirm-action="confirmar"] .modal-actions #confirmConsultaButton[aria-disabled="true"]:hover {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+  color: #64748b !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
 button:disabled,
 button[aria-disabled="true"],
 .btn-dark:disabled,
@@ -6409,7 +6425,7 @@ button[aria-disabled="true"]:hover,
 }
 
 .form-group:has(input[required]:not([type="hidden"]), select[required], textarea[required]) > label span::after,
-.form-group:has(input[required]:not([type="hidden"]), select[required], textarea[required]) > label:not(.field-label-with-icon)::after,
+.form-group:has(input[required]:not([type="hidden"]), select[required], textarea[required]) > label:not(.field-label-with-icon):not(:has(.required-indicator))::after,
 .field-label-with-icon .required-indicator::after {
   content: " *";
   color: #dc2626;
@@ -7321,7 +7337,7 @@ button[aria-disabled="true"]:hover,
 .clinical-form-section-heading h3 {
   font-family: inherit !important;
   font-size: 16px !important;
-  font-weight: 800 !important;
+  font-weight: 700 !important;
   line-height: 1.28 !important;
 }
 
@@ -7551,6 +7567,133 @@ button[aria-disabled="true"]:hover,
 
 .data-table .table-actions {
   align-items: center !important;
+}
+
+.citas-card .data-table th:last-child,
+.citas-card .data-table td:last-child {
+  width: 1%;
+  white-space: nowrap;
+  padding-right: 10px !important;
+}
+
+.citas-card .data-table .table-actions {
+  justify-content: flex-start !important;
+  gap: 8px !important;
+}
+
+.clinical-workspace-triaje .nurse-appointment-summary {
+  row-gap: 14px !important;
+}
+
+.clinical-workspace-triaje .nurse-appointment-summary > .clinical-info-item {
+  padding: 0 !important;
+}
+
+.clinical-workspace-triaje .nurse-context-panel {
+  background: #ffffff !important;
+  border: 1px solid #dbe3ee !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04) !important;
+}
+
+.clinical-workspace-triaje .nurse-context-panel > h3 {
+  margin-bottom: 18px !important;
+  padding-bottom: 14px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.clinical-workspace-triaje .nurse-context-panel.nurse-appointment-summary,
+.clinical-workspace-triaje .nurse-context-panel .clinical-note-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  column-gap: 56px !important;
+  row-gap: 18px !important;
+}
+
+.clinical-workspace-triaje .nurse-context-panel .clinical-info-item,
+.clinical-workspace-triaje .nurse-context-panel .clinical-note-item {
+  position: relative;
+  padding: 0 !important;
+  border-bottom: 0 !important;
+}
+
+.clinical-workspace-triaje .nurse-context-panel.nurse-appointment-summary > .clinical-info-item:nth-of-type(odd):not(:last-child)::before,
+.clinical-workspace-triaje .nurse-context-panel .clinical-note-grid > .clinical-note-item:nth-child(odd):not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -28px;
+  border-right: 1px solid #e2e8f0;
+  pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  .clinical-workspace-triaje .nurse-context-panel.nurse-appointment-summary,
+  .clinical-workspace-triaje .nurse-context-panel .clinical-note-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .clinical-workspace-triaje .nurse-context-panel.nurse-appointment-summary > .clinical-info-item::before,
+  .clinical-workspace-triaje .nurse-context-panel .clinical-note-grid > .clinical-note-item::before {
+    display: none;
+  }
+}
+
+.clinical-workspace-triaje .symptom-category-grid {
+  gap: 12px !important;
+  margin-top: 0 !important;
+}
+
+.clinical-workspace-triaje .symptom-category {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px 14px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+}
+
+.clinical-workspace-triaje .symptom-category legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 5px !important;
+  color: #0f172a !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  line-height: 1.2;
+}
+
+.clinical-workspace-triaje .symptom-category legend .bi {
+  color: var(--ihc-primary, #2563eb);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.clinical-workspace-triaje .symptom-category .checkbox-option {
+  min-height: 22px !important;
+  gap: 8px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #172033;
+  font-size: 13px !important;
+  box-shadow: none !important;
+}
+
+.clinical-workspace-triaje .symptom-category .checkbox-option input {
+  flex-basis: 14px;
+  width: 14px !important;
+  height: 14px !important;
+  min-height: 14px !important;
+  accent-color: var(--ihc-primary, #2563eb);
+}
+
+.clinical-workspace-triaje .symptom-category .checkbox-option span {
+  line-height: 1.25;
+  overflow-wrap: normal;
 }
 
 /* Admin: accion principal arriba y ayuda contextual discreta. */
@@ -8088,7 +8231,7 @@ button[aria-disabled="true"]:hover,
   color: #0f172a !important;
   font-family: inherit !important;
   font-size: 15px !important;
-  font-weight: 800 !important;
+  font-weight: 700 !important;
   line-height: 1.25 !important;
 }
 
@@ -8119,7 +8262,7 @@ button[aria-disabled="true"]:hover,
   color: #0f172a !important;
   font-family: inherit !important;
   font-size: 14px !important;
-  font-weight: 800 !important;
+  font-weight: 700 !important;
   line-height: 1.35 !important;
 }
 
@@ -8295,6 +8438,7 @@ button[aria-disabled="true"]:hover,
   border-left: 5px solid #15803d;
 }
 
+/* Ampliadores de texto: preservan la estructura general de la interfaz. */
 html[data-visual-scale="large"] body.dashboard-body {
   padding-left: 290px !important;
   font-size: 18px;
@@ -8519,7 +8663,7 @@ html[data-visual-scale="xlarge"] .data-table {
 
 html[data-visual-scale="large"] .admin-recent-users-row,
 html[data-visual-scale="xlarge"] .admin-recent-users-row {
-  grid-template-columns: minmax(180px, 1fr) minmax(95px, .6fr) minmax(110px, .7fr) 28px;
+  grid-template-columns: minmax(180px, 1fr) minmax(95px, 0.6fr) minmax(110px, 0.7fr) 28px;
   gap: 10px;
 }
 
@@ -8532,6 +8676,9 @@ html[data-visual-scale="large"] .sidebar-header h2,
 html[data-visual-scale="xlarge"] .sidebar-header h2 {
   overflow-wrap: anywhere;
 }
+
+
+
 
 html[data-visual-contrast="high"] {
   --ihc-primary: #005ea8;
@@ -8803,6 +8950,233 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 }
 
+/* Ajustes de consistencia IHC: accesos rapidos, reserva y detalle clinico. */
+.dashboard-info-row .dashboard-action-icon {
+  width: 19px;
+  height: 19px;
+  color: var(--ihc-primary, #2563eb);
+}
+
+.step-indicator-labeled::after {
+  content: "";
+  position: absolute;
+  top: 14px;
+  left: calc(16.666% + 14px);
+  width: 0;
+  height: 2px;
+  background: var(--ihc-primary, #2563eb);
+  z-index: 0;
+  transition: width 0.18s ease;
+}
+
+.step-indicator-labeled[data-current-step="2"]::after {
+  width: calc(33.333% - 28px);
+}
+
+.step-indicator-labeled[data-current-step="3"]::after {
+  width: calc(66.666% - 28px);
+}
+
+.step-indicator-labeled .step.completed strong {
+  border-color: var(--ihc-primary, #2563eb);
+  background: #eff6ff;
+  color: var(--ihc-primary, #2563eb);
+}
+
+.step-indicator-labeled .step.completed small {
+  color: #1e3a8a;
+}
+
+.appointment-notice {
+  width: fit-content;
+  max-width: 100%;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 8px !important;
+  margin-bottom: 12px !important;
+  color: #92400e !important;
+  background: #fffbeb !important;
+  border-color: #f59e0b !important;
+}
+
+.appointment-notice .bi {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: #b45309;
+}
+
+.detalle-historial-card .consulta-detail-grid > div {
+  gap: 8px !important;
+  padding: 13px 0 !important;
+}
+
+.detalle-historial-card .consulta-medica-section {
+  margin-bottom: 0;
+}
+
+.detalle-historial-card .consulta-medica-grid {
+  gap: 0 !important;
+}
+
+.detalle-historial-card .consulta-medica-grid > div {
+  gap: 8px !important;
+  padding: 13px 0 !important;
+}
+
+.detalle-historial-card .triaje-summary-grid.compact-clinical-grid {
+  column-gap: 36px !important;
+  row-gap: 0 !important;
+}
+
+.detalle-historial-card .triaje-summary-grid.compact-clinical-grid > div {
+  position: relative;
+  gap: 8px !important;
+  padding: 13px 0 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.detalle-historial-card .triaje-summary-grid.compact-clinical-grid > div:nth-last-child(-n + 2) {
+  border-bottom: 0 !important;
+}
+
+.detalle-historial-card .triaje-summary-grid.compact-clinical-grid > div:nth-child(odd)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -18px;
+  border-right: 1px solid #e2e8f0;
+  pointer-events: none;
+}
+
+.detalle-historial-card .appointment-summary-panel {
+  align-self: stretch;
+}
+
+.detalle-historial-card .appointment-summary-grid > div:nth-last-child(-n + 2) {
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.detalle-historial-card .appointment-summary-grid > div:last-child {
+  border-bottom: 0 !important;
+}
+
+.detalle-historial-card .consulta-detail-section.clinical-detail-panelized > h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px !important;
+  padding-bottom: 10px !important;
+}
+
+.detalle-historial-card .detail-info-panel {
+  background: #ffffff !important;
+  border: 1px solid #dbe3ee !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04) !important;
+}
+
+.detalle-historial-card .detail-info-panel > h3 {
+  margin-bottom: 18px !important;
+  padding-bottom: 14px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.detalle-historial-card .detail-info-panel-two.patient-summary {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  column-gap: 56px !important;
+  row-gap: 18px !important;
+  align-content: start;
+}
+
+.detalle-historial-card .detail-info-panel-two .compact-clinical-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  column-gap: 56px !important;
+  row-gap: 18px !important;
+}
+
+.detalle-historial-card .detail-info-panel-two .compact-clinical-grid > div,
+.detalle-historial-card .detail-info-panel-two > div,
+.detalle-historial-card .detail-info-panel-two .clinical-info-item,
+.detalle-historial-card .detail-info-panel-two > .clinical-info-item {
+  position: relative;
+  padding: 0 !important;
+  border-bottom: 0 !important;
+}
+
+.detalle-historial-card .detail-info-panel-two.patient-summary > div:nth-of-type(odd):not(:last-child)::before,
+.detalle-historial-card .detail-info-panel-two .compact-clinical-grid > div:nth-child(odd):not(:last-child)::before,
+.detalle-historial-card .detail-info-panel-two.patient-summary > .clinical-info-item:nth-of-type(odd):not(:last-child)::before,
+.detalle-historial-card .detail-info-panel-two .compact-clinical-grid > .clinical-info-item:nth-child(odd):not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -28px;
+  border-right: 1px solid #e2e8f0;
+  pointer-events: none;
+}
+
+.detalle-historial-card .detail-info-panel .consulta-medica-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  column-gap: 0 !important;
+  row-gap: 0 !important;
+}
+
+.detalle-historial-card .detail-info-panel .consulta-medica-grid > div,
+.detalle-historial-card .detail-info-panel .consulta-medica-grid > .clinical-info-item {
+  position: relative;
+  min-height: 76px;
+  padding: 0 18px !important;
+  border-bottom: 0 !important;
+}
+
+.detalle-historial-card .detail-info-panel .consulta-medica-grid > div:first-child,
+.detalle-historial-card .detail-info-panel .consulta-medica-grid > .clinical-info-item:first-child {
+  padding-left: 0 !important;
+}
+
+.detalle-historial-card .detail-info-panel .consulta-medica-grid > div:not(:last-child)::before,
+.detalle-historial-card .detail-info-panel .consulta-medica-grid > .clinical-info-item:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  border-right: 1px solid #e2e8f0;
+  pointer-events: none;
+}
+
+@media (max-width: 1100px) {
+  .detalle-historial-card .detail-info-panel .consulta-medica-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 18px 0 !important;
+  }
+
+  .detalle-historial-card .detail-info-panel .consulta-medica-grid > div:nth-child(2n)::before,
+  .detalle-historial-card .detail-info-panel .consulta-medica-grid > .clinical-info-item:nth-child(2n)::before {
+    display: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .detalle-historial-card .detail-info-panel-two.patient-summary,
+  .detalle-historial-card .detail-info-panel-two .compact-clinical-grid,
+  .detalle-historial-card .detail-info-panel .consulta-medica-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .detalle-historial-card .detail-info-panel-two.patient-summary > div::before,
+  .detalle-historial-card .detail-info-panel-two .compact-clinical-grid > div::before,
+  .detalle-historial-card .detail-info-panel .consulta-medica-grid > div::before,
+  .detalle-historial-card .detail-info-panel-two.patient-summary > .clinical-info-item::before,
+  .detalle-historial-card .detail-info-panel-two .compact-clinical-grid > .clinical-info-item::before,
+  .detalle-historial-card .detail-info-panel .consulta-medica-grid > .clinical-info-item::before {
+    display: none;
+  }
+}
+
 /* Refinamiento UX solicitado: panel visual, ayuda consistente y detalles clinicos compactos. */
 .accessibility-panel {
   gap: 9px !important;
@@ -8931,7 +9305,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .topbar-help-trigger strong {
   color: inherit !important;
   font-size: 13px !important;
-  font-weight: 800 !important;
+  font-weight: 700 !important;
   text-decoration: none !important;
 }
 
@@ -8989,7 +9363,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .clinical-workspace-consulta .triaje-summary > h3 {
   font-family: inherit !important;
   font-size: 18px !important;
-  font-weight: 800 !important;
+  font-weight: 700 !important;
   line-height: 1.25 !important;
 }
 
@@ -9035,4 +9409,2095 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   .resumen-cita-card .clinical-overview:has(.triaje-summary.clinical-panel) .triaje-summary.clinical-panel {
     max-width: none;
   }
+}
+
+.clinical-workspace-consulta .detail-info-panel {
+  background: #ffffff !important;
+  border: 1px solid #dbe3ee !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04) !important;
+}
+
+.detalle-historial-card .detail-info-panel-two .compact-clinical-grid > .full-row,
+.detalle-historial-card .detail-info-panel-two.patient-summary > .full-row {
+  grid-column: 1 / -1;
+}
+
+.detalle-historial-card .detail-info-panel-two .compact-clinical-grid > .full-row::before,
+.detalle-historial-card .detail-info-panel-two.patient-summary > .full-row::before {
+  display: none;
+}
+
+.clinical-workspace-consulta .detail-info-panel > h3 {
+  margin-bottom: 16px !important;
+  padding-bottom: 12px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.clinical-workspace-consulta .detail-info-panel-two.patient-summary,
+.clinical-workspace-consulta .detail-info-panel-two .compact-clinical-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  column-gap: 32px !important;
+  row-gap: 16px !important;
+}
+
+.clinical-workspace-consulta .detail-info-panel-two.patient-summary > div,
+.clinical-workspace-consulta .detail-info-panel-two .compact-clinical-grid > div {
+  position: relative;
+  padding: 0 !important;
+  border-bottom: 0 !important;
+}
+
+.clinical-workspace-consulta .detail-info-panel-two.patient-summary > div::before,
+.clinical-workspace-consulta .detail-info-panel-two .compact-clinical-grid > div::before {
+  content: none !important;
+}
+
+.clinical-workspace-consulta .detail-info-panel-two.patient-summary > div:nth-of-type(odd):not(:last-child)::before,
+.clinical-workspace-consulta .detail-info-panel-two .compact-clinical-grid > div:nth-child(odd):not(:last-child)::before {
+  content: "" !important;
+  position: absolute;
+  top: 0;
+  right: -16px;
+  bottom: 0;
+  width: 0;
+  border-left: 0 !important;
+  border-right: 1px solid #e2e8f0;
+  pointer-events: none;
+}
+
+.clinical-workspace-consulta .detail-info-panel-two .compact-clinical-grid > .full-row,
+.clinical-workspace-consulta .detail-info-panel-two.patient-summary > .full-row {
+  grid-column: 1 / -1;
+}
+
+.clinical-workspace-consulta .detail-info-panel-two .compact-clinical-grid > .full-row::before,
+.clinical-workspace-consulta .detail-info-panel-two.patient-summary > .full-row::before {
+  display: none;
+}
+
+@media (max-width: 1100px) {
+  .clinical-workspace-consulta .detail-info-panel-two.patient-summary,
+  .clinical-workspace-consulta .detail-info-panel-two .compact-clinical-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .clinical-workspace-consulta .detail-info-panel-two.patient-summary > div::before,
+  .clinical-workspace-consulta .detail-info-panel-two .compact-clinical-grid > div::before {
+    display: none;
+  }
+}
+
+/* Flujo guiado para la atención médica: el contexto clínico permanece visible. */
+.clinical-workspace-consulta {
+  grid-template-columns: minmax(0, 1.28fr) minmax(340px, 0.82fr) !important;
+  align-items: start;
+}
+
+.clinical-workspace-consulta .clinical-workspace-side {
+  position: sticky;
+  top: 18px;
+  max-height: none;
+  overflow: visible;
+  padding-right: 2px;
+}
+
+.medical-attention-stepper {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.medical-step-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.medical-step-button span {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 21px;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.medical-step-button strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.medical-step-button:hover,
+.medical-step-button:focus-visible {
+  border-color: #2563eb;
+  color: #1d4ed8;
+}
+
+.medical-step-button:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.28);
+  outline-offset: 2px;
+}
+
+.medical-step-button.is-active {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.medical-step-button.is-active span {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.consulta-card .medical-step-panel {
+  display: none;
+}
+
+.consulta-card .medical-step-panel.is-active {
+  display: grid;
+}
+
+.medical-confirmation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.medical-confirmation-grid > div {
+  min-width: 0;
+  padding: 14px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.medical-confirmation-grid > div:nth-child(odd) {
+  border-right: 1px solid #e2e8f0;
+}
+
+.medical-confirmation-grid > div:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.medical-confirmation-grid span,
+.medical-confirmation-grid strong {
+  display: block;
+}
+
+.medical-confirmation-grid span {
+  margin-bottom: 5px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.medical-confirmation-grid strong {
+  color: #0f172a;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.medical-confirmation-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 4px 0 0;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.medical-confirmation-note .bi {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--ihc-primary);
+}
+
+@media (max-width: 1180px) {
+  .clinical-workspace-consulta {
+    grid-template-columns: 1fr !important;
+  }
+
+  .clinical-workspace-consulta .clinical-workspace-side {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .medical-attention-stepper {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .medical-attention-stepper,
+  .medical-confirmation-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .medical-step-button {
+    justify-content: flex-start;
+  }
+
+  .medical-confirmation-grid > div,
+  .medical-confirmation-grid > div:nth-child(odd) {
+    border-right: 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .medical-confirmation-grid > div:last-child {
+    border-bottom: 0;
+  }
+}
+
+/* Registro estructurado de medicamentos y acciones de la atención. */
+.prescription-builder {
+  display: grid;
+  gap: 16px;
+}
+
+.prescription-helper-text {
+  margin: 0;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.prescription-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.prescription-field-wide {
+  grid-column: 1 / -1;
+}
+
+.prescription-fields > .prescription-medicine-search {
+  grid-column: auto;
+}
+
+.prescription-fields label,
+.prescription-builder > .form-group label {
+  display: block;
+  margin-bottom: 6px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.prescription-input-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 112px;
+  gap: 8px;
+}
+
+.prescription-dose-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+}
+
+.prescription-dose-control input {
+  min-width: 0;
+  border: 1.8px solid #aab3c0 !important;
+  border-radius: 6px 0 0 6px !important;
+}
+
+.consulta-card .prescription-search-control input,
+.consulta-card .prescription-fields select {
+  border: 1.8px solid #aab3c0 !important;
+  background: #ffffff !important;
+}
+
+.consulta-card .prescription-fields :is(input, select, textarea):focus {
+  border-color: #111827 !important;
+  box-shadow: none !important;
+  outline: none;
+}
+
+.consulta-card .prescription-dose-control:focus-within span {
+  border-color: #111827;
+}
+
+.prescription-dose-control span {
+  display: inline-flex;
+  align-items: center;
+  min-width: 78px;
+  padding: 0 10px;
+  border: 1.8px solid #aab3c0;
+  border-left: 0;
+  border-radius: 0 6px 6px 0;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.consulta-card .add-prescription-button.btn-light.icon-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px !important;
+  justify-self: start;
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: 42px !important;
+  height: 42px !important;
+  padding: 0 13px !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px;
+  background: #ffffff !important;
+  color: #1e3a8a !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  white-space: nowrap;
+}
+
+.consulta-card .add-prescription-button.btn-light.icon-action i {
+  font-size: 16px;
+}
+
+.consulta-card .add-prescription-button.btn-light.icon-action:hover:not(:disabled),
+.consulta-card .add-prescription-button.btn-light.icon-action:focus-visible:not(:disabled) {
+  background: #eff6ff !important;
+  border-color: #2563eb !important;
+  color: #1d4ed8 !important;
+}
+
+.consulta-card .add-prescription-button.btn-light.icon-action:disabled {
+  border-color: #cbd5e1 !important;
+  background: #e2e8f0 !important;
+  color: #64748b !important;
+}
+
+.prescription-list-panel {
+  border: 1px solid #dbe3ee;
+  border-radius: 6px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.prescription-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.prescription-list-heading h4 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.prescription-list-heading span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.prescription-empty-state {
+  margin: 0;
+  padding: 16px 14px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.prescription-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.prescription-item:last-child {
+  border-bottom: 0;
+}
+
+.prescription-item strong,
+.prescription-item span,
+.prescription-item small {
+  display: block;
+}
+
+.prescription-item strong {
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.prescription-item span,
+.prescription-item small {
+  margin-top: 4px;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.prescription-item-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+}
+
+.prescription-item-button {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid #93c5fd;
+  border-radius: 5px;
+  background: #ffffff;
+  color: #1d4ed8;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.prescription-item-button.is-danger {
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.prescription-item-button:hover,
+.prescription-item-button:focus-visible {
+  background: #eff6ff;
+}
+
+.prescription-item-button.is-danger:hover,
+.prescription-item-button.is-danger:focus-visible {
+  background: #fef2f2;
+}
+
+.prescription-item-button.icon-only {
+  display: inline-grid;
+  width: 34px;
+  min-width: 34px;
+  padding: 0;
+  place-items: center;
+}
+
+.recipe-serialized-field {
+  display: none !important;
+}
+
+.prescription-medicine-search {
+  position: relative;
+}
+
+.prescription-suggestions {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% - 4px);
+  right: 0;
+  left: 0;
+  max-height: 238px;
+  overflow-y: auto;
+  border: 1px solid #93c5fd;
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.14);
+}
+
+.prescription-suggestion {
+  display: block;
+  width: 100%;
+  min-height: 40px;
+  padding: 9px 12px;
+  border: 0;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #1e293b;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+}
+
+.prescription-suggestion:last-child {
+  border-bottom: 0;
+}
+
+.prescription-suggestion:hover,
+.prescription-suggestion:focus-visible {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.prescription-suggestions-empty {
+  margin: 0;
+  padding: 12px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.prescription-builder .field-message.is-success {
+  color: #047857;
+}
+
+.dose-help {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 5px;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.dose-help .bi {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--ihc-primary);
+}
+
+.medical-step-intro {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.clinical-template-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 8px 0 12px;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.clinical-template-hint .bi {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--ihc-primary);
+}
+
+.consulta-card .form-actions {
+  width: 100%;
+  align-items: center;
+}
+
+.consulta-card .form-actions #prevStepButton {
+  order: 1;
+  margin-right: auto;
+}
+
+.consulta-card .form-actions #saveDraftButton {
+  order: 3;
+  border-color: #94a3b8;
+  background: #ffffff;
+  color: #1e3a8a;
+}
+
+.consulta-card .form-actions #saveDraftButton:hover,
+.consulta-card .form-actions #saveDraftButton:focus-visible {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.btn-cancel-attention {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #dc2626;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #b91c1c;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-cancel-attention:hover,
+.btn-cancel-attention:focus-visible {
+  background: #fef2f2;
+}
+
+.consulta-card .form-actions #cancelConsultaButton {
+  order: 2;
+  margin-left: 4px;
+}
+
+.consulta-card .form-actions #nextStepButton,
+.consulta-card .form-actions #openConfirmModal {
+  order: 4;
+}
+
+.medical-confirmation-panel.detail-info-panel {
+  margin-bottom: 0 !important;
+  padding: 22px 24px !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05) !important;
+}
+
+.medical-confirmation-panel .clinical-form-section-heading {
+  margin-bottom: 0;
+  padding: 0 0 13px !important;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.medical-confirmation-panel .medical-confirmation-grid {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  row-gap: 12px;
+}
+
+.medical-confirmation-panel .medical-confirmation-grid > div {
+  padding: 0 16px 14px 0;
+  border: 0;
+}
+
+.medical-confirmation-panel .medical-confirmation-grid > div:nth-child(even) {
+  padding-right: 0;
+  padding-left: 16px;
+}
+
+.medical-confirmation-panel .medical-confirmation-grid > div:nth-child(odd)::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  border-right: 1px solid #e2e8f0;
+}
+
+.medical-confirmation-panel .medical-confirmation-grid > div {
+  position: relative;
+}
+
+@media (max-width: 680px) {
+  .prescription-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .prescription-field-wide {
+    grid-column: auto;
+  }
+
+  .prescription-item {
+    flex-direction: column;
+  }
+
+  .consulta-card .form-actions {
+    flex-wrap: wrap;
+  }
+
+  .consulta-card .form-actions #prevStepButton {
+    width: 100%;
+    margin-right: 0;
+  }
+
+  .consulta-card .form-actions #saveDraftButton,
+  .consulta-card .form-actions #cancelConsultaButton,
+  .consulta-card .form-actions #nextStepButton,
+  .consulta-card .form-actions #openConfirmModal {
+    flex: 1 1 calc(50% - 8px);
+  }
+
+  .medical-confirmation-panel .medical-confirmation-grid > div,
+  .medical-confirmation-panel .medical-confirmation-grid > div:nth-child(even) {
+    padding: 0 0 14px;
+  }
+
+  .medical-confirmation-panel .medical-confirmation-grid > div::after {
+    display: none;
+  }
+}
+
+/* Los iconos se reservan para encabezados y acciones, no para cada dato informativo. */
+.clinical-info-item > .clinical-info-icon,
+.clinical-info-item > .clinical-info-icon-img,
+.clinical-note-item > .clinical-info-icon,
+.summary-row > .clinical-info-icon,
+.profile-info > div > .bi {
+  display: none !important;
+}
+
+.clinical-info-item {
+  grid-template-columns: minmax(0, 1fr) !important;
+  column-gap: 0 !important;
+}
+
+.clinical-info-item > span,
+.clinical-info-item > strong {
+  grid-column: 1 !important;
+}
+
+.summary-box .summary-row {
+  grid-template-columns: minmax(130px, 32%) minmax(0, 1fr) !important;
+}
+
+.summary-box .summary-row > span {
+  grid-column: 1 !important;
+}
+
+.summary-box .summary-row > strong {
+  grid-column: 2 !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):focus:not(.field-error),
+select:focus:not(.field-error),
+textarea:focus:not(.field-error) {
+  border-color: #111827 !important;
+  box-shadow: none !important;
+  outline: none;
+}
+
+/* Historial médico: la consulta se revisa sin perder el contexto clínico del paciente. */
+.history-consulta-main {
+  display: grid;
+  gap: 16px;
+}
+
+.history-consulta-main > .clinical-panel {
+  margin: 0 !important;
+  padding: 22px 24px !important;
+  background: #ffffff !important;
+  border: 1px solid #dbe3ee !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04) !important;
+}
+
+.history-consulta-main > .clinical-panel > h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px !important;
+  padding-bottom: 12px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.history-consulta-main > .clinical-panel > h3 .bi {
+  color: var(--ihc-primary);
+}
+
+.history-consulta-selector {
+  margin: 0 0 18px;
+}
+
+.history-consulta-selector .form-group {
+  margin: 0;
+}
+
+.history-consulta-selector label {
+  display: block;
+  margin-bottom: 7px;
+}
+
+.history-consulta-selector select {
+  width: 100%;
+}
+
+.history-appointment-grid {
+  margin: 0;
+}
+
+.history-medical-care-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+}
+
+.history-medical-care-grid > .clinical-note-item {
+  position: relative;
+  min-width: 0;
+  padding: 0 20px 18px 0 !important;
+}
+
+.history-medical-care-grid > .clinical-note-item:nth-child(even) {
+  padding-right: 0 !important;
+  padding-left: 20px !important;
+}
+
+.history-medical-care-grid > .clinical-note-item:nth-child(odd)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 18px;
+  border-right: 1px solid #e2e8f0;
+  pointer-events: none;
+}
+
+.history-medical-care-grid > .clinical-note-item:nth-child(n + 3) {
+  padding-top: 18px !important;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* La atención médica sigue la misma retícula sin separadores horizontales. */
+.history-medical-care-grid > .clinical-note-item,
+.history-medical-care-grid > .clinical-note-item:nth-child(even),
+.history-medical-care-grid > .clinical-note-item:nth-child(n + 3) {
+  padding: 0 !important;
+  border-top: 0 !important;
+}
+
+.history-medical-care-grid > .clinical-note-item::before {
+  display: none !important;
+}
+
+.history-medical-care-grid > .clinical-note-item:nth-child(odd)::before {
+  display: block !important;
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -16px;
+  bottom: 0;
+  border-right: 1px solid #e2e8f0;
+  pointer-events: none;
+}
+
+@media (max-width: 1100px) {
+  .history-medical-care-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .history-medical-care-grid > .clinical-note-item,
+  .history-medical-care-grid > .clinical-note-item:nth-child(even),
+  .history-medical-care-grid > .clinical-note-item:nth-child(n + 3) {
+    padding: 0 !important;
+    border-top: 0 !important;
+  }
+
+  .history-medical-care-grid > .clinical-note-item::before,
+  .history-medical-care-grid > .clinical-note-item:nth-child(odd)::before {
+    display: none !important;
+  }
+}
+
+.history-consulta-switcher {
+  margin-bottom: 18px !important;
+}
+
+.history-consulta-switcher-grid {
+  grid-template-columns: minmax(0, 520px) !important;
+}
+
+.history-side-actions {
+  justify-content: flex-end !important;
+  margin: 0 !important;
+}
+
+html[data-visual-contrast="high"] .history-medical-care-grid > .clinical-note-item:nth-child(odd)::before {
+  border-color: var(--hc-border) !important;
+}
+
+
+/* Sin iconos de campo, cada fila del perfil conserva dos columnas legibles. */
+.profile-info > div {
+  grid-template-columns: minmax(130px, 38%) minmax(0, 1fr) !important;
+  column-gap: 18px !important;
+}
+
+.profile-info > div > span {
+  grid-column: 1 !important;
+}
+
+.profile-info > div > strong {
+  grid-column: 2 !important;
+}
+
+@media (max-width: 650px) {
+  .profile-info > div {
+    grid-template-columns: 1fr !important;
+    row-gap: 4px !important;
+  }
+
+  .profile-info > div > strong {
+    grid-column: 1 !important;
+    text-align: left !important;
+  }
+}
+
+/* Barra superior global: navegación secundaria y acciones de cuenta. */
+.app-topbar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 250px;
+  z-index: 25;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 28px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  transition: left 0.2s ease;
+}
+
+.sidebar-toggle {
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #1e293b;
+  cursor: pointer;
+  font-size: 23px;
+}
+
+.sidebar-toggle:hover {
+  background: #f1f5f9;
+}
+
+.sidebar-toggle:focus-visible,
+.account-menu-trigger:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.app-topbar-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  min-width: 0;
+}
+
+.account-menu {
+  position: relative;
+}
+
+.account-menu > summary {
+  list-style: none;
+}
+
+.account-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.account-menu-trigger {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #1e293b;
+  cursor: pointer;
+}
+
+.account-menu-avatar {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #1d4ed8;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.account-menu-trigger > .bi {
+  font-size: 13px;
+  transition: transform 0.16s ease;
+}
+
+.account-menu[open] .account-menu-trigger > .bi {
+  transform: rotate(180deg);
+}
+
+.account-menu-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  width: min(230px, calc(100vw - 32px));
+  padding: 8px;
+  border: 1px solid #dbe3ee;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+}
+
+.account-menu-panel > a,
+.account-menu-logout button {
+  width: 100%;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #1e293b;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.account-menu-panel > a:hover,
+.account-menu-panel > a:focus-visible,
+.account-menu-logout button:hover,
+.account-menu-logout button:focus-visible {
+  background: #f1f5f9;
+  outline: none;
+}
+
+.account-menu-logout button {
+  color: #b91c1c;
+}
+
+.account-menu-panel .bi {
+  width: 18px;
+  color: #475569;
+  font-size: 17px;
+  text-align: center;
+}
+
+.account-menu-logout .bi {
+  color: #dc2626;
+}
+
+.dashboard-main {
+  padding-top: 82px !important;
+  transition: padding-left 0.2s ease;
+}
+
+.sidebar {
+  transition: transform 0.2s ease;
+}
+
+body.sidebar-collapsed {
+  padding-left: 0 !important;
+}
+
+body.sidebar-collapsed .sidebar {
+  transform: translateX(-100%);
+  pointer-events: none;
+}
+
+body.sidebar-collapsed .app-topbar {
+  left: 0;
+}
+
+html[data-visual-scale="large"] .app-topbar {
+  left: 290px;
+}
+
+html[data-visual-scale="xlarge"] .app-topbar {
+  left: 330px;
+}
+
+html[data-visual-scale="large"] body.sidebar-collapsed .app-topbar,
+html[data-visual-scale="xlarge"] body.sidebar-collapsed .app-topbar {
+  left: 0;
+}
+
+html[data-visual-scale="large"] body.dashboard-body.sidebar-collapsed,
+html[data-visual-scale="xlarge"] body.dashboard-body.sidebar-collapsed {
+  padding-left: 0 !important;
+}
+
+html[data-visual-contrast="high"] .app-topbar,
+html[data-visual-contrast="high"] .account-menu-panel {
+  border-color: var(--hc-border-strong);
+  background: var(--hc-surface);
+  color: var(--hc-text);
+}
+
+html[data-visual-contrast="high"] .sidebar-toggle,
+html[data-visual-contrast="high"] .account-menu-trigger,
+html[data-visual-contrast="high"] .account-menu-panel > a,
+html[data-visual-contrast="high"] .account-menu-logout button {
+  color: var(--hc-text);
+}
+
+/* El acceso superior de ayuda es una accion discreta, no un boton enmarcado. */
+.app-topbar .topbar-help-trigger,
+.app-topbar .topbar-help-trigger:hover {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.app-topbar .topbar-help-trigger:focus-visible {
+  border-color: transparent !important;
+  background: transparent !important;
+  outline: 2px solid rgba(37, 99, 235, 0.42) !important;
+  outline-offset: 2px !important;
+}
+
+.account-menu-logout button {
+  background: transparent !important;
+}
+
+.account-menu-logout button:hover,
+.account-menu-logout button:focus-visible {
+  background: #f1f5f9 !important;
+}
+
+/* Los mensajes explicativos del registro conservan icono y color neutral. */
+.admin-user-form .form-help-with-icon {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 6px;
+  color: #475569;
+}
+
+.admin-user-form .form-help-with-icon .bi {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: #2563eb;
+  font-size: 14px;
+}
+
+.admin-user-form .password-strength {
+  margin-top: 8px;
+}
+
+.student-field-label .bi,
+.nursing-area-label .bi {
+  width: 18px;
+  color: #4f5d70;
+  font-size: 17px;
+  text-align: center;
+}
+
+.role-change-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.role-change-note > .bi {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: #2563eb;
+}
+
+.role-change-note.is-warning > .bi {
+  color: #b45309;
+}
+
+/* Cerrar sesión es una acción de salida explícita y visible. */
+.account-menu-logout button,
+.account-menu-logout .bi {
+  color: #ffffff !important;
+}
+
+.account-menu-logout button {
+  background: #b91c1c !important;
+  font-size: 14px !important;
+}
+
+.account-menu-logout button:hover,
+.account-menu-logout button:focus-visible {
+  background: #991b1b !important;
+}
+
+/* Detalle administrativo: datos legibles con columnas que se adaptan al espacio disponible. */
+.detalle-cita-card .admin-detail-panel {
+  min-width: 0;
+  background: #ffffff !important;
+  border: 1px solid #dbe3ee !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04) !important;
+  padding: 20px 18px !important;
+}
+
+.detalle-cita-card .admin-detail-panel > h3 {
+  margin: 0 0 14px !important;
+  padding: 0 0 12px !important;
+  border-bottom: 1px solid #dbe3ee !important;
+}
+
+.detalle-cita-card .admin-detail-info-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+}
+
+.detalle-cita-card .admin-detail-info-grid > div {
+  position: relative;
+  min-width: 0;
+  display: flex !important;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 18px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.detalle-cita-card .admin-detail-info-grid > div:nth-child(odd) {
+  padding-left: 0 !important;
+}
+
+.detalle-cita-card .admin-detail-info-grid > div:nth-child(odd)::after {
+  content: "";
+  position: absolute;
+  top: 12px;
+  right: 0;
+  bottom: 12px;
+  width: 1px;
+  background: #dbe3ee;
+}
+
+.detalle-cita-card .admin-detail-info-grid > .admin-detail-full-row:last-child {
+  border-bottom: 0 !important;
+}
+
+.detalle-cita-card .admin-detail-info-grid > .admin-detail-full-row {
+  grid-column: 1 / -1;
+  padding-right: 0 !important;
+}
+
+.detalle-cita-card .admin-detail-info-grid > .admin-detail-full-row::after {
+  display: none;
+}
+
+.detalle-cita-card .admin-detail-info-grid span {
+  color: #64748b !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.35 !important;
+}
+
+.detalle-cita-card .admin-detail-info-grid strong {
+  min-width: 0;
+  color: #0f172a !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 1.4 !important;
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 980px) {
+  .detalle-cita-card .clinical-detail-pair,
+  html[data-visual-scale="large"] .detalle-cita-card .clinical-detail-pair,
+  html[data-visual-scale="xlarge"] .detalle-cita-card .clinical-detail-pair {
+    grid-template-columns: 1fr !important;
+  }
+
+  .detalle-cita-card .admin-detail-info-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .detalle-cita-card .admin-detail-info-grid > div,
+  .detalle-cita-card .admin-detail-info-grid > div:nth-child(odd) {
+    padding: 12px 0 !important;
+  }
+
+  .detalle-cita-card .admin-detail-info-grid > div::after {
+    display: none;
+  }
+}
+
+html[data-visual-scale="large"] .detalle-cita-card .clinical-detail-pair,
+html[data-visual-scale="xlarge"] .detalle-cita-card .clinical-detail-pair {
+  grid-template-columns: 1fr !important;
+}
+
+html[data-visual-contrast="high"] .account-menu-logout button,
+html[data-visual-contrast="high"] .account-menu-logout .bi {
+  color: #ffffff !important;
+}
+
+html[data-visual-contrast="high"] .account-menu-logout button {
+  background: #991b1b !important;
+  outline-color: #facc15 !important;
+}
+
+/* Detalle administrativo: patrón de lectura del historial clínico. */
+.detalle-cita-card .clinical-overview,
+.detalle-cita-card .clinical-detail-pair {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 430px), 1fr)) !important;
+  gap: 20px !important;
+  align-items: start;
+}
+
+.detalle-cita-card .admin-detail-panel {
+  margin: 0 !important;
+}
+
+/* Evita que las reglas antiguas de patient-summary y antecedentes estiren estas tarjetas. */
+.detalle-cita-card .patient-summary.admin-detail-panel {
+  display: block !important;
+}
+
+.detalle-cita-card .clinical-antecedentes-panel.admin-detail-panel {
+  align-self: start !important;
+}
+
+.detalle-cita-card .admin-detail-panel > h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px !important;
+}
+
+.detalle-cita-card .admin-detail-info-grid {
+  column-gap: 0 !important;
+  row-gap: 18px !important;
+}
+
+.detalle-cita-card .admin-detail-info-grid > div {
+  padding: 0 18px !important;
+  border: 0 !important;
+}
+
+.detalle-cita-card .admin-detail-info-grid > div:nth-child(odd) {
+  padding-left: 0 !important;
+}
+
+.detalle-cita-card .admin-detail-info-grid > div:nth-child(odd)::after {
+  top: 0;
+  bottom: 0;
+}
+
+.detalle-cita-card .admin-detail-info-grid strong {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+@media (max-width: 980px) {
+  .detalle-cita-card .admin-detail-info-grid {
+    grid-template-columns: 1fr !important;
+    row-gap: 16px !important;
+  }
+
+  .detalle-cita-card .admin-detail-info-grid > div,
+  .detalle-cita-card .admin-detail-info-grid > div:nth-child(odd) {
+    padding: 0 !important;
+  }
+}
+
+html[data-visual-scale="large"] .detalle-cita-card .clinical-overview,
+html[data-visual-scale="large"] .detalle-cita-card .clinical-detail-pair,
+html[data-visual-scale="xlarge"] .detalle-cita-card .clinical-overview,
+html[data-visual-scale="xlarge"] .detalle-cita-card .clinical-detail-pair {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 430px), 1fr)) !important;
+}
+
+.detalle-cita-card > .form-actions {
+  margin-top: 18px !important;
+}
+
+.user-access-level {
+  display: block;
+  margin-top: 5px;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.dashboard-topbar-admin {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 20px !important;
+}
+
+.dashboard-topbar-admin > :first-child {
+  min-width: 0;
+}
+
+.dashboard-topbar-admin .topbar-action-group {
+  margin-top: 4px;
+}
+
+/* Acciones contextuales junto al título: siempre en la misma zona de decisión. */
+.dashboard-topbar-admin .page-title-actions {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.dashboard-topbar-admin .page-title-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .app-topbar {
+    position: sticky;
+    left: 0 !important;
+    z-index: 70;
+    min-height: 56px;
+    padding: 0 16px;
+  }
+
+  .app-topbar-actions {
+    gap: 8px;
+  }
+
+  .topbar-help-trigger {
+    min-width: 0 !important;
+  }
+
+  .topbar-help-trigger strong {
+    display: none;
+  }
+
+  .dashboard-main {
+    padding-top: 16px !important;
+  }
+
+  .dashboard-topbar-admin {
+    align-items: stretch !important;
+    flex-direction: column;
+    gap: 12px !important;
+  }
+
+  .dashboard-topbar-admin .topbar-action-group {
+    margin-top: 0;
+  }
+
+  .dashboard-topbar-admin .page-title-actions {
+    justify-content: flex-start;
+  }
+
+  body.dashboard-body .sidebar {
+    position: fixed !important;
+    inset: 0 auto 0 0 !important;
+    width: min(300px, 86vw) !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    overflow-y: auto !important;
+    z-index: 60;
+    transform: translateX(-100%);
+  }
+
+  body.dashboard-body:not(.sidebar-collapsed) .sidebar {
+    transform: translateX(0);
+  }
+}
+
+/* Ayuda contextual: recomendaciones ligeras y nota claramente identificable. */
+.help-modal-list {
+  gap: 12px !important;
+}
+
+.help-modal-list li {
+  min-height: 0;
+  padding: 0 0 0 26px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+.help-modal-list li::before {
+  content: "\2713";
+  left: 2px;
+  top: 0;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: transparent;
+  display: block;
+  color: #047857;
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.help-modal-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+
+.help-modal-note > i {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--ihc-primary);
+  font-size: 17px;
+}
+
+/* La ampliación visual conserva la misma estructura y refluye cada tarjeta por su ancho. */
+.detalle-cita-card .admin-detail-panel {
+  container-name: appointment-detail-panel;
+  container-type: inline-size;
+}
+
+.detalle-cita-card .patient-summary.admin-detail-panel .admin-detail-info-grid,
+.detalle-cita-card .admin-detail-info-grid {
+  width: 100%;
+  min-width: 0;
+}
+
+html[data-visual-scale="large"] .detalle-cita-card .admin-detail-info-grid,
+html[data-visual-scale="xlarge"] .detalle-cita-card .admin-detail-info-grid {
+  grid-template-columns: repeat(2, minmax(280px, 1fr)) !important;
+}
+
+@container appointment-detail-panel (max-width: 680px) {
+  .admin-detail-info-grid {
+    grid-template-columns: 1fr !important;
+    row-gap: 16px !important;
+  }
+
+  .admin-detail-info-grid > div,
+  .admin-detail-info-grid > div:nth-child(odd) {
+    padding: 0 !important;
+  }
+
+  .admin-detail-info-grid > div::after {
+    display: none;
+  }
+}
+
+/* Contenedores informativos: el contenido se reorganiza antes de perder legibilidad. */
+:is(
+  .clinical-panel,
+  .detail-section-block,
+  .consulta-detail-section,
+  .summary-box,
+  .profile-section,
+  .medical-confirmation-panel,
+  .nurse-context-panel
+) {
+  container-name: system-info-panel;
+  container-type: inline-size;
+}
+
+html[data-visual-scale="large"] .clinical-overview,
+html[data-visual-scale="xlarge"] .clinical-overview,
+html[data-visual-scale="large"] .clinical-detail-pair,
+html[data-visual-scale="xlarge"] .clinical-detail-pair {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 430px), 1fr)) !important;
+}
+
+html[data-visual-scale="large"] .clinical-workspace-side .clinical-overview,
+html[data-visual-scale="xlarge"] .clinical-workspace-side .clinical-overview {
+  grid-template-columns: 1fr !important;
+}
+
+@container system-info-panel (max-width: 700px) {
+  .patient-summary,
+  .triaje-summary-grid,
+  .compact-clinical-grid,
+  .clinical-note-grid,
+  .consulta-detail-grid,
+  .consulta-medica-grid,
+  .appointment-summary-grid,
+  .history-medical-care-grid,
+  .medical-confirmation-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .patient-summary > div::before,
+  .triaje-summary-grid > div::before,
+  .compact-clinical-grid > div::before,
+  .clinical-note-grid > div::before,
+  .consulta-detail-grid > div::before,
+  .consulta-medica-grid > div::before,
+  .appointment-summary-grid > div::before,
+  .history-medical-care-grid > div::before,
+  .medical-confirmation-grid > div::before {
+    display: none !important;
+  }
+
+  .profile-info > div,
+  .summary-box .summary-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .summary-box .summary-row > span,
+  .summary-box .summary-row > strong {
+    grid-column: 1 !important;
+  }
+}
+
+/* Las cuadrículas que son el propio panel también deben responder a su ancho disponible. */
+:is(
+  .patient-summary.clinical-panel,
+  .triaje-summary-grid,
+  .compact-clinical-grid,
+  .clinical-note-grid,
+  .consulta-detail-grid,
+  .consulta-medica-grid,
+  .appointment-summary-grid,
+  .history-medical-care-grid,
+  .medical-confirmation-grid
+) {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)) !important;
+}
+
+:is(
+  .patient-summary.clinical-panel,
+  .triaje-summary-grid,
+  .compact-clinical-grid,
+  .clinical-note-grid,
+  .consulta-detail-grid,
+  .consulta-medica-grid,
+  .appointment-summary-grid,
+  .history-medical-care-grid,
+  .medical-confirmation-grid
+) > * {
+  min-width: 0;
+}
+
+:is(
+  .clinical-panel,
+  .detail-section-block,
+  .consulta-detail-section,
+  .summary-box,
+  .profile-section,
+  .medical-confirmation-panel,
+  .nurse-context-panel
+) :is(strong, .clinical-note-item, .summary-row, .profile-info strong) {
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.module-card :is(
+  .patient-summary.clinical-panel,
+  .triaje-summary-grid,
+  .compact-clinical-grid,
+  .clinical-note-grid,
+  .consulta-detail-grid,
+  .consulta-medica-grid,
+  .appointment-summary-grid,
+  .history-medical-care-grid,
+  .medical-confirmation-grid
+) {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)) !important;
+}
+
+/* Historiales clínicos: conserva sus separadores, pero ajusta la cantidad de columnas disponible. */
+.detalle-historial-card .detail-info-panel-two.patient-summary,
+.detalle-historial-card .detail-info-panel-two .compact-clinical-grid,
+.detalle-historial-card .detail-info-panel .consulta-medica-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)) !important;
+}
+
+html[data-visual-scale="large"] .profile-grid,
+html[data-visual-scale="xlarge"] .profile-grid,
+html[data-visual-scale="large"] .dashboard-secondary-grid,
+html[data-visual-scale="xlarge"] .dashboard-secondary-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)) !important;
+}
+
+html[data-visual-scale="large"] .dashboard-mini-metrics,
+html[data-visual-scale="xlarge"] .dashboard-mini-metrics {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)) !important;
+}
+
+/*
+ * Patrón estable para paneles de información clínica.
+ * La tarjeta es el contenedor de consulta y la cuadrícula de datos es su
+ * descendiente: por eso puede pasar a una columna según el ancho real de la
+ * tarjeta, también cuando se amplía el texto.
+ */
+.module-card .system-info-panel {
+  container-name: resilient-info-card;
+  container-type: inline-size;
+  min-width: 0;
+}
+
+.module-card .system-info-direct-panel {
+  display: block !important;
+}
+
+.module-card .system-info-panel > .system-info-grid {
+  display: grid !important;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  column-gap: 36px !important;
+  row-gap: 18px !important;
+}
+
+.module-card .system-info-panel > .system-info-grid > div {
+  position: relative;
+  min-width: 0;
+  padding: 0 18px 0 0 !important;
+  border: 0 !important;
+}
+
+.module-card .system-info-panel > .system-info-grid > div:nth-child(even) {
+  padding: 0 0 0 18px !important;
+}
+
+.module-card .system-info-panel > .system-info-grid > div::before {
+  content: none !important;
+}
+
+.module-card .system-info-panel > .system-info-grid > div:nth-child(even):not(.full-row)::before {
+  content: "" !important;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  background: #e2e8f0;
+  pointer-events: none;
+}
+
+.module-card .system-info-panel > .system-info-grid > .full-row {
+  grid-column: 1 / -1 !important;
+  padding-left: 0 !important;
+}
+
+.module-card .system-info-panel > .system-info-grid :is(strong, span) {
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+html[data-visual-scale="large"] .module-card .system-info-panel > .system-info-grid,
+html[data-visual-scale="xlarge"] .module-card .system-info-panel > .system-info-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)) !important;
+}
+
+/* El resumen del paciente no conserva un ancho angosto al ampliar el texto. */
+html[data-visual-scale="large"] .resumen-cita-card,
+html[data-visual-scale="xlarge"] .resumen-cita-card {
+  max-width: none !important;
+}
+
+@container resilient-info-card (max-width: 680px) {
+  .system-info-grid {
+    grid-template-columns: 1fr !important;
+    row-gap: 16px !important;
+  }
+
+  .system-info-grid > div,
+  .system-info-grid > div:nth-child(even) {
+    padding: 0 !important;
+  }
+
+  .system-info-grid > div::before {
+    display: none !important;
+  }
+}
+
+/*
+ * Salvaguarda de legibilidad para los datos clínicos con texto ampliado.
+ * Estas tarjetas suelen vivir en columnas laterales o pares; una sola columna
+ * evita que signos vitales, diagnósticos y antecedentes se fragmenten letra a letra.
+ */
+html[data-visual-scale="large"] .module-card .system-info-panel > :is(.triaje-summary-grid, .clinical-note-grid, .consulta-detail-grid, .consulta-medica-grid, .medical-confirmation-grid).system-info-grid,
+html[data-visual-scale="xlarge"] .module-card .system-info-panel > :is(.triaje-summary-grid, .clinical-note-grid, .consulta-detail-grid, .consulta-medica-grid, .medical-confirmation-grid).system-info-grid,
+html[data-visual-scale="large"] .clinical-workspace-triaje .system-info-panel > .system-info-grid,
+html[data-visual-scale="xlarge"] .clinical-workspace-triaje .system-info-panel > .system-info-grid {
+  display: grid !important;
+  width: 100% !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  column-gap: 0 !important;
+}
+
+html[data-visual-scale="large"] .module-card .system-info-panel > .system-info-grid > div,
+html[data-visual-scale="xlarge"] .module-card .system-info-panel > .system-info-grid > div {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+html[data-visual-scale="large"] .module-card .system-info-panel > .system-info-grid > div::before,
+html[data-visual-scale="xlarge"] .module-card .system-info-panel > .system-info-grid > div::before {
+  display: none !important;
+}
+
+html[data-visual-scale="large"] .module-card .system-info-panel > .system-info-grid :is(span, strong),
+html[data-visual-scale="xlarge"] .module-card .system-info-panel > .system-info-grid :is(span, strong) {
+  width: auto !important;
+  max-width: none !important;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+}
+
+/*
+ * En texto ampliado la lectura prima sobre la densidad: se desactiva cualquier
+ * cuadrícula interna heredada y cada dato ocupa todo el ancho de su panel.
+ */
+html[data-visual-scale="large"] .module-card .system-info-direct-panel,
+html[data-visual-scale="xlarge"] .module-card .system-info-direct-panel {
+  display: block !important;
+  grid-template-columns: none !important;
+}
+
+html[data-visual-scale="large"] .module-card .system-info-panel > .system-info-grid,
+html[data-visual-scale="xlarge"] .module-card .system-info-panel > .system-info-grid {
+  display: block !important;
+  inline-size: 100% !important;
+  width: 100% !important;
+  min-inline-size: 0 !important;
+}
+
+html[data-visual-scale="large"] .module-card .system-info-panel > .system-info-grid > div,
+html[data-visual-scale="xlarge"] .module-card .system-info-panel > .system-info-grid > div {
+  display: flex !important;
+  flex-direction: column !important;
+  box-sizing: border-box !important;
+  inline-size: 100% !important;
+  width: 100% !important;
+  min-inline-size: 0 !important;
+  margin: 0 0 16px !important;
+}
+
+html[data-visual-scale="large"] .module-card .system-info-panel > .system-info-grid > div:last-child,
+html[data-visual-scale="xlarge"] .module-card .system-info-panel > .system-info-grid > div:last-child {
+  margin-bottom: 0 !important;
+}
+
+/*
+ * Patrón único para datos clínicos: réplica del detalle de cita administrativo.
+ * Cada tarjeta conserva dos columnas legibles y solo pasa a una cuando su propio
+ * ancho ya no admite dos columnas de 280 px.
+ */
+.module-card .consistent-info-panel {
+  display: block !important;
+  min-width: 0 !important;
+  container-name: consistent-info-card;
+  container-type: inline-size;
+}
+
+.module-card .consistent-info-panel > .consistent-info-grid {
+  display: grid !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  column-gap: 0 !important;
+  row-gap: 18px !important;
+}
+
+.module-card .consistent-info-panel > .consistent-info-grid > div {
+  position: relative;
+  display: flex !important;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0 !important;
+  padding: 0 18px !important;
+  border: 0 !important;
+}
+
+.module-card .consistent-info-panel > .consistent-info-grid > div:nth-child(odd) {
+  padding-left: 0 !important;
+}
+
+.module-card .consistent-info-panel > .consistent-info-grid > div:nth-child(odd)::before,
+.module-card .consistent-info-panel > .consistent-info-grid > div:nth-child(odd)::after {
+  content: none !important;
+}
+
+.module-card .consistent-info-panel > .consistent-info-grid > div:nth-child(even):not(.full-row)::before {
+  content: "" !important;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  background: #dbe3ee;
+  pointer-events: none;
+}
+
+.module-card .consistent-info-panel > .consistent-info-grid > .full-row {
+  grid-column: 1 / -1 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.module-card .consistent-info-panel > .consistent-info-grid > .full-row::before,
+.module-card .consistent-info-panel > .consistent-info-grid > .full-row::after {
+  display: none !important;
+}
+
+.module-card .consistent-info-panel > .consistent-info-grid :is(span, strong) {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.module-card .consistent-info-panel > .consistent-info-grid > div > :is(i, svg, .clinical-info-icon) {
+  display: none !important;
+}
+
+html[data-visual-scale="large"] .module-card .consistent-info-panel > .consistent-info-grid,
+html[data-visual-scale="xlarge"] .module-card .consistent-info-panel > .consistent-info-grid {
+  grid-template-columns: repeat(2, minmax(280px, 1fr)) !important;
+}
+
+@container consistent-info-card (max-width: 680px) {
+  .consistent-info-grid {
+    grid-template-columns: 1fr !important;
+    row-gap: 16px !important;
+  }
+
+  .consistent-info-grid > div,
+  .consistent-info-grid > div:nth-child(odd) {
+    padding: 0 !important;
+  }
+
+  .consistent-info-grid > div::before,
+  .consistent-info-grid > div::after {
+    display: none !important;
+  }
+}
+
+/* Resumen de cita: los pasos clinicos pendientes se mantienen visibles sin dejar vacios. */
+.resumen-cita-card .appointment-consulta-pending {
+  margin-top: 0 !important;
+}
+
+.clinical-pending-state {
+  display: flex !important;
+  align-items: flex-start;
+  gap: 10px;
+  color: #475569 !important;
+  line-height: 1.45;
+}
+
+.clinical-pending-state > i {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--ihc-primary);
+  font-size: 17px;
+}
+
+.clinical-pending-state > span {
+  min-width: 0;
+}
+
+/* Resumen de cita pendiente: misma amplitud y acabado del detalle de historial. */
+.resumen-cita-card {
+  max-width: none !important;
+}
+
+.resumen-cita-card .appointment-consulta-pending {
+  background: #ffffff !important;
+  border: 1px solid #dbe3ee !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04) !important;
+  padding: 20px 18px !important;
+  margin-bottom: 0 !important;
+}
+
+.resumen-cita-card .appointment-consulta-pending > h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 18px !important;
+  padding: 0 0 14px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+}
+
+.resumen-cita-card .appointment-consulta-pending > h3 .bi {
+  color: var(--ihc-primary);
+  font-size: 21px;
+  line-height: 1;
+}
+
+/* La confirmación es una tarjeta informativa, pero solo pertenece al paso 5. */
+.consulta-card .medical-step-panel.consistent-info-panel {
+  display: none !important;
+}
+
+.consulta-card .medical-step-panel.consistent-info-panel.is-active {
+  display: grid !important;
+}
+
+/* Patron final de tarjetas informativas: evita columnas angostas al ampliar texto. */
+.module-card :is(.system-info-panel, .consistent-info-panel, .system-info-direct-panel),
+.clinical-workspace-side,
+.clinical-workspace-triaje {
+  min-width: 0 !important;
+}
+
+html[data-visual-scale="large"] .module-card .system-info-panel > .system-info-grid,
+html[data-visual-scale="xlarge"] .module-card .system-info-panel > .system-info-grid,
+html[data-visual-scale="large"] .module-card .consistent-info-panel > .consistent-info-grid,
+html[data-visual-scale="xlarge"] .module-card .consistent-info-panel > .consistent-info-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)) !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+html[data-visual-scale="large"] .module-card :is(.system-info-grid, .consistent-info-grid) > div,
+html[data-visual-scale="xlarge"] .module-card :is(.system-info-grid, .consistent-info-grid) > div {
+  display: flex !important;
+  flex-direction: column !important;
+  width: auto !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  overflow-wrap: break-word;
+}
+
+@container resilient-info-card (max-width: 680px) {
+  .system-info-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+@container consistent-info-card (max-width: 680px) {
+  .consistent-info-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+.privacy-consent-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.45;
+}
+
+.privacy-consent-label input {
+  flex: 0 0 auto;
+  margin-top: 4px;
 }

@@ -49,7 +49,7 @@
     'estado de registro': ['bi-check2-circle', 'success'],
     medico: ['doctor-custom', 'clinical'],
     doctor: ['doctor-custom', 'clinical'],
-    especialidad: ['bi-hospital', 'clinical'],
+    especialidad: ['bi-stethoscope', 'clinical'],
     motivo: ['bi-chat-left-text', 'neutral'],
     'motivo de consulta': ['bi-chat-left-text', 'neutral'],
     sintomas: ['bi-heart-pulse', 'clinical'],
@@ -83,7 +83,7 @@
     [['fecha', 'hora', 'registro'], 'bi-calendar3', 'primary'],
     [['estado'], 'bi-check2-circle', 'success'],
     [['medico', 'doctor'], 'doctor-custom', 'clinical'],
-    [['especialidad'], 'bi-hospital', 'clinical'],
+    [['especialidad'], 'bi-stethoscope', 'clinical'],
     [['motivo', 'observacion'], 'bi-chat-left-text', 'neutral'],
     [['sintoma', 'enfermedad', 'frecuencia'], 'bi-heart-pulse', 'clinical'],
     [['alergia'], 'bi-shield-exclamation', 'danger'],
@@ -151,11 +151,10 @@
   }
 
   function decorateItem(item) {
-    if (!item || item.querySelector(':scope > .clinical-info-icon')) return;
+    if (!item) return;
     if (!item.querySelector('span') || !item.querySelector('strong')) return;
 
     item.classList.add('clinical-info-item');
-    item.insertBefore(createIcon(getFieldIcon(getItemLabel(item))), item.firstChild);
   }
 
   function decorateClinicalInfo(root = document) {

@@ -8,6 +8,7 @@ USE citas_medicas_ihc;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
+TRUNCATE TABLE sesion_usuario;
 TRUNCATE TABLE password_reset_token;
 TRUNCATE TABLE notificacion;
 TRUNCATE TABLE consulta;
@@ -19,6 +20,7 @@ TRUNCATE TABLE enfermera;
 TRUNCATE TABLE medico;
 TRUNCATE TABLE paciente;
 TRUNCATE TABLE usuario;
+TRUNCATE TABLE consentimiento_privacidad;
 TRUNCATE TABLE persona;
 
 SET FOREIGN_KEY_CHECKS = 1;

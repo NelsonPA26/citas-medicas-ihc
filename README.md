@@ -95,7 +95,8 @@ DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=
 DB_NAME=citas_medicas_ihc
-SESSION_SECRET=clave_secreta_local
+SESSION_SECRET=una_clave_aleatoria_de_al_menos_32_caracteres
+APP_URL=http://localhost:3000
 ```
 
 Si usas XAMPP normalmente `DB_USER` es `root` y `DB_PASSWORD` puede ir vacío.
@@ -116,7 +117,8 @@ DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=
 DB_NAME=citas_medicas_ihc
-SESSION_SECRET=coloca_una_clave_segura
+SESSION_SECRET=una_clave_aleatoria_de_al_menos_32_caracteres
+APP_URL=http://localhost:3000
 ```
 
 ---
@@ -248,29 +250,30 @@ Contraseña general de prueba:
 UNT12345*
 ```
 
-Usuarios disponibles:
+Correos disponibles para iniciar sesion:
 
 ```txt
-admin01
-admin02
+admin01@unitru.edu.pe
+admin02@unitru.edu.pe
+admin03@unitru.edu.pe
 
-medico01
-medico02
-medico03
-medico04
-medico05
-medico06
+medico01@unitru.edu.pe
+medico02@unitru.edu.pe
+medico03@unitru.edu.pe
+medico04@unitru.edu.pe
+medico05@unitru.edu.pe
+medico06@unitru.edu.pe
 
-enfermera01
-enfermera02
-enfermera03
-enfermera04
+enfermera01@unitru.edu.pe
+enfermera02@unitru.edu.pe
+enfermera03@unitru.edu.pe
+enfermera04@unitru.edu.pe
 
-paciente01
-paciente02
-paciente03
+paciente01@unitru.edu.pe
+paciente02@unitru.edu.pe
+paciente03@unitru.edu.pe
 ...
-paciente20
+paciente20@unitru.edu.pe
 ```
 
 Algunos usuarios pueden estar inactivos para probar los filtros de estado y la validación de acceso.
@@ -1005,3 +1008,62 @@ La versión 2 mejora el sistema en:
 * Mejoras de usabilidad visual y funcional.
 
 Esta versión permite probar el sistema completo con distintos escenarios reales de atención médica universitaria.
+
+---
+
+# 21. Datos de prueba, privacidad y seguridad
+
+## 21.1 Usuarios vigentes de la poblacion
+
+Todos los usuarios cargados por `database/seed_pruebas_masivas_citas_medicas.sql`
+usan la contrasena temporal `UNT12345*`. El inicio de sesion se realiza con el
+correo institucional asociado; el seed alinea el nombre de usuario interno con ese correo.
+
+| Rol | Usuarios activos | Usuario inactivo para prueba |
+| --- | --- | --- |
+| Administracion | `admin01@unitru.edu.pe`, `admin02@unitru.edu.pe`, `admin03@unitru.edu.pe` | No aplica |
+| Medico | `medico01@unitru.edu.pe` a `medico04@unitru.edu.pe`, `medico06@unitru.edu.pe` | `medico05@unitru.edu.pe` |
+| Enfermeria | `enfermera01@unitru.edu.pe` a `enfermera03@unitru.edu.pe` | `enfermera04@unitru.edu.pe` |
+| Paciente | `paciente01@unitru.edu.pe` a `paciente20@unitru.edu.pe` | No aplica |
+
+Perfiles administrativos:
+
+* `admin01@unitru.edu.pe` es el administrador principal.
+* `admin02@unitru.edu.pe` corresponde a Admision y opera citas/pacientes.
+* `admin03@unitru.edu.pe` corresponde a Gestion de usuarios y opera pacientes, medicos y enfermeras.
+
+Ejemplos de correo: `admin01@unitru.edu.pe`, `medico01@unitru.edu.pe`,
+`enfermera01@unitru.edu.pe` y `paciente01@unitru.edu.pe`.
+
+## 21.2 Poblacion de citas
+
+La carga contiene 53 citas sinteticas y consistentes con el flujo clinico:
+
+* 10 pendientes de triaje en la semana siguiente.
+* 5 con triaje registrado listas para atencion medica.
+* 5 en consulta con borrador medico.
+* 25 completadas, con triaje y consulta para probar historiales.
+* 8 canceladas para filtros, trazabilidad y estados.
+
+Tambien carga antecedentes, notificaciones y consentimientos de privacidad de
+los pacientes sinteticos. Las fechas se calculan respecto a la semana actual,
+por lo que los escenarios siguen siendo utiles al volver a poblar la base.
+
+## 21.3 Orden de carga recomendado
+
+Para una base nueva: ejecutar `database/schema.sql` y luego
+`database/seed_pruebas_masivas_citas_medicas.sql`.
+
+Para una base existente de una version anterior: ejecutar una sola vez
+`database/migrations/003_seguridad_sesiones_y_privacidad.sql`; despues ejecutar
+`database/limpiar_bd_citas_medicas.sql` y el seed si se desea reiniciar la data.
+El seed vacia las tablas de negocio antes de poblarlas, por lo que no debe
+ejecutarse sobre informacion real.
+
+## 21.4 Variables de entorno necesarias
+
+`SESSION_SECRET` debe ser aleatorio y tener al menos 32 caracteres. Para enviar
+recuperaciones de contrasena configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`,
+`SMTP_PASSWORD` y `SMTP_FROM`; el proyecto usa SMTPS con TLS implicito, normalmente
+en el puerto `465`. Revise `.env.example` como plantilla y nunca suba `.env` al
+repositorio.

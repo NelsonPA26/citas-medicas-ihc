@@ -11,7 +11,7 @@
     <p><%= esModoEdicion ? 'Actualiza los datos de tu reserva mientras sigue pendiente de triaje.' : 'Completa los pasos para reservar una atención médica.' %></p>
   </div>
 
-  <div class="step-indicator step-indicator-labeled" aria-label="Progreso de la reserva">
+  <div class="step-indicator step-indicator-labeled" data-current-step="1" aria-label="Progreso de la reserva">
     <span class="step active" data-step-indicator="1">
       <strong>1</strong>
       <small>Especialidad y médico</small>
@@ -123,17 +123,19 @@
           id="motivo"
           name="motivo"
           placeholder="Ejemplo: dolor de cabeza constante desde hace 3 días."
-          minlength="5"
+          minlength="8"
           maxlength="255"
           data-validate="medical-text"
+          data-min="8"
           required
         ><%= esModoEdicion ? citaSegura.motivo : '' %></textarea>
         <small class="field-message" data-for="motivo"></small>
-        <small class="form-help">Describe brevemente el motivo de tu cita.</small>
+        <small class="form-help">Describe el motivo con una frase breve y clara, por ejemplo: dolor abdominal desde ayer.</small>
       </div>
 
-      <div class="notice-box appointment-notice">
-        Si presentas síntomas graves, acude a emergencia o comunícate con el personal de salud.
+      <div class="notice-box appointment-notice" role="note">
+        <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+        <span>Si presentas síntomas graves, acude a emergencia o comunícate con el personal de salud.</span>
       </div>
 
       <div class="form-actions">
@@ -149,13 +151,15 @@
     </section>
 
     <section class="appointment-step" data-step="3">
-      <div class="summary-box">
+      <div class="summary-box consistent-info-panel">
         <h3><i class="bi bi-calendar-check" aria-hidden="true"></i>Resumen de la cita</h3>
-        <div class="summary-row"><span>Especialidad:</span><strong id="summaryEspecialidad">-</strong></div>
-        <div class="summary-row"><span>Médico:</span><strong id="summaryMedico">-</strong></div>
-        <div class="summary-row"><span>Fecha:</span><strong id="summaryFecha">-</strong></div>
-        <div class="summary-row"><span>Hora:</span><strong id="summaryHora">-</strong></div>
-        <div class="summary-row"><span>Motivo:</span><strong id="summaryMotivo">-</strong></div>
+        <div class="consistent-info-grid">
+          <div class="summary-row"><span>Especialidad:</span><strong id="summaryEspecialidad">-</strong></div>
+          <div class="summary-row"><span>Médico:</span><strong id="summaryMedico">-</strong></div>
+          <div class="summary-row"><span>Fecha:</span><strong id="summaryFecha">-</strong></div>
+          <div class="summary-row"><span>Hora:</span><strong id="summaryHora">-</strong></div>
+          <div class="summary-row full-row"><span>Motivo:</span><strong id="summaryMotivo">-</strong></div>
+        </div>
       </div>
 
       <div class="form-actions">
@@ -256,10 +260,30 @@
 
   fechaInput.min = new Date().toISOString().split('T')[0];
 
+  function formatDateForUser(value) {
+    if (!value) return '';
+    const date = new Date(`${value}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  function resetHours(message = 'Primero selecciona médico y fecha') {
+    horaSelect.value = '';
+    horaSelect.disabled = true;
+    horaSelect.innerHTML = `<option value="">${message}</option>`;
+  }
+
   function showStep(stepNumber) {
     clearInlineMessage();
     steps.forEach(step => step.classList.toggle('active', step.dataset.step === String(stepNumber)));
-    indicators.forEach(indicator => indicator.classList.toggle('active', indicator.dataset.stepIndicator === String(stepNumber)));
+    indicators.forEach(indicator => {
+      const indicatorStep = Number(indicator.dataset.stepIndicator);
+      indicator.classList.toggle('active', indicatorStep === stepNumber);
+      indicator.classList.toggle('completed', indicatorStep < stepNumber);
+      indicator.setAttribute('aria-current', indicatorStep === stepNumber ? 'step' : 'false');
+    });
+    const progress = document.querySelector('.step-indicator-labeled');
+    if (progress) progress.dataset.currentStep = String(stepNumber);
   }
 
   function showInlineMessage(message, field = null) {
@@ -297,7 +321,7 @@
 
   function appointmentDateMessage() {
     if (!fechaInput.value) return '';
-    if (fechaInput.validity.rangeUnderflow) return 'Selecciona una fecha actual o futura.';
+    if (fechaInput.validity.rangeUnderflow) return `Selecciona una fecha desde el ${formatDateForUser(fechaInput.min)}.`;
 
     const fechaSeleccionada = new Date(`${fechaInput.value}T00:00:00`);
     const dia = fechaSeleccionada.getDay();
@@ -329,10 +353,12 @@
     const hasDate = Boolean(fechaInput.value);
     const dateMessage = appointmentDateMessage();
     const hasHour = Boolean(horaSelect.value);
-    const hasReason = motivoInput.value.trim().length >= 5;
+    const hasReason = motivoInput.value.trim().length >= 8;
 
     if (dateMessage) {
       setAppointmentFieldMessage(fechaInput, dateMessage);
+    } else {
+      setAppointmentFieldMessage(fechaInput);
     }
 
     setNextButtonState(
@@ -359,8 +385,7 @@
   especialidadSelect.addEventListener('change', () => {
     filtrarMedicos();
     medicoSelect.value = '';
-    horaSelect.innerHTML = '<option value="">Primero selecciona médico y fecha</option>';
-    horaSelect.disabled = true;
+    resetHours();
     updateStep1State(true);
     updateStep2State();
   });
@@ -369,6 +394,14 @@
     const idMedico = medicoSelect.value;
     const fecha = fechaInput.value;
     if (!idMedico || !fecha) {
+      resetHours();
+      updateStep2State();
+      return;
+    }
+    const dateMessage = appointmentDateMessage();
+    if (dateMessage) {
+      resetHours('Corrige la fecha para ver horarios');
+      setAppointmentFieldMessage(fechaInput, dateMessage);
       updateStep2State();
       return;
     }
@@ -419,7 +452,17 @@
     updateStep1State(true);
     cargarHorasDisponibles();
   });
-  fechaInput.addEventListener('change', cargarHorasDisponibles);
+  fechaInput.addEventListener('change', () => {
+    const dateMessage = appointmentDateMessage();
+    if (dateMessage) {
+      setAppointmentFieldMessage(fechaInput, dateMessage);
+      resetHours('Corrige la fecha para ver horarios');
+      if (fechaInput.value && !fechaInput.validity.rangeUnderflow) fechaInput.value = '';
+      setNextButtonState(nextStep2, false, 'Corrige la fecha para continuar.');
+      return;
+    }
+    cargarHorasDisponibles();
+  });
 
   nextStep1.addEventListener('click', () => {
     updateStep1State(true);
@@ -431,16 +474,15 @@
   nextStep2.addEventListener('click', () => {
     updateStep2State();
     if (!fechaInput.value) return showInlineMessage('Selecciona una fecha para la cita.', fechaInput);
-    const fechaSeleccionada = new Date(`${fechaInput.value}T00:00:00`);
-    const dia = fechaSeleccionada.getDay();
-    if (dia === 0 || dia === 6) return showInlineMessage('Solo puedes reservar citas de lunes a viernes.', fechaInput);
+    const dateMessage = appointmentDateMessage();
+    if (dateMessage) return showInlineMessage(dateMessage, fechaInput);
     if (!horaSelect.value) return showInlineMessage('Selecciona una hora disponible para la cita.', horaSelect);
     if (!window.PatientValidation.validateField(motivoInput)) return showInlineMessage('Revisa el motivo de la consulta.', motivoInput);
 
     const medicoTexto = medicoSelect.options[medicoSelect.selectedIndex].textContent.trim();
     summaryEspecialidad.textContent = especialidadSelect.value;
     summaryMedico.textContent = medicoTexto;
-    summaryFecha.textContent = fechaInput.value;
+    summaryFecha.textContent = formatDateForUser(fechaInput.value);
     summaryHora.textContent = horaSelect.value.substring(0, 5);
     summaryMotivo.textContent = motivoInput.value;
     showStep(3);

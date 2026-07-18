@@ -5,6 +5,13 @@ const TEMPORARY_PASSWORD = 'UNT12345*';
 
 exports.dashboard = async (req, res) => {
   try {
+    const rolesVisibles = rolesGestionables(req);
+
+    if (rolesVisibles.length === 0) {
+      req.session.error = 'Tu cuenta administrativa no tiene un área operativa válida. Comunícate con el administrador principal.';
+      return res.redirect('/perfil');
+    }
+
     const [[stats]] = await db.query(
       `
       SELECT
@@ -17,6 +24,9 @@ exports.dashboard = async (req, res) => {
       `
     );
 
+    const recentUsersConditions = esAdministradorPrincipal(req)
+      ? ''
+      : `WHERE u.rol IN (${rolesVisibles.map(() => '?').join(', ')})`;
     const [recentUsers] = await db.query(
       `
       SELECT
@@ -28,16 +38,19 @@ exports.dashboard = async (req, res) => {
         p.apellido_materno
       FROM usuario u
       INNER JOIN persona p ON u.id_persona = p.id_persona
+      ${recentUsersConditions}
       ORDER BY u.fecha_creacion DESC, u.id_usuario DESC
       LIMIT 7
-      `
+      `,
+      esAdministradorPrincipal(req) ? [] : rolesVisibles
     );
 
     res.render('admin/dashboard', {
       title: 'Panel Administrativo',
       layout: 'layouts/dashboard',
       stats,
-      recentUsers
+      recentUsers,
+      ...datosAlcanceAdministrativo(req)
     });
   } catch (error) {
     console.error(error);
@@ -47,14 +60,37 @@ exports.dashboard = async (req, res) => {
 };
 
 exports.ayuda = (req, res) => {
+  const returnUrl = typeof req.query.returnTo === 'string'
+    && (req.query.returnTo === '/perfil' || req.query.returnTo.startsWith('/admin/'))
+    ? req.query.returnTo
+    : '/admin/dashboard';
+
   res.render('admin/ayuda', {
     title: 'Ayuda administrativa',
-    layout: 'layouts/dashboard'
+    layout: 'layouts/dashboard',
+    returnUrl
   });
 };
 
 const ROLES_PERMITIDOS = ['paciente', 'medico', 'enfermera', 'administrativo'];
 const ESPECIALIDADES_MEDICAS = ['Medicina General', 'Odontología', 'Psicología'];
+const CARGOS_ADMINISTRATIVOS = ['Admisión', 'Gestión de usuarios'];
+const CATALOGO_ACADEMICO_UNT = Object.freeze({
+  'Ciencias Agropecuarias': ['Agronomía', 'Zootecnia', 'Ingeniería Agrícola', 'Ingeniería Agroindustrial'],
+  'Ciencias Biológicas': ['Ciencias Biológicas', 'Biología Pesquera', 'Microbiología y Parasitología'],
+  'Ciencias Económicas': ['Administración', 'Contabilidad y Finanzas', 'Economía'],
+  'Ciencias Físicas y Matemáticas': ['Estadística', 'Física', 'Informática', 'Matemáticas'],
+  'Ciencias Sociales': ['Antropología', 'Arqueología', 'Historia', 'Trabajo Social', 'Turismo'],
+  'Derecho y Ciencias Políticas': ['Derecho', 'Ciencias Políticas y Gobernabilidad'],
+  'Educación y Ciencias de la Comunicación': ['Educación Inicial', 'Educación Primaria', 'Educación Secundaria', 'Ciencias de la Comunicación'],
+  'Enfermería': ['Enfermería'],
+  'Estomatología': ['Estomatología'],
+  'Farmacia y Bioquímica': ['Farmacia y Bioquímica'],
+  'Ingeniería': ['Arquitectura y Urbanismo', 'Ingeniería Civil', 'Ingeniería de Materiales', 'Ingeniería de Minas', 'Ingeniería de Sistemas', 'Ingeniería Industrial', 'Ingeniería Mecánica', 'Ingeniería Mecatrónica', 'Ingeniería Metalúrgica'],
+  'Ingeniería Química': ['Ingeniería Ambiental', 'Ingeniería Química'],
+  'Medicina': ['Medicina']
+});
+const CONTEXTOS_UNIVERSITARIOS = ['Estudiante regular', 'Internado', 'Egresante', 'Estudiante UNT'];
 
 function normalizarEspecialidad(value) {
   const text = (value || '').trim();
@@ -151,17 +187,114 @@ function textoBasicoValido(value, min = 2, max = 80) {
   return /^[\p{L}0-9 .,\-()]+$/u.test(text);
 }
 
+function esAdministradorPrincipal(req) {
+  return req.session
+    && req.session.user
+    && req.session.user.rol === 'administrativo'
+    && req.session.user.nivel_acceso_administrativo === 'principal';
+}
+
+function areaAdministrativa(req) {
+  return req.session
+    && req.session.user
+    && req.session.user.area_administrativa
+    ? req.session.user.area_administrativa
+    : '';
+}
+
+function esAdministrativoAdmision(req) {
+  return !esAdministradorPrincipal(req) && areaAdministrativa(req) === 'Admisión';
+}
+
+function esAdministrativoGestionUsuarios(req) {
+  return !esAdministradorPrincipal(req) && areaAdministrativa(req) === 'Gestión de usuarios';
+}
+
+function rolesGestionables(req) {
+  if (esAdministradorPrincipal(req)) return ROLES_PERMITIDOS;
+  if (esAdministrativoGestionUsuarios(req)) return ['paciente', 'medico', 'enfermera'];
+  if (esAdministrativoAdmision(req)) return ['paciente'];
+  return [];
+}
+
+function puedeGestionarRol(req, rol) {
+  return rolesGestionables(req).includes(rol);
+}
+
+function puedeGestionarCitas(req) {
+  return esAdministradorPrincipal(req) || esAdministrativoAdmision(req);
+}
+
+function datosAlcanceAdministrativo(req) {
+  return {
+    isPrincipalAdministrador: esAdministradorPrincipal(req),
+    areaAdministrativa: areaAdministrativa(req),
+    rolesDisponibles: rolesGestionables(req),
+    esAdministrativoAdmision: esAdministrativoAdmision(req),
+    esAdministrativoGestionUsuarios: esAdministrativoGestionUsuarios(req),
+    puedeGestionarCitas: puedeGestionarCitas(req)
+  };
+}
+
 async function ensureRoleRecord(connection, idPersona, rol, body = {}) {
   if (rol === 'paciente') {
-    await connection.query(
+    const codigoEstudiante = limpiarTexto(body.codigo_estudiante);
+    const escuela = limpiarTexto(body.escuela);
+    const facultad = limpiarTexto(body.facultad);
+    const contextoUniversitario = limpiarTexto(body.contexto_universitario || 'Estudiante UNT');
+
+    if (!/^[0-9]{10}$/.test(codigoEstudiante)) {
+      throw new Error('Para asignar el rol Paciente, el codigo de estudiante debe tener exactamente 10 digitos.');
+    }
+
+    if (!Object.prototype.hasOwnProperty.call(CATALOGO_ACADEMICO_UNT, facultad)) {
+      throw new Error('Para asignar el rol Paciente, selecciona una facultad valida de la UNT.');
+    }
+
+    if (!CATALOGO_ACADEMICO_UNT[facultad].includes(escuela)) {
+      throw new Error('La escuela profesional seleccionada no corresponde a la facultad elegida.');
+    }
+
+    if (!CONTEXTOS_UNIVERSITARIOS.includes(contextoUniversitario)) {
+      throw new Error('Para asignar el rol Paciente, selecciona un contexto universitario valido.');
+    }
+
+    const [pacienteRows] = await connection.query(
       `
-      INSERT IGNORE INTO paciente (
-        id_persona,
-        contexto_universitario
-      ) VALUES (?, 'Estudiante UNT')
+      SELECT id_paciente
+      FROM paciente
+      WHERE id_persona = ?
+      LIMIT 1
       `,
       [idPersona]
     );
+
+    if (pacienteRows.length > 0) {
+      await connection.query(
+        `
+        UPDATE paciente
+        SET codigo_estudiante = ?,
+            escuela = ?,
+            facultad = ?,
+            contexto_universitario = ?
+        WHERE id_persona = ?
+        `,
+        [codigoEstudiante, escuela, facultad, contextoUniversitario, idPersona]
+      );
+    } else {
+      await connection.query(
+        `
+        INSERT INTO paciente (
+          id_persona,
+          codigo_estudiante,
+          escuela,
+          facultad,
+          contexto_universitario
+        ) VALUES (?, ?, ?, ?, ?)
+        `,
+        [idPersona, codigoEstudiante, escuela, facultad, contextoUniversitario]
+      );
+    }
 
     return;
   }
@@ -241,7 +374,7 @@ async function ensureRoleRecord(connection, idPersona, rol, body = {}) {
   }
 
   if (rol === 'enfermera') {
-    const area = limpiarTexto(body.area);
+    const area = 'Triaje';
     const turno = body.turno_enfermera;
 
     const [enfermeraRows] = await connection.query(
@@ -255,10 +388,6 @@ async function ensureRoleRecord(connection, idPersona, rol, body = {}) {
     );
 
     const enfermeraActual = enfermeraRows[0] || null;
-
-    if (!textoBasicoValido(area, 2, 80)) {
-      throw new Error('Para asignar el rol Enfermera, registra un área válida.');
-    }
 
     if (!TURNOS_PERMITIDOS.includes(turno)) {
       throw new Error('Para asignar el rol Enfermera, selecciona un turno válido.');
@@ -291,11 +420,10 @@ async function ensureRoleRecord(connection, idPersona, rol, body = {}) {
   }
 
   if (rol === 'administrativo') {
-    const cargo = limpiarTexto(body.cargo || 'Administrativo');
-    const anexo = limpiarTexto(body.anexo);
+    const cargo = limpiarTexto(body.cargo);
 
-    if (!textoBasicoValido(cargo, 2, 80)) {
-      throw new Error('Para asignar el rol Administrativo, registra un cargo válido.');
+    if (!CARGOS_ADMINISTRATIVOS.includes(cargo)) {
+      throw new Error('Para asignar el rol Administrativo, selecciona un área administrativa válida.');
     }
 
     const [adminRows] = await connection.query(
@@ -312,22 +440,20 @@ async function ensureRoleRecord(connection, idPersona, rol, body = {}) {
       await connection.query(
         `
         UPDATE administrativo
-        SET cargo = ?,
-            anexo = ?
+        SET cargo = ?
         WHERE id_persona = ?
         `,
-        [cargo, anexo || null, idPersona]
+        [cargo, idPersona]
       );
     } else {
       await connection.query(
         `
         INSERT INTO administrativo (
           id_persona,
-          cargo,
-          anexo
-        ) VALUES (?, ?, ?)
+          cargo
+        ) VALUES (?, ?)
         `,
-        [idPersona, cargo, anexo || null]
+        [idPersona, cargo]
       );
     }
   }
@@ -440,6 +566,10 @@ async function obtenerUsuarioGestion(idUsuario) {
       p.direccion,
 
       pac_rol.id_paciente,
+      pac_rol.codigo_estudiante AS paciente_codigo_estudiante,
+      pac_rol.escuela AS paciente_escuela,
+      pac_rol.facultad AS paciente_facultad,
+      pac_rol.contexto_universitario AS paciente_contexto_universitario,
       med_rol.id_medico,
       med_rol.especialidad AS medico_especialidad,
       med_rol.numero_colegiatura AS medico_colegiatura,
@@ -451,7 +581,7 @@ async function obtenerUsuarioGestion(idUsuario) {
 
       adm_rol.id_administrativo,
       adm_rol.cargo AS administrativo_cargo,
-      adm_rol.anexo AS administrativo_anexo
+      adm_rol.nivel_acceso AS administrativo_nivel_acceso
     FROM usuario u
     INNER JOIN persona p ON u.id_persona = p.id_persona
     LEFT JOIN paciente pac_rol ON p.id_persona = pac_rol.id_persona
@@ -482,6 +612,10 @@ function usuarioVacio(rol = 'paciente') {
     username: '',
     rol,
     id_paciente: null,
+    paciente_codigo_estudiante: '',
+    paciente_escuela: '',
+    paciente_facultad: '',
+    paciente_contexto_universitario: 'Estudiante UNT',
     id_medico: null,
     medico_especialidad: '',
     medico_colegiatura: '',
@@ -490,24 +624,38 @@ function usuarioVacio(rol = 'paciente') {
     enfermera_area: '',
     enfermera_turno: '',
     id_administrativo: null,
-    administrativo_cargo: 'Administrativo',
-    administrativo_anexo: ''
+    administrativo_cargo: '',
+    administrativo_nivel_acceso: ''
   };
 }
 
 
 exports.nuevoUsuario = (req, res) => {
-  const rolInicial = ROLES_PERMITIDOS.includes(req.query.rol) ? req.query.rol : 'paciente';
+  const rolesDisponibles = rolesGestionables(req);
+  const puedeGestionarAdministrativos = esAdministradorPrincipal(req);
+
+  if (rolesDisponibles.length === 0) {
+    req.session.error = 'No tienes permisos para registrar usuarios con tu área administrativa.';
+    return res.redirect('/admin/dashboard');
+  }
+
+  const rolSolicitado = ROLES_PERMITIDOS.includes(req.query.rol) ? req.query.rol : 'paciente';
+  const rolInicial = rolesDisponibles.includes(rolSolicitado)
+    ? rolSolicitado
+    : rolesDisponibles[0];
   const backUrl = req.query.returnTo === 'dashboard' ? '/admin/dashboard' : '/admin/usuarios';
 
   res.render('admin/usuario-form', {
-    title: 'Registrar usuario',
+    title: esAdministrativoAdmision(req) ? 'Registrar paciente' : 'Registrar usuario',
     layout: 'layouts/dashboard',
     modo: 'crear',
     actionUrl: '/admin/usuarios/nuevo',
     backUrl,
     usuario: usuarioVacio(rolInicial),
-    isSelf: false
+    isSelf: false,
+    isPrincipalAdministrador: puedeGestionarAdministrativos,
+    catalogoAcademico: CATALOGO_ACADEMICO_UNT,
+    ...datosAlcanceAdministrativo(req)
   });
 };
 
@@ -521,6 +669,11 @@ exports.formEditarUsuario = async (req, res) => {
       return res.redirect('/admin/usuarios');
     }
 
+    if (!puedeGestionarRol(req, usuario.rol)) {
+      req.session.error = 'No tienes permisos para editar esta cuenta con tu área administrativa.';
+      return res.redirect('/admin/usuarios');
+    }
+
     res.render('admin/usuario-form', {
       title: 'Editar usuario',
       layout: 'layouts/dashboard',
@@ -528,7 +681,10 @@ exports.formEditarUsuario = async (req, res) => {
       actionUrl: `/admin/usuarios/${usuario.id_usuario}/editar`,
       backUrl,
       usuario,
-      isSelf: Number(usuario.id_usuario) === Number(req.session.user.id_usuario)
+      isSelf: Number(usuario.id_usuario) === Number(req.session.user.id_usuario),
+      isPrincipalAdministrador: esAdministradorPrincipal(req),
+      catalogoAcademico: CATALOGO_ACADEMICO_UNT,
+      ...datosAlcanceAdministrativo(req)
     });
   } catch (error) {
     console.error(error);
@@ -539,7 +695,18 @@ exports.formEditarUsuario = async (req, res) => {
 
 exports.usuarios = async (req, res) => {
   try {
-    const { q, rol, estado } = req.query;
+    const rolesDisponibles = rolesGestionables(req);
+
+    if (rolesDisponibles.length === 0) {
+      req.session.error = 'No tienes permisos para gestionar usuarios con tu área administrativa.';
+      return res.redirect('/admin/dashboard');
+    }
+
+    const { q, estado } = req.query;
+    const rolSolicitado = req.query.rol || '';
+    const rol = rolesDisponibles.includes(rolSolicitado)
+      ? rolSolicitado
+      : (rolesDisponibles.length === 1 ? rolesDisponibles[0] : '');
 
     const sortColumns = {
       usuario: 'p.apellido_paterno',
@@ -582,6 +749,9 @@ exports.usuarios = async (req, res) => {
     if (rol && rol !== '') {
       conditions.push(`u.rol = ?`);
       params.push(rol);
+    } else if (!esAdministradorPrincipal(req)) {
+      conditions.push(`u.rol IN (${rolesDisponibles.map(() => '?').join(', ')})`);
+      params.push(...rolesDisponibles);
     }
 
     if (estado && estado !== '') {
@@ -640,7 +810,7 @@ exports.usuarios = async (req, res) => {
 
         adm_rol.id_administrativo,
         adm_rol.cargo AS administrativo_cargo,
-        adm_rol.anexo AS administrativo_anexo,
+        adm_rol.nivel_acceso AS administrativo_nivel_acceso,
 
         (
           SELECT COUNT(*)
@@ -701,7 +871,8 @@ exports.usuarios = async (req, res) => {
         limit,
         from: totalUsuarios === 0 ? 0 : safeOffset + 1,
         to: Math.min(safeOffset + usuarios.length, totalUsuarios)
-      }
+      },
+      ...datosAlcanceAdministrativo(req)
     });
   } catch (error) {
     console.error(error);
@@ -750,6 +921,11 @@ exports.storeUsuario = async (req, res) => {
 
     if (!ROLES_PERMITIDOS.includes(rol)) {
       req.session.error = 'Selecciona un rol valido.';
+      return res.redirect('/admin/usuarios/nuevo');
+    }
+
+    if (!puedeGestionarRol(req, rol)) {
+      req.session.error = 'No tienes permisos para registrar ese tipo de cuenta con tu área administrativa.';
       return res.redirect('/admin/usuarios/nuevo');
     }
 
@@ -923,9 +1099,11 @@ exports.editarUsuario = async (req, res) => {
         u.id_persona,
         u.rol,
         u.activo,
+        adm.nivel_acceso AS nivel_acceso_administrativo,
         p.correo
       FROM usuario u
       INNER JOIN persona p ON u.id_persona = p.id_persona
+      LEFT JOIN administrativo adm ON adm.id_persona = u.id_persona
       WHERE u.id_usuario = ?
       LIMIT 1
       `,
@@ -945,6 +1123,12 @@ exports.editarUsuario = async (req, res) => {
 
     if (isSelf) {
       nuevoRol = usuarioActual.rol;
+    }
+
+    if (!puedeGestionarRol(req, usuarioActual.rol) || !puedeGestionarRol(req, nuevoRol)) {
+      await connection.rollback();
+      req.session.error = 'No tienes permisos para modificar esta cuenta o cambiarla a ese rol.';
+      return res.redirect('/admin/usuarios');
     }
 
     if (
@@ -1096,8 +1280,8 @@ exports.cambiarEstadoUsuario = async (req, res) => {
 
     const [usuarioRows] = await db.query(
       `
-      SELECT id_usuario, rol, activo
-      FROM usuario
+      SELECT u.id_usuario, u.rol, u.activo
+      FROM usuario u
       WHERE id_usuario = ?
       LIMIT 1
       `,
@@ -1106,6 +1290,11 @@ exports.cambiarEstadoUsuario = async (req, res) => {
 
     if (usuarioRows.length === 0) {
       req.session.error = 'El usuario seleccionado no existe o ya fue modificado. Actualiza la lista e inténtalo nuevamente.';
+      return res.redirect(getUsuariosRedirect(req));
+    }
+
+    if (!puedeGestionarRol(req, usuarioRows[0].rol)) {
+      req.session.error = 'No tienes permisos para cambiar el estado de esta cuenta.';
       return res.redirect(getUsuariosRedirect(req));
     }
 
@@ -1169,6 +1358,12 @@ exports.eliminarUsuario = async (req, res) => {
     }
 
     const usuario = usuarioRows[0];
+
+    if (!puedeGestionarRol(req, usuario.rol)) {
+      await connection.rollback();
+      req.session.error = 'No tienes permisos para eliminar esta cuenta.';
+      return res.redirect(getUsuariosRedirect(req));
+    }
 
     if (
       usuario.rol === 'administrativo' &&
@@ -2489,6 +2684,11 @@ exports.eliminarEnfermera = async (req, res) => {
 
 exports.citas = async (req, res) => {
   try {
+    if (!puedeGestionarCitas(req)) {
+      req.session.error = 'Tu área administrativa no tiene acceso a la gestión de citas.';
+      return res.redirect('/admin/dashboard');
+    }
+
     const { q, estado, fecha } = req.query;
 
     const conditions = [];
@@ -2591,6 +2791,11 @@ exports.citas = async (req, res) => {
 
 exports.detalleCita = async (req, res) => {
   try {
+    if (!puedeGestionarCitas(req)) {
+      req.session.error = 'Tu área administrativa no tiene acceso al detalle de citas.';
+      return res.redirect('/admin/dashboard');
+    }
+
     const { id_cita } = req.params;
 
     const [rows] = await db.query(
@@ -2676,6 +2881,11 @@ exports.detalleCita = async (req, res) => {
 
 exports.cancelarCita = async (req, res) => {
   try {
+    if (!puedeGestionarCitas(req)) {
+      req.session.error = 'Tu área administrativa no tiene permisos para cancelar citas.';
+      return res.redirect('/admin/dashboard');
+    }
+
     const { id_cita } = req.params;
 
     const [rows] = await db.query(

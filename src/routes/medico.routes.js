@@ -21,6 +21,20 @@ router.get(
 );
 
 router.get(
+  '/api/medicamentos',
+  isAuthenticated,
+  allowRoles('medico'),
+  medicoController.buscarMedicamentos
+);
+
+router.get(
+  '/api/medicamentos/:id_medicamento/presentaciones',
+  isAuthenticated,
+  allowRoles('medico'),
+  medicoController.presentacionesMedicamento
+);
+
+router.get(
   '/citas',
   isAuthenticated,
   allowRoles('medico'),

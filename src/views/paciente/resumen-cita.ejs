@@ -5,6 +5,18 @@
     en_consulta: 'En consulta',
     cancelada: 'Cancelada'
   };
+
+  const mensajeTriajePendiente = cita.estado === 'cancelada'
+    ? 'La cita fue cancelada antes de registrar el triaje.'
+    : 'El triaje aún no se ha registrado. Se completará antes de la atención médica.';
+
+  const mensajeConsultaPendiente = cita.estado === 'cancelada'
+    ? 'La cita fue cancelada; no se registrará una consulta médica.'
+    : cita.estado === 'en_consulta'
+      ? 'La atención médica está en curso. La información se mostrará cuando el médico finalice la consulta.'
+      : cita.estado === 'triaje_registrado'
+        ? 'El triaje ya fue registrado. La consulta médica se completará durante la atención del médico.'
+        : 'La consulta médica se registrará después del triaje y la atención médica.';
 %>
 
 <div class="module-card resumen-cita-card">
@@ -13,9 +25,10 @@
   </div>
 
   <div class="clinical-overview patient-history-overview">
-    <section class="patient-summary clinical-panel">
+    <section class="patient-summary clinical-panel consistent-info-panel consistent-info-direct-panel">
       <h3>Datos de la cita</h3>
 
+      <div class="consistent-info-grid">
       <div>
         <span>Fecha</span>
         <strong><%= new Date(cita.fecha).toLocaleDateString('es-PE') %></strong>
@@ -50,14 +63,15 @@
         <span>Motivo de consulta</span>
         <strong><%= cita.motivo %></strong>
       </div>
+      </div>
 
     </section>
 
-    <% if (cita.id_triaje) { %>
-      <section class="triaje-summary clinical-panel">
-        <h3>Triaje registrado</h3>
+    <section class="triaje-summary clinical-panel consistent-info-panel">
+      <h3>Triaje registrado</h3>
 
-        <div class="triaje-summary-grid compact-clinical-grid">
+      <% if (cita.id_triaje) { %>
+        <div class="triaje-summary-grid compact-clinical-grid consistent-info-grid">
           <% if (cita.temperatura) { %>
             <div>
               <span>Temperatura</span>
@@ -107,9 +121,22 @@
             </div>
           <% } %>
         </div>
-      </section>
-    <% } %>
+      <% } else { %>
+        <p class="clinical-empty-text clinical-pending-state" role="status">
+          <i class="bi bi-clock-history" aria-hidden="true"></i>
+          <span><%= mensajeTriajePendiente %></span>
+        </p>
+      <% } %>
+    </section>
   </div>
+
+  <section class="consulta-detail-section consulta-medica-section detail-info-panel consistent-info-panel appointment-consulta-pending">
+    <h3><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>Consulta médica</h3>
+    <p class="clinical-empty-text clinical-pending-state" role="status">
+      <i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>
+      <span><%= mensajeConsultaPendiente %></span>
+    </p>
+  </section>
 
   <div class="form-actions">
     <a href="<%= typeof backUrl !== 'undefined' ? backUrl : '/paciente/mis-citas' %>" class="btn-light">

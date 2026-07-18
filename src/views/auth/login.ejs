@@ -14,22 +14,22 @@
     <% const identifierHasError = error && (!errorField || errorField === 'identificador'); %>
     <% const passwordHasError = error && (!errorField || errorField === 'password'); %>
     <div class="form-group">
-      <label for="identificador">Correo institucional/Usuario</label>
+      <label for="identificador">Correo institucional</label>
       <div class="auth-input-wrap">
         <i class="bi bi-envelope" aria-hidden="true"></i>
         <input
-          type="text"
+          type="email"
           id="identificador"
           name="identificador"
           placeholder="ejemplo@unt.edu.pe"
           autocomplete="username"
-          data-validate="login-identifier"
+          data-validate="email"
           class="<%= identifierHasError ? 'field-error' : '' %>"
           aria-invalid="<%= identifierHasError ? 'true' : 'false' %>"
           required
         >
       </div>
-      <small class="field-message <%= identifierHasError ? 'is-visible' : '' %>" data-for="identificador"><%= identifierHasError ? 'No hay una cuenta registrada con ese usuario o correo.' : '' %></small>
+      <small class="field-message <%= identifierHasError ? 'is-visible' : '' %>" data-for="identificador"><%= identifierHasError ? 'No hay una cuenta registrada con ese correo institucional.' : '' %></small>
     </div>
 
     <div class="form-group">

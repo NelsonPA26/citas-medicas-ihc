@@ -12,6 +12,34 @@ function getDashboardByRole(rol) {
   return routes[rol] || '/login';
 }
 
+function getSafeProfileReturnTo(req) {
+  const candidate = typeof req.query.returnTo === 'string'
+    ? req.query.returnTo
+    : (req.body && typeof req.body.returnTo === 'string' ? req.body.returnTo : '');
+  const role = req.session.user.rol;
+  const rolePrefix = {
+    paciente: '/paciente/',
+    medico: '/medico/',
+    enfermera: '/enfermera/',
+    administrativo: '/admin/'
+  }[role];
+
+  if (candidate === 'dashboard') return 'dashboard';
+  if (candidate === '/perfil') return '';
+  return rolePrefix && candidate.startsWith(rolePrefix) ? candidate : '';
+}
+
+function getProfilePageUrl(req) {
+  const returnTo = getSafeProfileReturnTo(req);
+  return returnTo ? `/perfil?returnTo=${encodeURIComponent(returnTo)}` : '/perfil';
+}
+
+function getProfileReturnUrl(req) {
+  const returnTo = getSafeProfileReturnTo(req);
+  if (returnTo && returnTo !== 'dashboard') return returnTo;
+  return getDashboardByRole(req.session.user.rol);
+}
+
 async function getProfileByUser(user) {
   const [personaRows] = await db.query(
     `
@@ -101,7 +129,7 @@ async function getProfileByUser(user) {
       `
       SELECT 
         cargo,
-        anexo
+        nivel_acceso
       FROM administrativo
       WHERE id_persona = ?
       LIMIT 1
@@ -128,7 +156,9 @@ exports.showProfile = async (req, res) => {
       title: 'Mi perfil',
       layout: 'layouts/dashboard',
       profile: data.profile,
-      extra: data.extra
+      extra: data.extra,
+      returnUrl: getProfileReturnUrl(req),
+      returnTo: getSafeProfileReturnTo(req)
     });
   } catch (error) {
     console.error(error);
@@ -139,6 +169,8 @@ exports.showProfile = async (req, res) => {
 
 
 exports.updateProfile = async (req, res) => {
+  const profilePageUrl = getProfilePageUrl(req);
+
   try {
     const {
       correo,
@@ -154,14 +186,14 @@ exports.updateProfile = async (req, res) => {
 
     if (!correoLimpio || !telefonoLimpio || !fecha_nacimiento || !sexo) {
       req.session.error = 'El correo, teléfono, fecha de nacimiento y sexo son obligatorios.';
-      return res.redirect('/perfil');
+      return res.redirect(profilePageUrl);
     }
 
     const sexosPermitidos = ['Masculino', 'Femenino', 'Otro', 'No especifica'];
 
     if (!sexosPermitidos.includes(sexo)) {
       req.session.error = 'Selecciona una opción válida en el campo sexo.';
-      return res.redirect('/perfil');
+      return res.redirect(profilePageUrl);
     }
 
     const fechaNacimiento = new Date(`${fecha_nacimiento}T00:00:00`);
@@ -174,17 +206,17 @@ exports.updateProfile = async (req, res) => {
       || fechaNacimiento.getFullYear() === hoy.getFullYear()
     ) {
       req.session.error = 'La fecha de nacimiento no puede ser de hoy, futura ni del año actual.';
-      return res.redirect('/perfil');
+      return res.redirect(profilePageUrl);
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoLimpio)) {
       req.session.error = 'Ingresa un correo electrónico válido.';
-      return res.redirect('/perfil');
+      return res.redirect(profilePageUrl);
     }
 
     if (!/^\d{9}$/.test(telefonoLimpio)) {
       req.session.error = 'El teléfono debe tener exactamente 9 dígitos.';
-      return res.redirect('/perfil');
+      return res.redirect(profilePageUrl);
     }
 
     const [existing] = await db.query(
@@ -213,7 +245,7 @@ exports.updateProfile = async (req, res) => {
 
     if (existing.length > 0) {
       req.session.error = 'El correo ingresado ya está registrado por otro usuario.';
-      return res.redirect('/perfil');
+      return res.redirect(profilePageUrl);
     }
 
     const connection = await db.getConnection();
@@ -263,16 +295,18 @@ exports.updateProfile = async (req, res) => {
     req.session.user.username = correoLimpio;
 
     req.session.success = 'Perfil actualizado correctamente.';
-    return res.redirect('/perfil');
+    return res.redirect(profilePageUrl);
   } catch (error) {
     console.error(error);
     req.session.error = 'No se pudo actualizar tu perfil. Revisa correo, teléfono, fecha de nacimiento y sexo antes de intentarlo nuevamente.';
-    return res.redirect('/perfil');
+    return res.redirect(profilePageUrl);
   }
 };
 
 
 exports.changePassword = async (req, res) => {
+  const profilePageUrl = getProfilePageUrl(req);
+
   try {
     const {
       current_password,
@@ -282,7 +316,7 @@ exports.changePassword = async (req, res) => {
 
     if (!current_password || !new_password || !confirm_password) {
       req.session.error = 'Completa todos los campos para cambiar tu contraseña.';
-      return res.redirect('/perfil');
+      return res.redirect(profilePageUrl);
     }
 
     if (
@@ -293,12 +327,12 @@ exports.changePassword = async (req, res) => {
       !/[^A-Za-z0-9]/.test(new_password)
     ) {
       req.session.error = 'La nueva contraseña debe tener mínimo 8 caracteres, mayúscula, minúscula, número y símbolo.';
-      return res.redirect('/perfil');
+      return res.redirect(profilePageUrl);
     }
 
     if (new_password !== confirm_password) {
       req.session.error = 'La nueva contraseña y su confirmación no coinciden.';
-      return res.redirect('/perfil');
+      return res.redirect(profilePageUrl);
     }
 
     const [rows] = await db.query(
@@ -313,21 +347,21 @@ exports.changePassword = async (req, res) => {
 
     if (rows.length === 0) {
       req.session.error = 'No se encontró el usuario.';
-      return res.redirect('/perfil');
+      return res.redirect(profilePageUrl);
     }
 
     const passwordOk = await bcrypt.compare(current_password, rows[0].password_hash);
 
     if (!passwordOk) {
       req.session.error = 'La contraseña actual no es correcta.';
-      return res.redirect('/perfil');
+      return res.redirect(profilePageUrl);
     }
 
     const samePassword = await bcrypt.compare(new_password, rows[0].password_hash);
 
     if (samePassword) {
       req.session.error = 'La nueva contraseña debe ser diferente a la contraseña actual.';
-      return res.redirect('/perfil');
+      return res.redirect(profilePageUrl);
     }
 
     const newHash = await bcrypt.hash(new_password, 10);
@@ -344,10 +378,10 @@ exports.changePassword = async (req, res) => {
     );
 
     req.session.success = 'Contraseña actualizada correctamente.';
-    return res.redirect('/perfil');
+    return res.redirect(profilePageUrl);
   } catch (error) {
     console.error(error);
     req.session.error = 'No se pudo cambiar la contraseña. Verifica la contraseña actual y que la nueva cumpla los requisitos.';
-    return res.redirect('/perfil');
+    return res.redirect(profilePageUrl);
   }
 };

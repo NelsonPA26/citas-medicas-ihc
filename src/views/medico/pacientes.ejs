@@ -55,8 +55,8 @@
             <th>DNI</th>
             <th>Edad</th>
             <th>Sexo</th>
-            <th>Consultas completadas</th>
             <th>Última atención</th>
+            <th>Último motivo atendido</th>
             <th>Acción</th>
           </tr>
         </thead>
@@ -67,8 +67,8 @@
               <td><%= paciente.dni || 'No registrado' %></td>
               <td><%= paciente.edad !== null ? paciente.edad + ' años' : 'No registrada' %></td>
               <td><%= paciente.sexo || 'No registrado' %></td>
-              <td><span class="status-badge status-completada"><%= paciente.consultas_completadas || 0 %></span></td>
               <td><%= paciente.ultima_atencion ? new Date(paciente.ultima_atencion).toLocaleDateString('es-PE') : 'Sin atención completada' %></td>
+              <td><%= paciente.ultimo_motivo || 'Sin atención completada' %></td>
               <td>
                 <a href="/medico/pacientes/<%= paciente.id_paciente %>/historial" class="btn-table-primary icon-action" title="Ver historial" aria-label="Ver historial">
                   <img class="action-metaphor" src="/img/action-metaphors/medico/historial/buscar.png" alt="" aria-hidden="true">

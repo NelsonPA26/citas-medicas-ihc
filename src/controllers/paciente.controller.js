@@ -24,7 +24,7 @@ function textoClinicoValido(value, obligatorio = false) {
   const text = (value || '').trim();
 
   if (!obligatorio && text === '') return true;
-  if (obligatorio && text.length < 5) return false;
+  if (obligatorio && text.length < 8) return false;
 
   return /^[\p{L}0-9 .,;:()/%+-]+$/u.test(text);
 }
@@ -218,9 +218,15 @@ exports.dashboard = async (req, res) => {
 };
 
 exports.ayuda = (req, res) => {
+  const returnUrl = typeof req.query.returnTo === 'string'
+    && (req.query.returnTo === '/perfil' || req.query.returnTo.startsWith('/paciente/'))
+    ? req.query.returnTo
+    : '/paciente/dashboard';
+
   res.render('paciente/ayuda', {
     title: 'Ayuda del paciente',
-    layout: 'layouts/dashboard'
+    layout: 'layouts/dashboard',
+    returnUrl
   });
 };
 
@@ -332,7 +338,7 @@ exports.storeReservarCita = async (req, res) => {
     }
 
     if (!textoClinicoValido(motivo, true)) {
-      req.session.error = 'Ingresa un motivo válido con al menos 5 caracteres.';
+      req.session.error = 'Describe el motivo de consulta con una frase breve y clara.';
       return res.redirect('/paciente/reservar-cita');
     }
 
@@ -392,7 +398,7 @@ exports.storeReservarCita = async (req, res) => {
     );
 
     req.session.success = 'Cita reservada correctamente.';
-    return res.redirect('/paciente/dashboard');
+    return res.redirect('/paciente/reservar-cita');
   } catch (error) {
     console.error(error);
 
@@ -491,7 +497,7 @@ exports.updateCita = async (req, res) => {
     }
 
     if (!textoClinicoValido(motivo, true)) {
-      req.session.error = 'Ingresa un motivo válido con al menos 5 caracteres.';
+      req.session.error = 'Describe el motivo de consulta con una frase breve y clara.';
       return res.redirect(`/paciente/mis-citas/${id_cita}/editar`);
     }
 

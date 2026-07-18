@@ -15,11 +15,14 @@ async function isAuthenticated(req, res, next) {
         u.username,
         u.rol,
         u.activo,
+        adm.nivel_acceso AS nivel_acceso_administrativo,
+        adm.cargo AS area_administrativa,
         p.nombres,
         p.apellido_paterno,
         p.correo
       FROM usuario u
       INNER JOIN persona p ON u.id_persona = p.id_persona
+      LEFT JOIN administrativo adm ON adm.id_persona = u.id_persona
       WHERE u.id_usuario = ?
       LIMIT 1
       `,
@@ -37,6 +40,8 @@ async function isAuthenticated(req, res, next) {
       id_persona: rows[0].id_persona,
       username: rows[0].username,
       rol: rows[0].rol,
+      nivel_acceso_administrativo: rows[0].nivel_acceso_administrativo || null,
+      area_administrativa: rows[0].area_administrativa || null,
       nombres: rows[0].nombres,
       apellido_paterno: rows[0].apellido_paterno,
       correo: rows[0].correo

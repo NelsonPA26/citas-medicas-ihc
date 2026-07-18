@@ -12,13 +12,18 @@
     { value: 'tarde', label: 'Tarde' },
     { value: 'completo', label: 'Completo' }
   ];
-  const areasEnfermeria = ['Triaje', 'Control de signos vitales', 'Vacunación', 'Curaciones', 'Admisión clínica'];
-  const cargosAdministrativos = ['Administrativo', 'Recepción', 'Admisión', 'Caja', 'Reportes'];
+  const cargosAdministrativos = ['Admisión', 'Gestión de usuarios'];
 
-  const selectedArea = usuario.enfermera_area || '';
-  const selectedCargo = usuario.administrativo_cargo || 'Administrativo';
-  const areaNoListada = selectedArea && !areasEnfermeria.includes(selectedArea);
+  const selectedCargo = usuario.administrativo_cargo || '';
   const cargoNoListado = selectedCargo && !cargosAdministrativos.includes(selectedCargo);
+  const isPrincipal = Boolean(isPrincipalAdministrador);
+  const rolesPermitidosFormulario = rolesDisponibles || ['paciente', 'medico', 'enfermera'];
+  const facultadesUNT = catalogoAcademico || {};
+  const selectedFacultad = usuario.paciente_facultad || '';
+  const escuelasDeFacultad = facultadesUNT[selectedFacultad] || [];
+  const selectedEscuela = usuario.paciente_escuela || '';
+  const facultadNoListada = selectedFacultad && !Object.prototype.hasOwnProperty.call(facultadesUNT, selectedFacultad);
+  const escuelaNoListada = selectedEscuela && !escuelasDeFacultad.includes(selectedEscuela);
 %>
 
 <div class="module-card admin-user-form-card">
@@ -138,7 +143,7 @@
           </label>
           <input type="email" id="username" name="username" value="<%= usuario.username || usuario.correo || '' %>" maxlength="120" data-validate="email" autocomplete="email" required>
           <small class="field-message" data-for="username"></small>
-          <small class="form-help">Este correo se usará para iniciar sesión y recuperar la contraseña.</small>
+          <small class="form-help form-help-with-icon"><i class="bi bi-info-circle" aria-hidden="true"></i><span>Este correo se usará para iniciar sesión y recuperar la contraseña.</span></small>
         </div>
 
         <div class="form-group">
@@ -148,7 +153,11 @@
           </label>
           <input type="password" id="password" name="password" minlength="8" data-validate="strong-password" autocomplete="new-password" placeholder="<%= isEdit ? 'Opcional: dejar vacío para conservar' : 'Opcional: se usará UNT12345*' %>">
           <small class="field-message" data-for="password"></small>
-          <small class="form-help">Opcional. Si la escribes, debe tener mayúscula, minúscula, número y símbolo.</small>
+          <small class="form-help form-help-with-icon"><i class="bi bi-info-circle" aria-hidden="true"></i><span>Opcional. Si la escribes, debe tener mayúscula, minúscula, número y símbolo.</span></small>
+          <div class="password-strength" id="adminPasswordStrength" aria-live="polite">
+            <span></span>
+            <p>Seguridad: sin evaluar</p>
+          </div>
         </div>
 
         <div class="form-group admin-user-role-field">
@@ -157,23 +166,97 @@
             <span>Rol de acceso</span>
           </label>
           <select id="rol" name="rol" <%= isSelf ? 'disabled' : '' %> required>
-            <option value="paciente" <%= selectedRole === 'paciente' ? 'selected' : '' %>>Paciente</option>
-            <option value="medico" <%= selectedRole === 'medico' ? 'selected' : '' %>>Médico</option>
-            <option value="enfermera" <%= selectedRole === 'enfermera' ? 'selected' : '' %>>Enfermera</option>
-            <option value="administrativo" <%= selectedRole === 'administrativo' ? 'selected' : '' %>>Administrativo</option>
+            <% if (rolesPermitidosFormulario.includes('paciente')) { %>
+              <option value="paciente" <%= selectedRole === 'paciente' ? 'selected' : '' %>>Paciente</option>
+            <% } %>
+            <% if (rolesPermitidosFormulario.includes('medico')) { %>
+              <option value="medico" <%= selectedRole === 'medico' ? 'selected' : '' %>>Médico</option>
+            <% } %>
+            <% if (rolesPermitidosFormulario.includes('enfermera')) { %>
+              <option value="enfermera" <%= selectedRole === 'enfermera' ? 'selected' : '' %>>Enfermera</option>
+            <% } %>
+            <% if (rolesPermitidosFormulario.includes('administrativo')) { %>
+              <option value="administrativo" <%= selectedRole === 'administrativo' ? 'selected' : '' %>>Administrativo</option>
+            <% } %>
           </select>
           <% if (isSelf) { %>
             <input type="hidden" name="rol" value="<%= selectedRole %>">
-            <small class="form-help">Por seguridad, tu propia cuenta conserva el rol administrativo.</small>
+            <small class="form-help form-help-with-icon"><i class="bi bi-info-circle" aria-hidden="true"></i><span>Por seguridad, tu propia cuenta conserva el rol administrativo.</span></small>
           <% } else { %>
-            <small class="form-help" id="roleHelp">El rol determina qué módulo principal podrá usar la cuenta.</small>
+            <small class="form-help form-help-with-icon" id="roleHelp"><i class="bi bi-info-circle" aria-hidden="true"></i><span>El rol determina qué módulo principal podrá usar la cuenta.</span></small>
           <% } %>
         </div>
       </div>
 
       <div class="role-change-note" id="roleChangeNote">
-        <strong>Importante:</strong>
-        Cambiar el rol modifica el acceso al sistema, pero no elimina registros históricos asociados.
+        <i class="bi bi-info-circle" aria-hidden="true"></i>
+        <span><strong>Importante:</strong> Cambiar el rol modifica el acceso al sistema, pero no elimina registros históricos asociados.</span>
+      </div>
+    </div>
+
+    <div class="form-section-card role-extra-section" id="pacienteFields" data-role-section="paciente">
+      <div class="form-section-heading">
+        <h3><i class="bi bi-mortarboard" aria-hidden="true"></i>Ficha de paciente</h3>
+        <p>Estos datos universitarios los registra o actualiza el personal administrativo.</p>
+      </div>
+
+      <div class="admin-user-form-grid">
+        <div class="form-group">
+          <label for="codigo_estudiante" class="field-label-with-icon student-field-label">
+            <i class="bi bi-person-vcard" aria-hidden="true"></i>
+            <span>Código de estudiante</span>
+          </label>
+          <input type="text" id="codigo_estudiante" name="codigo_estudiante" value="<%= usuario.paciente_codigo_estudiante || '' %>" maxlength="10" inputmode="numeric" data-validate="digits" data-exact-length="10" placeholder="Ejemplo: 2020123001">
+          <small class="field-message" data-for="codigo_estudiante"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="facultad" class="field-label-with-icon student-field-label">
+            <i class="bi bi-bank" aria-hidden="true"></i>
+            <span>Facultad</span>
+          </label>
+          <select id="facultad" name="facultad">
+            <option value="">Seleccione facultad</option>
+            <% if (facultadNoListada) { %>
+              <option value="<%= selectedFacultad %>" selected><%= selectedFacultad %> (registro previo)</option>
+            <% } %>
+            <% Object.keys(facultadesUNT).forEach(function(facultad) { %>
+              <option value="<%= facultad %>" <%= selectedFacultad === facultad ? 'selected' : '' %>><%= facultad %></option>
+            <% }) %>
+          </select>
+          <small class="field-message" data-for="facultad"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="escuela" class="field-label-with-icon student-field-label">
+            <i class="bi bi-mortarboard" aria-hidden="true"></i>
+            <span>Escuela profesional</span>
+          </label>
+          <select id="escuela" name="escuela" <%= selectedFacultad ? '' : 'disabled' %>>
+            <option value="">Seleccione escuela profesional</option>
+            <% if (escuelaNoListada) { %>
+              <option value="<%= selectedEscuela %>" selected><%= selectedEscuela %> (registro previo)</option>
+            <% } %>
+            <% escuelasDeFacultad.forEach(function(escuela) { %>
+              <option value="<%= escuela %>" <%= selectedEscuela === escuela ? 'selected' : '' %>><%= escuela %></option>
+            <% }) %>
+          </select>
+          <small class="field-message" data-for="escuela"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="contexto_universitario" class="field-label-with-icon student-field-label">
+            <i class="bi bi-person-workspace" aria-hidden="true"></i>
+            <span>Contexto universitario</span>
+          </label>
+          <select id="contexto_universitario" name="contexto_universitario">
+            <option value="">Seleccione</option>
+            <% ['Estudiante regular', 'Internado', 'Egresante', 'Estudiante UNT'].forEach(function(contexto) { %>
+              <option value="<%= contexto %>" <%= usuario.paciente_contexto_universitario === contexto ? 'selected' : '' %>><%= contexto %></option>
+            <% }) %>
+          </select>
+          <small class="field-message" data-for="contexto_universitario"></small>
+        </div>
       </div>
     </div>
 
@@ -231,20 +314,13 @@
 
       <div class="admin-user-form-grid">
         <div class="form-group">
-          <label for="area" class="field-label-with-icon">
-            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
-            <span>Área</span>
+          <label for="area_visual" class="field-label-with-icon nursing-area-label">
+            <i class="bi bi-hospital" aria-hidden="true"></i>
+            <span>Área de trabajo</span>
           </label>
-          <select id="area" name="area">
-            <option value="">Seleccione</option>
-            <% if (areaNoListada) { %>
-              <option value="<%= selectedArea %>" selected><%= selectedArea %></option>
-            <% } %>
-            <% areasEnfermeria.forEach(function(area) { %>
-              <option value="<%= area %>" <%= selectedArea === area ? 'selected' : '' %>><%= area %></option>
-            <% }) %>
-          </select>
-          <small class="field-message" data-for="area"></small>
+          <input type="text" id="area_visual" value="Triaje" readonly aria-describedby="areaHelp">
+          <input type="hidden" id="area" name="area" value="Triaje">
+          <small class="form-help form-help-with-icon" id="areaHelp"><i class="bi bi-info-circle" aria-hidden="true"></i><span>El sistema asigna a las enfermeras al área de triaje.</span></small>
         </div>
 
         <div class="form-group">
@@ -266,16 +342,17 @@
     <div class="form-section-card role-extra-section" id="administrativoFields" data-role-section="administrativo">
       <div class="form-section-heading">
         <h3><i class="bi bi-briefcase" aria-hidden="true"></i>Ficha administrativa</h3>
-        <p>Estos campos son obligatorios solo cuando el rol seleccionado es Administrativo.</p>
+        <p>Define el área operativa de la cuenta administrativa.</p>
       </div>
 
       <div class="admin-user-form-grid">
         <div class="form-group">
-          <label for="cargo" class="field-label-with-icon">
-            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-note"></use></svg>
-            <span>Cargo</span>
+          <label for="cargo" class="field-label-with-icon nursing-area-label">
+            <i class="bi bi-building" aria-hidden="true"></i>
+            <span>Área administrativa</span>
           </label>
           <select id="cargo" name="cargo">
+            <option value="">Seleccione área administrativa</option>
             <% if (cargoNoListado) { %>
               <option value="<%= selectedCargo %>" selected><%= selectedCargo %></option>
             <% } %>
@@ -286,14 +363,6 @@
           <small class="field-message" data-for="cargo"></small>
         </div>
 
-        <div class="form-group">
-          <label for="anexo" class="field-label-with-icon">
-            <svg class="field-icon" aria-hidden="true"><use href="#field-icon-phone"></use></svg>
-            <span>Anexo</span>
-          </label>
-          <input type="text" id="anexo" name="anexo" value="<%= usuario.administrativo_anexo || '' %>" maxlength="20" inputmode="numeric" data-validate="digits" placeholder="Opcional">
-          <small class="field-message" data-for="anexo"></small>
-        </div>
       </div>
     </div>
 
@@ -319,12 +388,16 @@
   const fechaNacimientoInput = document.getElementById('fecha_nacimiento');
   const roleHelp = document.getElementById('roleHelp');
   const roleChangeNote = document.getElementById('roleChangeNote');
+  const facultadSelect = document.getElementById('facultad');
+  const escuelaSelect = document.getElementById('escuela');
+  const adminPasswordStrength = document.getElementById('adminPasswordStrength');
+  const academicCatalog = <%- JSON.stringify(catalogoAcademico || {}).replace(/</g, '\\u003c') %>;
 
   const roleHelpText = {
-    paciente: 'Paciente: podrá reservar citas, revisar historial y gestionar sus datos personales.',
+    paciente: 'Paciente: podrá reservar citas, revisar historial y ver los datos universitarios registrados por administración.',
     medico: 'Médico: podrá atender citas, consultar pacientes y registrar atenciones médicas.',
     enfermera: 'Enfermera: podrá registrar triaje y revisar datos clínicos previos.',
-    administrativo: 'Administrativo: tendrá acceso a la gestión del sistema. Asígnalo solo a personal autorizado.'
+    administrativo: 'Administrativo: realizará tareas de Admisión o Gestión de usuarios según el área asignada. Solo el administrador principal puede crear y gestionar cuentas administrativas.'
   };
 
   if (fechaNacimientoInput) {
@@ -337,8 +410,48 @@
 
     section.querySelectorAll('input, select').forEach(field => {
       field.disabled = !enabled;
-      field.required = enabled && field.id !== 'anexo';
+      field.required = enabled && field.type !== 'hidden' && !field.readOnly;
     });
+  }
+
+  function updateSchoolOptions(resetSelection = false) {
+    if (!facultadSelect || !escuelaSelect) return;
+
+    const selectedFaculty = facultadSelect.value;
+    const selectedSchool = resetSelection ? '' : escuelaSelect.value;
+    const schools = academicCatalog[selectedFaculty] || [];
+
+    escuelaSelect.innerHTML = '<option value="">Seleccione escuela profesional</option>';
+    schools.forEach(school => {
+      const option = document.createElement('option');
+      option.value = school;
+      option.textContent = school;
+      option.selected = school === selectedSchool;
+      escuelaSelect.appendChild(option);
+    });
+
+    escuelaSelect.disabled = !selectedFaculty || schools.length === 0;
+  }
+
+  function passwordScore(value) {
+    return [
+      value.length >= 8,
+      /[A-Z]/.test(value),
+      /[a-z]/.test(value),
+      /\d/.test(value),
+      /[^A-Za-z0-9]/.test(value)
+    ].filter(Boolean).length;
+  }
+
+  function updatePasswordStrength() {
+    if (!passwordInput || !adminPasswordStrength) return;
+
+    const score = passwordScore(passwordInput.value);
+    const labels = ['sin evaluar', 'muy débil', 'débil', 'media', 'buena', 'fuerte'];
+    const state = score >= 5 ? 'strong' : score >= 4 ? 'good' : score >= 3 ? 'medium' : 'weak';
+
+    adminPasswordStrength.dataset.strength = passwordInput.value ? state : 'empty';
+    adminPasswordStrength.querySelector('p').textContent = `Seguridad: ${passwordInput.value ? labels[score] : labels[0]}`;
   }
 
   function updateRoleSections() {
@@ -349,22 +462,36 @@
     });
 
     if (roleHelp) {
-      roleHelp.textContent = roleHelpText[selectedRole] || 'El rol determina qué módulo principal podrá usar la cuenta.';
+      const roleHelpTextNode = roleHelp.querySelector('span');
+      if (roleHelpTextNode) {
+        roleHelpTextNode.textContent = roleHelpText[selectedRole] || 'El rol determina qué módulo principal podrá usar la cuenta.';
+      }
     }
 
     if (roleChangeNote) {
       roleChangeNote.classList.toggle('is-warning', selectedRole === 'administrativo');
       roleChangeNote.innerHTML = selectedRole === 'administrativo'
-        ? '<strong>Atención:</strong> El rol Administrativo permite gestionar usuarios, citas y configuración del sistema. Úsalo solo para personal autorizado.'
-        : '<strong>Importante:</strong> Cambiar el rol modifica el acceso al sistema, pero no elimina registros históricos asociados.';
+        ? '<i class="bi bi-exclamation-triangle" aria-hidden="true"></i><span><strong>Atención:</strong> La cuenta será administrativa operativa. No podrá crear, editar ni cambiar el estado de cuentas administrativas.</span>'
+        : '<i class="bi bi-info-circle" aria-hidden="true"></i><span><strong>Importante:</strong> Cambiar el rol modifica el acceso al sistema, pero no elimina registros históricos asociados.</span>';
     }
+
+    if (selectedRole === 'paciente') updateSchoolOptions();
   }
 
   if (roleSelect) {
     roleSelect.addEventListener('change', updateRoleSections);
   }
 
+  if (facultadSelect) {
+    facultadSelect.addEventListener('change', () => updateSchoolOptions(true));
+  }
+
+  if (passwordInput) {
+    passwordInput.addEventListener('input', updatePasswordStrength);
+  }
+
   updateRoleSections();
+  updatePasswordStrength();
 
   if (adminUserForm) {
     adminUserForm.addEventListener('submit', () => {

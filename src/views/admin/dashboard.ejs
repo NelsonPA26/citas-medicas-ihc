@@ -1,5 +1,20 @@
 <%
   const personalAsistencial = Number(stats.medicos || 0) + Number(stats.enfermeras || 0);
+  const esAdmision = Boolean(esAdministrativoAdmision);
+  const puedeGestionarUsuarios = Boolean(isPrincipalAdministrador || esAdministrativoGestionUsuarios || esAdministrativoAdmision);
+  const tieneAccesoCitas = Boolean(puedeGestionarCitas);
+  const tituloRegistrosRecientes = esAdmision ? 'Pacientes recientes' : 'Usuarios recientes';
+  const descripcionRegistrosRecientes = esAdmision
+    ? 'Últimos pacientes registrados desde admisión'
+    : 'Últimos registros creados en el sistema';
+  const enlaceRegistros = esAdmision ? '/admin/usuarios?rol=paciente&returnTo=dashboard' : '/admin/usuarios?returnTo=dashboard';
+  const enlaceNuevoRegistro = esAdmision ? '/admin/usuarios/nuevo?rol=paciente&returnTo=dashboard' : '/admin/usuarios/nuevo?returnTo=dashboard';
+  const etiquetaRegistro = esAdmision ? 'Paciente' : 'Usuario';
+  const quickIcons = {
+    usuarios: '<svg class="menu-svg dashboard-action-icon" viewBox="0 0 24 24" fill="none"><path d="M16 11a4 4 0 1 0-8 0M3 21a7 7 0 0 1 14 0M18 8a3 3 0 0 1 0 6M19 17a5 5 0 0 1 2 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    citas: '<svg class="menu-svg dashboard-action-icon" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4M16 3v4M4 9h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01M16 17h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    registrar: '<svg class="menu-svg dashboard-action-icon" viewBox="0 0 24 24" fill="none"><path d="M16 11a4 4 0 1 0-8 0M3 21a7 7 0 0 1 14 0M18 8a3 3 0 0 1 0 6M19 17a5 5 0 0 1 2 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19 4v6M16 7h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+  };
   const roleLabel = {
     paciente: 'Paciente',
     medico: 'Doctor',
@@ -60,10 +75,9 @@
 <div class="dashboard-secondary-grid dashboard-secondary-grid-admin">
   <section class="admin-recent-users-card" aria-labelledby="recentUsersTitle">
     <div class="admin-recent-users-heading">
-      <span class="admin-recent-users-icon" aria-hidden="true"><i class="bi bi-people"></i></span>
       <div>
-        <h3 id="recentUsersTitle">Usuarios recientes</h3>
-        <p>Últimos registros creados en el sistema</p>
+        <h3 id="recentUsersTitle"><%= tituloRegistrosRecientes %></h3>
+        <p><%= descripcionRegistrosRecientes %></p>
       </div>
     </div>
 
@@ -84,7 +98,7 @@
         <% }) %>
       </div>
 
-      <a class="admin-recent-users-all" href="/admin/usuarios?returnTo=dashboard">
+      <a class="admin-recent-users-all" href="<%= enlaceRegistros %>">
         <span>Ver gestión completa</span>
         <i class="bi bi-arrow-right" aria-hidden="true"></i>
       </a>
@@ -95,7 +109,6 @@
 
   <section class="dashboard-info-card" aria-labelledby="adminQuickTitle">
     <div class="dashboard-info-heading">
-      <span class="dashboard-info-icon" aria-hidden="true"><i class="bi bi-lightning-charge"></i></span>
       <div>
         <h3 id="adminQuickTitle">Accesos rápidos</h3>
         <p>Entradas directas a tareas frecuentes, sin duplicar formularios.</p>
@@ -103,18 +116,22 @@
     </div>
 
     <div class="dashboard-info-list">
-      <a href="/admin/usuarios?returnTo=dashboard" class="dashboard-info-row">
-        <span><i class="bi bi-people" aria-hidden="true"></i>Usuarios</span>
-        <i class="bi bi-chevron-right" aria-hidden="true"></i>
-      </a>
-      <a href="/admin/usuarios/nuevo?returnTo=dashboard" class="dashboard-info-row">
-        <span><i class="bi bi-person-plus" aria-hidden="true"></i>Registrar usuario</span>
-        <i class="bi bi-chevron-right" aria-hidden="true"></i>
-      </a>
-      <a href="/admin/citas?returnTo=dashboard" class="dashboard-info-row">
-        <span><i class="bi bi-calendar3" aria-hidden="true"></i>Citas</span>
-        <i class="bi bi-chevron-right" aria-hidden="true"></i>
-      </a>
+      <% if (puedeGestionarUsuarios) { %>
+        <a href="<%= enlaceRegistros %>" class="dashboard-info-row">
+          <span><%- quickIcons.usuarios %><%= esAdmision ? 'Pacientes' : 'Usuarios' %></span>
+          <i class="bi bi-chevron-right" aria-hidden="true"></i>
+        </a>
+        <a href="<%= enlaceNuevoRegistro %>" class="dashboard-info-row">
+          <span><%- quickIcons.registrar %>Registrar <%= etiquetaRegistro.toLowerCase() %></span>
+          <i class="bi bi-chevron-right" aria-hidden="true"></i>
+        </a>
+      <% } %>
+      <% if (tieneAccesoCitas) { %>
+        <a href="/admin/citas?returnTo=dashboard" class="dashboard-info-row">
+          <span><%- quickIcons.citas %>Citas</span>
+          <i class="bi bi-chevron-right" aria-hidden="true"></i>
+        </a>
+      <% } %>
     </div>
   </section>
 </div>

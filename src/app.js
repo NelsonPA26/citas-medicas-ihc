@@ -4,6 +4,9 @@ const morgan = require('morgan');
 const session = require('express-session');
 const expressLayouts = require('express-ejs-layouts');
 require('dotenv').config();
+const db = require('./config/database');
+const MySqlSessionStore = require('./config/mysql-session-store');
+const { provideCsrfToken, verifyCsrfToken } = require('./middlewares/csrf.middleware');
 
 const authRoutes = require('./routes/auth.routes');
 
@@ -14,10 +17,18 @@ const adminRoutes = require('./routes/admin.routes');
 const profileRoutes = require('./routes/profile.routes');
 
 const app = express();
+const sessionMaxAge = 30 * 60 * 1000;
+const sessionStore = new MySqlSessionStore(db, { ttlMs: sessionMaxAge });
 
 const PORT = process.env.PORT || 3000;
 
 app.disable('x-powered-by');
+
+if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
+  throw new Error('SESSION_SECRET debe configurarse con al menos 32 caracteres antes de iniciar la aplicacion.');
+}
+
+if (process.env.NODE_ENV === 'production') app.set('trust proxy', 1);
 
 function dashboardByRole(rol) {
   const routes = {
@@ -49,11 +60,23 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Sesiones
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || 'clave_temporal',
+    store: sessionStore,
+    secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    rolling: true,
+    name: 'bienestar.sid',
+    cookie: {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: sessionMaxAge
+    }
   })
 );
+
+app.use(provideCsrfToken);
+app.use(verifyCsrfToken);
 
 // Variables globales para las vistas
 app.use((req, res, next) => {
@@ -87,25 +110,8 @@ app.get('/', (req, res) => {
   res.redirect('/login');
 });
 
-// Prueba de conexión
-app.get('/test-db', async (req, res) => {
-  try {
-    const db = require('./config/database');
-    const [rows] = await db.query('SELECT 1 + 1 AS resultado');
-
-    res.json({
-      ok: true,
-      mensaje: 'Conexión a MySQL exitosa',
-      resultado: rows[0].resultado
-    });
-  } catch (error) {
-    res.status(500).json({
-      ok: false,
-      mensaje: 'Error al conectar con MySQL',
-      error: error.message
-    });
-  }
-});
+// No se expone un endpoint de diagnostico de base de datos al cliente.
+app.all('/test-db', (req, res) => res.status(404).end());
 
 app.use((req, res) => {
   const backUrl = req.session && req.session.user
@@ -133,7 +139,15 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Servidor
-app.listen(PORT, () => {
-  console.log(`Servidor iniciado en http://localhost:${PORT}`);
+async function startServer() {
+  await sessionStore.init();
+
+  app.listen(PORT, () => {
+    console.log(`Servidor iniciado en http://localhost:${PORT}`);
+  });
+}
+
+startServer().catch(error => {
+  console.error('No se pudo inicializar el almacenamiento de sesiones.', error);
+  process.exit(1);
 });

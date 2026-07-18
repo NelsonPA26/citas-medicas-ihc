@@ -3,11 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="<%= csrfToken || '' %>">
   <title><%= title || 'Sistema de Citas Médicas' %></title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css?v=20260718-visual-7">
 </head>
 <body class="dashboard-body">
+  <script>
+    (function () {
+      const sidebarStateKey = 'citasIhcSidebarCollapsed:v1';
+
+      try {
+        const storedState = localStorage.getItem(sidebarStateKey);
+        const shouldStartCollapsed = storedState === null
+          ? window.matchMedia('(max-width: 760px)').matches
+          : storedState === 'true';
+
+        if (shouldStartCollapsed) document.body.classList.add('sidebar-collapsed');
+      } catch (error) {
+        if (window.matchMedia('(max-width: 760px)').matches) {
+          document.body.classList.add('sidebar-collapsed');
+        }
+      }
+    })();
+  </script>
   <a class="skip-link" href="#contenido-principal">Saltar al contenido principal</a>
 
   <svg class="field-icon-sprite" aria-hidden="true" focusable="false">
@@ -51,9 +70,84 @@
 
       triaje: '<svg class="menu-svg" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-4.5 7-11a7 7 0 1 0-14 0c0 6.5 7 11 7 11z" stroke="currentColor" stroke-width="2"/><path d="M12 7v6M9 10h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
     };
+
+    const roleHelpRoutes = {
+      paciente: '/paciente/ayuda',
+      medico: '/medico/ayuda',
+      enfermera: '/enfermera/ayuda',
+      administrativo: '/admin/ayuda'
+    };
+    const roleHelpUrl = user ? roleHelpRoutes[user.rol] : '/ayuda';
+    const helpReturnUrl = `${roleHelpUrl}?returnTo=${encodeURIComponent(currentPath)}`;
+    const profileMenuUrl = currentPath === '/perfil'
+      ? '/perfil'
+      : `/perfil?returnTo=${encodeURIComponent(currentPath)}`;
+    const isRoleDashboard = currentPath === '/paciente/dashboard' ||
+      currentPath === '/medico/dashboard' ||
+      currentPath === '/enfermera/dashboard' ||
+      currentPath === '/admin/dashboard';
+    const isAdminRole = user && user.rol === 'administrativo';
+    const isPrincipalAdministrator = isAdminRole && user.nivel_acceso_administrativo === 'principal';
+    const isAdmissionAdministrator = isAdminRole && !isPrincipalAdministrator && user.area_administrativa === 'Admisión';
+    const isUserManagementAdministrator = isAdminRole && !isPrincipalAdministrator && user.area_administrativa === 'Gestión de usuarios';
+    const showAdminRegisterUserAction = isAdminRole && currentPath === '/admin/usuarios';
+    const adminRegisterUrl = isAdmissionAdministrator
+      ? '/admin/usuarios/nuevo?rol=paciente'
+      : '/admin/usuarios/nuevo';
+    const adminRegisterLabel = isAdmissionAdministrator ? 'Registrar paciente' : 'Registrar usuario';
+    const hasPageReturnUrl = typeof returnUrl !== 'undefined'
+      && typeof returnUrl === 'string'
+      && returnUrl.startsWith('/');
+    const hasDashboardReturn = typeof returnToDashboard !== 'undefined'
+      && returnToDashboard
+      && dashboardReturnUrl
+      && currentPath !== dashboardReturnUrl;
+    const pageReturnUrl = hasPageReturnUrl
+      ? returnUrl
+      : (hasDashboardReturn ? dashboardReturnUrl : null);
+    const pageReturnLabel = 'Volver';
+    const userInitials = `${user?.nombres || ''} ${user?.apellido_paterno || ''}`
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(part => part.charAt(0).toUpperCase())
+      .join('') || 'U';
+    let roleTopbarHelp = null;
+
+    if (user && user.rol === 'paciente') {
+      if (currentPath.startsWith('/paciente/reservar-cita')) roleTopbarHelp = 'reservar-cita';
+      if (currentPath.startsWith('/paciente/mis-citas')) roleTopbarHelp = 'mis-citas';
+      if (currentPath.startsWith('/paciente/historial')) roleTopbarHelp = 'historial';
+      if (currentPath.startsWith('/paciente/antecedentes')) roleTopbarHelp = 'antecedentes';
+      if (currentPath === '/perfil') roleTopbarHelp = 'perfil';
+    }
+
+    if (user && user.rol === 'medico') {
+      if (currentPath === '/medico/citas') roleTopbarHelp = 'medico-citas';
+      if (currentPath.startsWith('/medico/citas/')) roleTopbarHelp = 'medico-atender-cita';
+      if (currentPath === '/medico/pacientes') roleTopbarHelp = 'medico-pacientes';
+      if (currentPath.includes('/medico/pacientes/') && currentPath.includes('/historial')) roleTopbarHelp = 'medico-historial-paciente';
+      if (currentPath === '/perfil') roleTopbarHelp = 'medico-perfil';
+    }
+
+    if (user && user.rol === 'enfermera') {
+      if (currentPath === '/enfermera/triaje-pendiente') roleTopbarHelp = 'enfermera-triaje-pendiente';
+      if (currentPath.startsWith('/enfermera/triaje/') || currentPath.includes('/enfermera/triajes/')) roleTopbarHelp = 'enfermera-registrar-triaje';
+      if (currentPath === '/enfermera/triajes') roleTopbarHelp = 'enfermera-triajes';
+      if (currentPath === '/enfermera/historial-triajes') roleTopbarHelp = 'enfermera-historial-triajes';
+      if (currentPath === '/perfil') roleTopbarHelp = 'enfermera-perfil';
+    }
+
+    if (user && user.rol === 'administrativo') {
+      if (currentPath.startsWith('/admin/usuarios')) roleTopbarHelp = 'admin-usuarios';
+      if (currentPath === '/admin/citas') roleTopbarHelp = 'admin-citas';
+      if (currentPath.startsWith('/admin/citas/')) roleTopbarHelp = 'admin-detalle-cita';
+      if (currentPath === '/perfil') roleTopbarHelp = 'admin-perfil';
+    }
   %>
 
-  <aside class="sidebar">
+  <aside class="sidebar" id="appSidebar">
     <div class="sidebar-header">
       <h2>Bienestar UNT</h2>
       <p><%= user ? user.rol : '' %></p>
@@ -87,15 +181,6 @@
             <span>Mis antecedentes médicos</span>
         </a>
 
-        <a href="/perfil" class="<%= currentPath === '/perfil' ? 'active' : '' %>">
-            <%- icons.perfil %>
-            <span>Mi perfil</span>
-        </a>
-
-        <a href="/paciente/ayuda" class="<%= currentPath === '/paciente/ayuda' ? 'active' : '' %>">
-            <%- icons.ayuda %>
-            <span>Ayuda</span>
-        </a>
       <% } %>
 
       <% if (user && user.rol === 'medico') { %>
@@ -114,15 +199,6 @@
           <span>Pacientes</span>
         </a>
 
-        <a href="/perfil" class="<%= currentPath === '/perfil' ? 'active' : '' %>">
-          <%- icons.perfil %>
-          <span>Mi perfil</span>
-        </a>
-
-        <a href="/medico/ayuda" class="<%= currentPath === '/medico/ayuda' ? 'active' : '' %>">
-          <%- icons.ayuda %>
-          <span>Ayuda</span>
-        </a>
       <% } %>
 
       <% if (user && user.rol === 'enfermera') { %>
@@ -146,15 +222,6 @@
           <span>Historial de triajes</span>
         </a>
 
-        <a href="/perfil" class="<%= currentPath === '/perfil' ? 'active' : '' %>">
-          <%- icons.perfil %>
-          <span>Mi perfil</span>
-        </a>
-
-        <a href="/enfermera/ayuda" class="<%= currentPath === '/enfermera/ayuda' ? 'active' : '' %>">
-          <%- icons.ayuda %>
-          <span>Ayuda</span>
-        </a>
       <% } %>
 
       <% if (user && user.rol === 'administrativo') { %>
@@ -163,24 +230,26 @@
           <span>Inicio</span>
         </a>
 
-        <a href="/admin/usuarios" class="<%= currentPath.startsWith('/admin/usuarios') ? 'active' : '' %>">
-          <%- icons.usuarios %>
-          <span>Usuarios</span>
-        </a>
-        
-        <a href="/admin/citas" class="<%= currentPath.startsWith('/admin/citas') ? 'active' : '' %>">
-          <%- icons.citas %>
-          <span>Citas</span>
-        </a>
-        <a href="/perfil" class="<%= currentPath === '/perfil' ? 'active' : '' %>">
-          <%- icons.perfil %>
-          <span>Mi perfil</span>
-        </a>
+        <% if (isPrincipalAdministrator || isUserManagementAdministrator) { %>
+          <a href="/admin/usuarios" class="<%= currentPath.startsWith('/admin/usuarios') ? 'active' : '' %>">
+            <%- icons.usuarios %>
+            <span>Usuarios</span>
+          </a>
+        <% } %>
 
-        <a href="/admin/ayuda" class="<%= currentPath === '/admin/ayuda' ? 'active' : '' %>">
-          <%- icons.ayuda %>
-          <span>Ayuda</span>
-        </a>
+        <% if (isAdmissionAdministrator) { %>
+          <a href="/admin/usuarios?rol=paciente" class="<%= currentPath.startsWith('/admin/usuarios') ? 'active' : '' %>">
+            <%- icons.usuarios %>
+            <span>Pacientes</span>
+          </a>
+        <% } %>
+
+        <% if (isPrincipalAdministrator || isAdmissionAdministrator) { %>
+          <a href="/admin/citas" class="<%= currentPath.startsWith('/admin/citas') ? 'active' : '' %>">
+            <%- icons.citas %>
+            <span>Citas</span>
+          </a>
+        <% } %>
       <% } %>
 
     </nav>
@@ -218,56 +287,59 @@
       <p class="visually-hidden" id="accessibilityStatus" aria-live="polite"></p>
     </section>
 
-    <form action="/logout" method="POST" class="logout-form">
-      <button type="submit">Cerrar sesión</button>
-    </form>
   </aside>
+
+  <header class="app-topbar" aria-label="Barra superior">
+    <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-controls="appSidebar" aria-expanded="true" title="Ocultar menú lateral">
+      <i class="bi bi-list" aria-hidden="true"></i>
+      <span class="visually-hidden">Ocultar menú lateral</span>
+    </button>
+
+    <div class="app-topbar-actions">
+      <% if (isRoleDashboard || !roleTopbarHelp) { %>
+        <a class="topbar-help-trigger" href="<%= helpReturnUrl %>" aria-label="Abrir ayuda general" title="Ayuda general">
+          <span>?</span>
+          <strong>¿Necesitas ayuda?</strong>
+        </a>
+      <% } else { %>
+        <button type="button" class="topbar-help-trigger" data-help-topic="<%= roleTopbarHelp %>" aria-label="Ver ayuda de este módulo" title="Ayuda de esta pantalla">
+          <span>?</span>
+          <strong>¿Necesitas ayuda?</strong>
+        </button>
+      <% } %>
+
+      <details class="account-menu" id="accountMenu">
+        <summary class="account-menu-trigger" aria-label="Abrir menú de cuenta de <%= user ? user.nombres : 'usuario' %>" title="Opciones de cuenta">
+          <span class="account-menu-avatar" aria-hidden="true"><%= userInitials %></span>
+          <i class="bi bi-chevron-down" aria-hidden="true"></i>
+        </summary>
+        <div class="account-menu-panel" role="menu" aria-label="Opciones de cuenta">
+          <a href="<%= profileMenuUrl %>" role="menuitem">
+            <i class="bi bi-person" aria-hidden="true"></i>
+            <span>Mi perfil</span>
+          </a>
+          <a href="<%= helpReturnUrl %>" role="menuitem">
+            <i class="bi bi-question-circle" aria-hidden="true"></i>
+            <span>Ayuda</span>
+          </a>
+          <form action="/logout" method="POST" class="logout-form account-menu-logout" role="none">
+            <button type="submit" role="menuitem">
+              <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+              <span>Cerrar sesión</span>
+            </button>
+          </form>
+        </div>
+      </details>
+    </div>
+  </header>
 
   <div class="icon-attribution visually-hidden" aria-hidden="true">
     Iconos dise&ntilde;ados por <a href="https://www.flaticon.es/autores/tuktukdesign" title="tuktukdesign">tuktukdesign</a> from <a href="https://www.flaticon.es/" title="Flaticon">www.flaticon.es</a>
   </div>
 
   <main class="dashboard-main" id="contenido-principal" tabindex="-1">
-    <%
-      const helpRoles = ['paciente', 'medico', 'enfermera', 'administrativo'];
-      let roleTopbarHelp = null;
 
-      if (user && user.rol === 'paciente') {
-        if (currentPath.startsWith('/paciente/reservar-cita')) roleTopbarHelp = 'reservar-cita';
-        if (currentPath.startsWith('/paciente/mis-citas')) roleTopbarHelp = 'mis-citas';
-        if (currentPath.startsWith('/paciente/historial')) roleTopbarHelp = 'historial';
-        if (currentPath.startsWith('/paciente/antecedentes')) roleTopbarHelp = 'antecedentes';
-        if (currentPath === '/perfil') roleTopbarHelp = 'perfil';
-      }
-
-      if (user && user.rol === 'medico') {
-        if (currentPath === '/medico/citas') roleTopbarHelp = 'medico-citas';
-        if (currentPath.startsWith('/medico/citas/')) roleTopbarHelp = 'medico-atender-cita';
-        if (currentPath === '/medico/pacientes') roleTopbarHelp = 'medico-pacientes';
-        if (currentPath.includes('/medico/pacientes/') && currentPath.includes('/historial')) roleTopbarHelp = 'medico-historial-paciente';
-        if (currentPath === '/perfil') roleTopbarHelp = 'medico-perfil';
-      }
-
-      if (user && user.rol === 'enfermera') {
-        if (currentPath === '/enfermera/triaje-pendiente' || currentPath.startsWith('/enfermera/triaje/')) roleTopbarHelp = 'enfermera-triaje-pendiente';
-        if (currentPath.startsWith('/enfermera/triaje/') || currentPath.includes('/enfermera/triajes/')) roleTopbarHelp = 'enfermera-registrar-triaje';
-        if (currentPath === '/enfermera/triajes') roleTopbarHelp = 'enfermera-triajes';
-        if (currentPath === '/enfermera/historial-triajes') roleTopbarHelp = 'enfermera-historial-triajes';
-        if (currentPath === '/perfil') roleTopbarHelp = 'enfermera-perfil';
-      }
-
-      if (user && user.rol === 'administrativo') {
-        if (currentPath.startsWith('/admin/usuarios')) roleTopbarHelp = 'admin-usuarios';
-        if (currentPath === '/admin/citas') roleTopbarHelp = 'admin-citas';
-        if (currentPath.startsWith('/admin/citas/')) roleTopbarHelp = 'admin-detalle-cita';
-        if (currentPath === '/perfil') roleTopbarHelp = 'admin-perfil';
-      }
-
-      const isAdminRole = user && user.rol === 'administrativo';
-      const showAdminRegisterUserAction = isAdminRole && currentPath === '/admin/usuarios';
-    %>
-
-    <header class="dashboard-topbar <%= roleTopbarHelp ? 'dashboard-topbar-helpable' : '' %> <%= isAdminRole ? 'dashboard-topbar-admin' : '' %>">
+    <header class="dashboard-topbar <%= (isAdminRole || pageReturnUrl) ? 'dashboard-topbar-admin' : '' %>">
       <div>
         <h1><%= title %></h1>
         <p id="pageModuleDescription" class="page-module-description hidden"></p>
@@ -282,45 +354,33 @@
         <% } %>
       </div>
 
-      <% if (isAdminRole && (showAdminRegisterUserAction || roleTopbarHelp)) { %>
-        <div class="topbar-action-group admin-topbar-actions">
-          <% if (roleTopbarHelp) { %>
-            <button type="button" class="topbar-help-trigger" data-help-topic="<%= roleTopbarHelp %>" aria-label="Ver ayuda de este módulo" title="Ayuda de esta pantalla">
-              <span>?</span>
-              <strong>Ayuda</strong>
-            </button>
+      <% if (pageReturnUrl || (isAdminRole && showAdminRegisterUserAction)) { %>
+        <div class="topbar-action-group page-title-actions">
+          <% if (pageReturnUrl) { %>
+            <a class="btn-light page-title-back" href="<%= pageReturnUrl %>">
+              <i class="bi bi-arrow-left" aria-hidden="true"></i>
+              <span><%= pageReturnLabel %></span>
+            </a>
           <% } %>
 
-          <% if (showAdminRegisterUserAction) { %>
+          <% if (isAdminRole && showAdminRegisterUserAction) { %>
             <div class="admin-user-primary-action" aria-label="Acción principal del módulo">
               <a
-                href="/admin/usuarios/nuevo"
+                href="<%= adminRegisterUrl %>"
                 class="btn-admin-register-clean"
-                title="Registrar usuario"
-                aria-label="Registrar usuario"
+                title="<%= adminRegisterLabel %>"
+                aria-label="<%= adminRegisterLabel %>"
               >
                 <img class="action-metaphor" src="/img/action-metaphors/administrador/usuarios/usuario_reg2.png" alt="" aria-hidden="true">
-                <span>Registrar usuario</span>
+                <span><%= adminRegisterLabel %></span>
               </a>
             </div>
           <% } %>
         </div>
-      <% } else if (roleTopbarHelp) { %>
-        <button type="button" class="topbar-help-trigger" data-help-topic="<%= roleTopbarHelp %>" aria-label="Ver ayuda de este módulo">
-          <span>?</span>
-          <strong>Ayuda</strong>
-        </button>
       <% } %>
     </header>
 
     <section class="dashboard-content">
-      <% if (typeof returnToDashboard !== 'undefined' && returnToDashboard && dashboardReturnUrl && currentPath !== dashboardReturnUrl) { %>
-        <a class="context-back-link" href="<%= dashboardReturnUrl %>">
-          <i class="bi bi-arrow-left" aria-hidden="true"></i>
-          <span>Volver al inicio</span>
-        </a>
-      <% } %>
-
       <%- body %>
     </section>
   </main>
@@ -385,13 +445,17 @@
 
         <ul class="help-modal-list" id="patientHelpList"></ul>
 
-        <div class="help-modal-note" id="patientHelpNote"></div>
+        <div class="help-modal-note" id="patientHelpNote" role="note">
+          <i class="bi bi-info-circle" aria-hidden="true"></i>
+          <span id="patientHelpNoteText"></span>
+        </div>
       </div>
     </div>
   <% } %>
 
   <script src="/js/ui-feedback.js"></script>
   <script src="/js/clinical-info-cards.js"></script>
+  <script src="/js/csrf-protection.js"></script>
   <script src="/js/accessibility-preferences.js"></script>
 
   <script>
@@ -425,6 +489,69 @@
   document.querySelectorAll('.sidebar-nav a.active').forEach(link => {
     link.setAttribute('aria-current', 'page');
   });
+
+  const appSidebar = document.getElementById('appSidebar');
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const accountMenu = document.getElementById('accountMenu');
+  const SIDEBAR_STATE_KEY = 'citasIhcSidebarCollapsed:v1';
+
+  function getStoredSidebarState() {
+    try {
+      const value = localStorage.getItem(SIDEBAR_STATE_KEY);
+      return value === null ? null : value === 'true';
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function setSidebarCollapsed(collapsed, persist = true) {
+    document.body.classList.toggle('sidebar-collapsed', collapsed);
+
+    if (persist) {
+      try {
+        localStorage.setItem(SIDEBAR_STATE_KEY, String(collapsed));
+      } catch (error) {
+        // La barra lateral mantiene su estado durante la pagina aunque el navegador no permita almacenarlo.
+      }
+    }
+
+    if (appSidebar) {
+      appSidebar.setAttribute('aria-hidden', collapsed ? 'true' : 'false');
+      appSidebar.inert = collapsed;
+    }
+
+    if (sidebarToggle) {
+      sidebarToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      sidebarToggle.title = collapsed ? 'Mostrar menú lateral' : 'Ocultar menú lateral';
+      const label = sidebarToggle.querySelector('.visually-hidden');
+      if (label) label.textContent = collapsed ? 'Mostrar menú lateral' : 'Ocultar menú lateral';
+    }
+  }
+
+  if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', () => {
+      setSidebarCollapsed(!document.body.classList.contains('sidebar-collapsed'));
+    });
+  }
+
+  const storedSidebarState = getStoredSidebarState();
+  const shouldStartCollapsed = storedSidebarState === null
+    ? window.matchMedia('(max-width: 760px)').matches
+    : storedSidebarState;
+  setSidebarCollapsed(shouldStartCollapsed, false);
+
+  if (accountMenu) {
+    document.addEventListener('click', event => {
+      if (accountMenu.open && !accountMenu.contains(event.target)) accountMenu.removeAttribute('open');
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && accountMenu.open) {
+        accountMenu.removeAttribute('open');
+        accountMenu.querySelector('summary')?.focus();
+      }
+    });
+  }
 
   autoDismissAlerts.forEach(alert => {
     const dismissToast = () => {
@@ -773,7 +900,7 @@ function moveRowsByStatusPriority(tbody) {
         intro: 'Busca pacientes relacionados con tus citas y revisa sus atenciones.',
         items: [
           'Filtra por nombre, apellido o DNI.',
-          'Abre Ver historial para revisar consultas completadas.',
+          'Abre Ver historial para revisar la información clínica relevante del paciente.',
           'La lista se basa en pacientes vinculados a tus citas.'
         ],
         note: 'Esta sección es de consulta; no edita datos del paciente.'
@@ -783,7 +910,7 @@ function moveRowsByStatusPriority(tbody) {
         intro: 'Consulta atenciones anteriores y antecedentes registrados.',
         items: [
           'Revisa antecedentes antes de interpretar una consulta anterior.',
-          'Abre el detalle para ver diagnóstico, tratamiento y recomendaciones.',
+          'Selecciona una fecha y hora para revisar esa atención, su triaje y el registro médico.',
           'Las observaciones privadas no se muestran al paciente.'
         ],
         note: 'Usa el historial como apoyo, no como reemplazo de la evaluación actual.'
@@ -922,6 +1049,7 @@ function moveRowsByStatusPriority(tbody) {
     const patientHelpIntro = document.getElementById('patientHelpIntro');
     const patientHelpList = document.getElementById('patientHelpList');
     const patientHelpNote = document.getElementById('patientHelpNote');
+    const patientHelpNoteText = document.getElementById('patientHelpNoteText');
     const patientHelpIcon = document.getElementById('patientHelpIcon');
     const closePatientHelpModal = document.getElementById('closePatientHelpModal');
     let lastPatientHelpTrigger = null;
@@ -971,7 +1099,7 @@ function moveRowsByStatusPriority(tbody) {
       patientHelpTitle.textContent = content.title;
       patientHelpIntro.textContent = content.intro;
       patientHelpList.innerHTML = content.items.map(item => `<li>${item}</li>`).join('');
-      patientHelpNote.textContent = content.note || '';
+      patientHelpNoteText.textContent = content.note || '';
       patientHelpNote.classList.toggle('hidden', !content.note);
       patientHelpModal.classList.remove('hidden');
       closePatientHelpModal.focus();

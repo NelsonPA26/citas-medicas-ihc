@@ -27,10 +27,10 @@
   </div>
 
   <div class="profile-grid">
-    <section class="profile-section">
+    <section class="profile-section consistent-info-panel">
       <h3><i class="bi bi-person-vcard" aria-hidden="true"></i>Datos personales</h3>
 
-      <div class="profile-info">
+      <div class="profile-info consistent-info-grid">
         <div>
           <i class="bi bi-person" aria-hidden="true"></i>
           <span>Nombres</span>
@@ -77,6 +77,9 @@
       <p class="section-help">Puedes actualizar estos datos cuando sea necesario.</p>
 
       <form action="/perfil/actualizar" method="POST" class="profile-form js-role-validated-form" id="profileForm" novalidate>
+        <% if (returnTo) { %>
+          <input type="hidden" name="returnTo" value="<%= returnTo %>">
+        <% } %>
         <div class="profile-form-grid">
           <div class="form-group">
             <label for="correo" class="field-label-with-icon">
@@ -180,11 +183,11 @@
   </div>
 
   <div class="profile-grid profile-grid-secondary">
-    <section class="profile-section profile-role-section">
+    <section class="profile-section profile-role-section consistent-info-panel">
       <h3><i class="bi bi-person-badge" aria-hidden="true"></i>Datos según rol</h3>
-      <p class="section-help">Estos datos son administrados por el personal autorizado.</p>
+      <p class="section-help">Estos datos los registra o actualiza el personal administrativo desde Gestion de usuarios.</p>
 
-      <div class="profile-info profile-role-info">
+      <div class="profile-info profile-role-info consistent-info-grid">
         <% if (profile.rol === 'paciente') { %>
           <div>
             <i class="bi bi-mortarboard" aria-hidden="true"></i>
@@ -248,14 +251,14 @@
         <% if (profile.rol === 'administrativo') { %>
           <div>
             <i class="bi bi-person-badge" aria-hidden="true"></i>
-            <span>Cargo</span>
+            <span>Área administrativa</span>
             <strong><%= extra && extra.cargo ? extra.cargo : 'No registrado' %></strong>
           </div>
 
           <div>
-            <i class="bi bi-telephone" aria-hidden="true"></i>
-            <span>Anexo</span>
-            <strong><%= extra && extra.anexo ? extra.anexo : 'No registrado' %></strong>
+            <i class="bi bi-shield-check" aria-hidden="true"></i>
+            <span>Nivel de acceso</span>
+            <strong><%= extra && extra.nivel_acceso === 'principal' ? 'Administrador principal' : 'Administrativo operativo' %></strong>
           </div>
         <% } %>
       </div>
@@ -278,6 +281,9 @@
         data-confirm-button="Cambiar contraseña"
         novalidate
       >
+        <% if (returnTo) { %>
+          <input type="hidden" name="returnTo" value="<%= returnTo %>">
+        <% } %>
         <div class="profile-form-grid">
           <div class="form-group">
             <label for="current_password" class="field-label-with-icon">

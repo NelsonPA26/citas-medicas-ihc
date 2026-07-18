@@ -23,6 +23,22 @@ CREATE TABLE persona (
   fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE consentimiento_privacidad (
+  id_consentimiento INT AUTO_INCREMENT PRIMARY KEY,
+  id_persona INT NOT NULL,
+  version_politica VARCHAR(20) NOT NULL,
+  finalidad VARCHAR(180) NOT NULL,
+  aceptado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_consentimiento_persona
+    FOREIGN KEY (id_persona)
+    REFERENCES persona(id_persona)
+    ON DELETE CASCADE,
+
+  CONSTRAINT uq_consentimiento_persona_version
+    UNIQUE (id_persona, version_politica)
+);
+
 CREATE TABLE usuario (
   id_usuario INT AUTO_INCREMENT PRIMARY KEY,
   id_persona INT NOT NULL UNIQUE,
@@ -87,13 +103,19 @@ CREATE TABLE enfermera (
 CREATE TABLE administrativo (
   id_administrativo INT AUTO_INCREMENT PRIMARY KEY,
   id_persona INT NOT NULL UNIQUE,
-  cargo VARCHAR(80),
-  anexo VARCHAR(20),
+  cargo ENUM('Admisión', 'Gestión de usuarios') NOT NULL,
+  nivel_acceso ENUM('principal', 'operativo') NOT NULL DEFAULT 'operativo',
+  principal_unico TINYINT GENERATED ALWAYS AS (
+    CASE WHEN nivel_acceso = 'principal' THEN 1 ELSE NULL END
+  ) STORED,
 
   CONSTRAINT fk_administrativo_persona
     FOREIGN KEY (id_persona)
     REFERENCES persona(id_persona)
-    ON DELETE CASCADE
+    ON DELETE CASCADE,
+
+  CONSTRAINT uq_administrativo_principal
+    UNIQUE (principal_unico)
 );
 
 -- =========================================================
@@ -205,12 +227,6 @@ CREATE TABLE consulta (
   borrador TINYINT(1) DEFAULT 1,
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  slot_activo TINYINT GENERATED ALWAYS AS (
-    CASE
-      WHEN estado = 'cancelada' THEN NULL
-      ELSE 1
-    END
-  ) STORED,
 
   CONSTRAINT fk_consulta_cita
     FOREIGN KEY (id_cita)
@@ -254,4 +270,13 @@ CREATE TABLE IF NOT EXISTS password_reset_token (
 
   INDEX idx_token_hash (token_hash),
   INDEX idx_expires_at (expires_at)
+);
+
+CREATE TABLE sesion_usuario (
+  session_id VARCHAR(128) PRIMARY KEY,
+  data LONGTEXT NOT NULL,
+  expires_at DATETIME NOT NULL,
+  fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  INDEX idx_sesion_usuario_expira (expires_at)
 );

@@ -42,6 +42,56 @@ function fechaFiltroValida(value) {
   return /^\d{4}-\d{2}-\d{2}$/.test(String(value || ''));
 }
 
+exports.buscarMedicamentos = async (req, res) => {
+  try {
+    const query = limpiarFiltroTexto(req.query.q, 60);
+
+    if (!query) return res.json([]);
+
+    const [medicamentos] = await db.query(
+      `
+      SELECT id_medicamento, nombre
+      FROM medicamento_catalogo
+      WHERE activo = 1
+        AND nombre LIKE ?
+      ORDER BY nombre ASC
+      LIMIT 8
+      `,
+      [`${query}%`]
+    );
+
+    return res.json(medicamentos);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'No se pudieron cargar los medicamentos.' });
+  }
+};
+
+exports.presentacionesMedicamento = async (req, res) => {
+  try {
+    const idMedicamento = Number(req.params.id_medicamento);
+    if (!Number.isInteger(idMedicamento) || idMedicamento < 1) {
+      return res.status(400).json({ message: 'Medicamento no valido.' });
+    }
+
+    const [presentaciones] = await db.query(
+      `
+      SELECT id_presentacion, presentacion, dosis_habitual, unidad_dosis
+      FROM medicamento_presentacion
+      WHERE id_medicamento = ?
+        AND activo = 1
+      ORDER BY presentacion ASC, id_presentacion ASC
+      `,
+      [idMedicamento]
+    );
+
+    return res.json(presentaciones);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'No se pudieron cargar las presentaciones.' });
+  }
+};
+
 exports.dashboard = async (req, res) => {
   try {
     const medico = await obtenerMedicoPorPersona(req.session.user.id_persona);
@@ -104,9 +154,15 @@ exports.dashboard = async (req, res) => {
 };
 
 exports.ayuda = (req, res) => {
+  const returnUrl = typeof req.query.returnTo === 'string'
+    && (req.query.returnTo === '/perfil' || req.query.returnTo.startsWith('/medico/'))
+    ? req.query.returnTo
+    : '/medico/dashboard';
+
   res.render('medico/ayuda', {
     title: 'Ayuda del médico',
-    layout: 'layouts/dashboard'
+    layout: 'layouts/dashboard',
+    returnUrl
   });
 };
 
@@ -534,8 +590,18 @@ exports.pacientes = async (req, res) => {
         per.sexo,
         TIMESTAMPDIFF(YEAR, per.fecha_nacimiento, CURDATE()) AS edad,
         COUNT(c.id_cita) AS total_citas,
-        SUM(CASE WHEN c.estado = 'completada' THEN 1 ELSE 0 END) AS consultas_completadas,
-        MAX(CASE WHEN c.estado = 'completada' THEN c.fecha END) AS ultima_atencion
+        MAX(CASE WHEN c.estado = 'completada' THEN c.fecha END) AS ultima_atencion,
+        (
+          SELECT cita_ultima.motivo
+          FROM cita cita_ultima
+          INNER JOIN consulta consulta_ultima ON consulta_ultima.id_cita = cita_ultima.id_cita
+          WHERE cita_ultima.id_paciente = pac.id_paciente
+          AND cita_ultima.id_medico = ?
+          AND cita_ultima.estado = 'completada'
+          AND consulta_ultima.borrador = 0
+          ORDER BY cita_ultima.fecha DESC, cita_ultima.hora DESC
+          LIMIT 1
+        ) AS ultimo_motivo
       FROM cita c
       INNER JOIN paciente pac ON c.id_paciente = pac.id_paciente
       INNER JOIN persona per ON pac.id_persona = per.id_persona
@@ -557,7 +623,7 @@ exports.pacientes = async (req, res) => {
         per.apellido_paterno ASC,
         per.nombres ASC
       `,
-      params
+      [medico.id_medico, ...params]
     );
 
     return res.render('medico/pacientes', {
@@ -660,11 +726,20 @@ exports.historialPaciente = async (req, res) => {
       [id_paciente, medico.id_medico]
     );
 
+    const consultaSolicitada = String(req.query.consulta || '').trim();
+    const consultaSeleccionada = consultas.find(consulta => String(consulta.id_consulta) === consultaSolicitada);
+
+    if (consultaSolicitada && !consultaSeleccionada) {
+      req.session.error = 'La consulta seleccionada no pertenece al historial disponible para este paciente.';
+      return res.redirect(`/medico/pacientes/${id_paciente}/historial`);
+    }
+
     res.render('medico/historial-paciente', {
       title: 'Historial del paciente',
       layout: 'layouts/dashboard',
       paciente: pacienteRows[0],
-      consultas
+      consultas,
+      consultaSeleccionada: consultaSeleccionada || consultas[0] || null
     });
   } catch (error) {
     console.error(error);
@@ -674,72 +749,6 @@ exports.historialPaciente = async (req, res) => {
 };
 
 exports.detalleConsultaPaciente = async (req, res) => {
-  try {
-    const { id_paciente, id_consulta } = req.params;
-    const medico = await obtenerMedicoPorPersona(req.session.user.id_persona);
-
-    if (!medico) {
-      req.session.error = 'No se encontró tu perfil médico. Vuelve a iniciar sesión o solicita apoyo a administración.';
-      return res.redirect('/medico/dashboard');
-    }
-
-    const [rows] = await db.query(
-      `
-      SELECT
-        con.id_consulta,
-        con.diagnostico,
-        con.tratamiento,
-        con.recomendaciones,
-        con.observaciones,
-        con.fecha_creacion,
-
-        c.id_cita,
-        c.fecha,
-        TIME_FORMAT(c.hora, '%H:%i') AS hora,
-        c.motivo,
-
-        pac.id_paciente,
-        per.nombres,
-        per.apellido_paterno,
-        per.apellido_materno,
-        per.dni,
-        TIMESTAMPDIFF(YEAR, per.fecha_nacimiento, CURDATE()) AS edad,
-
-        t.temperatura,
-        t.presion_arterial,
-        t.frecuencia_cardiaca,
-        t.saturacion,
-        t.sintomas,
-        t.observaciones AS triaje_observaciones
-      FROM consulta con
-      INNER JOIN cita c ON con.id_cita = c.id_cita
-      INNER JOIN paciente pac ON c.id_paciente = pac.id_paciente
-      INNER JOIN persona per ON pac.id_persona = per.id_persona
-      LEFT JOIN triaje t ON c.id_cita = t.id_cita
-      WHERE con.id_consulta = ?
-      AND c.id_paciente = ?
-      AND c.id_medico = ?
-      AND c.estado = 'completada'
-      AND con.borrador = 0
-      LIMIT 1
-      `,
-      [id_consulta, id_paciente, medico.id_medico]
-    );
-
-    if (rows.length === 0) {
-      req.session.error = 'No se encontro la consulta seleccionada.';
-      return res.redirect(`/medico/pacientes/${id_paciente}/historial`);
-    }
-
-    return res.render('medico/detalle-consulta-paciente', {
-      title: 'Detalle de consulta',
-      layout: 'layouts/dashboard',
-      consulta: rows[0],
-      backUrl: `/medico/pacientes/${id_paciente}/historial`
-    });
-  } catch (error) {
-    console.error(error);
-    req.session.error = 'No se pudo cargar el detalle de la consulta. Vuelve al historial e inténtalo nuevamente.';
-    return res.redirect('/medico/pacientes');
-  }
+  const { id_paciente, id_consulta } = req.params;
+  return res.redirect(`/medico/pacientes/${id_paciente}/historial?consulta=${id_consulta}`);
 };

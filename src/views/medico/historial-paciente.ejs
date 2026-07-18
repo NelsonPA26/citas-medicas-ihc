@@ -7,92 +7,111 @@
     { etiqueta: 'Antecedentes familiares', valor: paciente.antecedentes_familiares },
     { etiqueta: 'Observaciones', valor: paciente.antecedentes_observaciones }
   ].filter(item => item.valor && String(item.valor).trim() !== '');
+  const hayVariasConsultas = consultas.length > 1;
+  const fechaConsultaSeleccionada = consultaSeleccionada
+    ? new Date(consultaSeleccionada.fecha).toLocaleDateString('es-PE')
+    : '';
 %>
 
-<div class="module-card detalle-historial-card">
+<div class="module-card detalle-historial-card history-patient-card">
   <div class="module-header">
-    <p>Revisa antecedentes y consultas médicas previas del paciente.</p>
+    <p>Consulta la información clínica relevante y revisa una atención anterior cuando necesites mayor detalle.</p>
   </div>
 
-  <div class="clinical-overview patient-history-overview">
-    <section class="patient-summary clinical-panel">
-      <h3>Resumen del paciente</h3>
-      <div class="clinical-note-list clinical-note-grid patient-summary-compact-grid">
-        <div class="clinical-note-item">
-          <span>Paciente</span>
-          <strong><%= paciente.nombres %> <%= paciente.apellido_paterno %> <%= paciente.apellido_materno || '' %></strong>
+  <% if (!consultaSeleccionada) { %>
+    <div class="empty-state empty-state-compact">
+      <h3>Sin atenciones completadas</h3>
+      <p>Este paciente aún no tiene atenciones completadas contigo.</p>
+      <div class="empty-actions">
+        <a href="/medico/pacientes" class="btn-light">Volver</a>
+      </div>
+    </div>
+  <% } else { %>
+    <% if (hayVariasConsultas) { %>
+      <form action="/medico/pacientes/<%= paciente.id_paciente %>/historial" method="GET" class="filter-card history-consulta-switcher">
+        <div class="filter-grid history-consulta-switcher-grid">
+          <div class="form-group">
+            <label for="consulta">Seleccionar atención</label>
+            <select id="consulta" name="consulta" onchange="this.form.submit()">
+              <% consultas.forEach(consulta => { %>
+                <option value="<%= consulta.id_consulta %>" <%= consulta.id_consulta === consultaSeleccionada.id_consulta ? 'selected' : '' %>>
+                  Atención del <%= new Date(consulta.fecha).toLocaleDateString('es-PE') %> a las <%= consulta.hora %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
         </div>
-        <div class="clinical-note-item"><span>DNI</span><strong><%= paciente.dni || 'No registrado' %></strong></div>
-        <div class="clinical-note-item"><span>Edad</span><strong><%= paciente.edad !== null ? paciente.edad + ' años' : 'No registrada' %></strong></div>
-        <div class="clinical-note-item"><span>Sexo</span><strong><%= paciente.sexo || 'No registrado' %></strong></div>
-        <div class="clinical-note-item"><span>Correo</span><strong><%= paciente.correo || 'No registrado' %></strong></div>
-        <div class="clinical-note-item"><span>Teléfono</span><strong><%= paciente.telefono || 'No registrado' %></strong></div>
-      </div>
-    </section>
-
-    <section class="triaje-summary clinical-panel clinical-antecedentes-panel">
-      <h3>Antecedentes del paciente</h3>
-      <% if (antecedentesClinicos.length > 0) { %>
-        <div class="clinical-note-list clinical-note-grid">
-          <% antecedentesClinicos.forEach(item => { %>
-            <div class="clinical-note-item">
-              <span><%= item.etiqueta %></span>
-              <strong><%= item.valor %></strong>
-            </div>
-          <% }) %>
-        </div>
-      <% } else { %>
-        <p class="clinical-empty-text">No hay antecedentes médicos registrados.</p>
-      <% } %>
-    </section>
-  </div>
-
-  <section class="consulta-detail-section">
-    <h3>Consultas completadas</h3>
-
-    <% if (consultas.length === 0) { %>
-      <div class="empty-state empty-state-compact">
-        <h3>Sin consultas completadas</h3>
-        <p>Este paciente aún no tiene consultas completadas contigo.</p>
-      </div>
-    <% } else { %>
-      <div class="table-responsive">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Hora</th>
-              <th>Motivo</th>
-              <th>Diagnóstico</th>
-              <th>Tratamiento / receta</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% consultas.forEach(consulta => { %>
-              <tr>
-                <td>
-                  <%= new Date(consulta.fecha).toLocaleDateString('es-PE') %>
-                </td>
-                <td><%= consulta.hora %></td>
-                <td><strong><%= consulta.motivo %></strong></td>
-                <td><%= consulta.diagnostico %></td>
-                <td><%= consulta.tratamiento %></td>
-                <td>
-                  <a href="/medico/pacientes/<%= paciente.id_paciente %>/historial/<%= consulta.id_consulta %>" class="btn-table-primary icon-action" title="Ver detalle" aria-label="Ver detalle">
-                    <img class="action-metaphor" src="/img/action-metaphors/medico/historial/buscar.png" alt="" aria-hidden="true">
-                    <span class="visually-hidden">Ver detalle</span>
-                  </a>
-                </td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
+        <noscript><button type="submit" class="btn-light">Ver atención</button></noscript>
+      </form>
     <% } %>
-  </section>
 
-  <div class="form-actions">
-    <a href="/medico/pacientes" class="btn-light">Volver</a>
-  </div>
+    <div class="clinical-workspace clinical-workspace-consulta history-clinical-workspace">
+      <div class="clinical-workspace-main history-consulta-main">
+        <section class="clinical-panel detail-info-panel detail-info-panel-two history-selector-panel consistent-info-panel">
+          <h3><i class="bi bi-calendar3" aria-hidden="true"></i><%= hayVariasConsultas ? 'Consulta seleccionada' : `Consulta del ${fechaConsultaSeleccionada} - ${consultaSeleccionada.hora}` %></h3>
+
+          <div class="clinical-note-list clinical-note-grid compact-clinical-grid history-appointment-grid consistent-info-grid">
+            <div class="clinical-note-item"><span>Fecha</span><strong><%= new Date(consultaSeleccionada.fecha).toLocaleDateString('es-PE') %></strong></div>
+            <div class="clinical-note-item"><span>Hora</span><strong><%= consultaSeleccionada.hora %></strong></div>
+            <div class="clinical-note-item full-row"><span>Motivo de consulta</span><strong><%= consultaSeleccionada.motivo || 'No registrado' %></strong></div>
+          </div>
+        </section>
+
+        <section class="clinical-panel detail-info-panel detail-info-panel-two history-medical-care-panel consistent-info-panel">
+          <h3><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>Atención médica</h3>
+          <div class="clinical-note-list clinical-note-grid compact-clinical-grid history-medical-care-grid consistent-info-grid">
+            <div class="clinical-note-item"><span>Diagnóstico</span><strong><%= consultaSeleccionada.diagnostico || 'No registrado' %></strong></div>
+            <div class="clinical-note-item"><span>Tratamiento y receta</span><strong><%= consultaSeleccionada.tratamiento || 'Sin tratamiento o receta registrada' %></strong></div>
+            <div class="clinical-note-item"><span>Recomendaciones al paciente</span><strong><%= consultaSeleccionada.recomendaciones || 'Sin recomendaciones registradas' %></strong></div>
+            <div class="clinical-note-item"><span>Observaciones médicas</span><strong><%= consultaSeleccionada.observaciones || 'Sin observaciones registradas' %></strong></div>
+          </div>
+        </section>
+
+        <section class="triaje-summary clinical-panel clinical-antecedentes-panel detail-info-panel detail-info-panel-two history-antecedents-panel consistent-info-panel">
+          <h3><i class="bi bi-journal-medical" aria-hidden="true"></i>Antecedentes médicos</h3>
+          <% if (antecedentesClinicos.length > 0) { %>
+            <div class="triaje-summary-grid compact-clinical-grid consistent-info-grid">
+              <% antecedentesClinicos.forEach(item => { %>
+                <div><span><%= item.etiqueta %></span><strong><%= item.valor %></strong></div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <p class="clinical-empty-text">No hay antecedentes médicos registrados.</p>
+          <% } %>
+        </section>
+
+      </div>
+
+      <aside class="clinical-workspace-side" aria-label="Contexto clínico del paciente">
+        <div class="clinical-overview">
+          <section class="patient-summary clinical-panel detail-info-panel detail-info-panel-two consistent-info-panel consistent-info-direct-panel">
+            <h3><i class="bi bi-person-vcard" aria-hidden="true"></i>Resumen del paciente</h3>
+            <div class="consistent-info-grid">
+            <div><span>Paciente</span><strong><%= paciente.nombres %> <%= paciente.apellido_paterno %> <%= paciente.apellido_materno || '' %></strong></div>
+            <div><span>DNI</span><strong><%= paciente.dni || 'No registrado' %></strong></div>
+            <div><span>Edad</span><strong><%= paciente.edad !== null ? paciente.edad + ' años' : 'No registrada' %></strong></div>
+            <div><span>Sexo</span><strong><%= paciente.sexo || 'No registrado' %></strong></div>
+            </div>
+          </section>
+        </div>
+
+        <section class="triaje-summary clinical-panel detail-info-panel detail-info-panel-two consistent-info-panel">
+          <h3><i class="bi bi-activity" aria-hidden="true"></i>Triaje registrado</h3>
+          <div class="triaje-summary-grid compact-clinical-grid consistent-info-grid">
+            <div><span>Temperatura</span><strong><%= consultaSeleccionada.temperatura || 'N/R' %> °C</strong></div>
+            <div><span>Presión arterial</span><strong><%= consultaSeleccionada.presion_arterial || 'N/R' %></strong></div>
+            <div><span>Frecuencia cardíaca</span><strong><%= consultaSeleccionada.frecuencia_cardiaca || 'N/R' %> lpm</strong></div>
+            <div><span>Saturación O2</span><strong><%= consultaSeleccionada.saturacion || 'N/R' %>%</strong></div>
+            <div><span>Síntomas verificados</span><strong><%= consultaSeleccionada.sintomas || 'No registrados' %></strong></div>
+            <div><span>Observaciones de enfermería</span><strong><%= consultaSeleccionada.triaje_observaciones || 'Sin observaciones registradas' %></strong></div>
+          </div>
+        </section>
+
+        <div class="form-actions history-side-actions">
+          <a href="/medico/pacientes" class="btn-light">Volver</a>
+        </div>
+
+      </aside>
+    </div>
+  <% } %>
 </div>

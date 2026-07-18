@@ -59,6 +59,22 @@
       <small class="field-message" data-for="confirm_password"></small>
     </div>
 
+    <div class="form-group privacy-consent-group">
+      <label class="privacy-consent-label" for="acepta_privacidad">
+        <input
+          type="checkbox"
+          id="acepta_privacidad"
+          name="acepta_privacidad"
+          value="si"
+          <%= old.acepta_privacidad ? 'checked' : '' %>
+          required
+        >
+        <span>Acepto el tratamiento de mis datos personales para la atencion de salud.</span>
+      </label>
+      <small class="form-help">Consulta la <a href="/privacidad" target="_blank" rel="noopener">politica de privacidad</a>.</small>
+      <small class="field-message" data-for="acepta_privacidad"></small>
+    </div>
+
     <button type="submit" class="btn btn-primary">Crear Cuenta</button>
   </form>
 

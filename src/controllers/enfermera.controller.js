@@ -84,10 +84,30 @@ function presionValida(value) {
   const sistolica = Number(match[1]);
   const diastolica = Number(match[2]);
 
-  return sistolica >= 70
-    && sistolica <= 250
-    && diastolica >= 40
+  return sistolica >= 50
+    && sistolica <= 260
+    && diastolica >= 30
     && diastolica <= 150;
+}
+
+function temperaturaValida(value) {
+  const text = String(value || '').trim();
+  if (!/^\d{2}(\.\d)?$/.test(text)) return false;
+
+  const temperatura = Number(text);
+  return Number.isFinite(temperatura)
+    && temperatura >= 35
+    && temperatura <= 43;
+}
+
+function enteroVitalValido(value, min, max) {
+  const text = String(value || '').trim();
+  if (!/^\d{1,3}$/.test(text)) return false;
+
+  const numero = Number(text);
+  return Number.isInteger(numero)
+    && numero >= min
+    && numero <= max;
 }
 
 exports.dashboard = async (req, res) => {
@@ -170,9 +190,15 @@ exports.dashboard = async (req, res) => {
 };
 
 exports.ayuda = (req, res) => {
+  const returnUrl = typeof req.query.returnTo === 'string'
+    && (req.query.returnTo === '/perfil' || req.query.returnTo.startsWith('/enfermera/'))
+    ? req.query.returnTo
+    : '/enfermera/dashboard';
+
   res.render('enfermera/ayuda', {
     title: 'Ayuda de enfermería',
-    layout: 'layouts/dashboard'
+    layout: 'layouts/dashboard',
+    returnUrl
   });
 };
 
@@ -364,16 +390,12 @@ exports.storeRegistrarTriaje = async (req, res) => {
       return res.redirect(`/enfermera/triaje/${id_cita}/registrar`);
     }
 
-    const temp = Number(temperatura);
-    const fc = Number(frecuencia_cardiaca);
-    const sat = Number(saturacion);
-
-    if (!Number.isFinite(temp) || temp < 30 || temp > 45) {
+    if (!temperaturaValida(temperatura)) {
       req.session.error = 'La temperatura ingresada no parece válida.';
       return res.redirect(`/enfermera/triaje/${id_cita}/registrar`);
     }
 
-    if (!Number.isFinite(fc) || fc < 30 || fc > 220) {
+    if (!enteroVitalValido(frecuencia_cardiaca, 30, 220)) {
       req.session.error = 'La frecuencia cardiaca ingresada no parece válida.';
       return res.redirect(`/enfermera/triaje/${id_cita}/registrar`);
     }
@@ -383,7 +405,7 @@ exports.storeRegistrarTriaje = async (req, res) => {
       return res.redirect(`/enfermera/triaje/${id_cita}/registrar`);
     }
 
-    if (!Number.isFinite(sat) || sat < 50 || sat > 100) {
+    if (!enteroVitalValido(saturacion, 50, 100)) {
       req.session.error = 'La saturación debe estar entre 50 y 100.';
       return res.redirect(`/enfermera/triaje/${id_cita}/registrar`);
     }
@@ -688,20 +710,10 @@ exports.updateTriaje = async (req, res) => {
       return res.redirect(`/enfermera/triajes/${id_cita}/editar`);
     }
 
-    const temp = Number(temperatura);
-    const fc = Number(frecuencia_cardiaca);
-    const sat = Number(saturacion);
-
     if (
-      !Number.isFinite(temp)
-      || temp < 30
-      || temp > 45
-      || !Number.isFinite(fc)
-      || fc < 30
-      || fc > 220
-      || !Number.isFinite(sat)
-      || sat < 50
-      || sat > 100
+      !temperaturaValida(temperatura)
+      || !enteroVitalValido(frecuencia_cardiaca, 30, 220)
+      || !enteroVitalValido(saturacion, 50, 100)
       || !presionValida(presion_arterial)
     ) {
       req.session.error = 'Revisa los rangos ingresados en los signos vitales.';

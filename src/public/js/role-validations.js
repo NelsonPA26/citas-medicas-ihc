@@ -3,10 +3,62 @@ window.RoleValidation = (() => {
   const SEARCH_PATTERN = /^[\p{L}0-9 .,;:()\/-]+$/u;
   const ADDRESS_PATTERN = /^[\p{L}0-9 .,#;:()\/-]+$/u;
   const PERSONAL_NAME_PATTERN = /^[\p{L} ]+$/u;
+  const SEARCH_INVALID_MIXED_TOKEN = /(?=\S*[\p{L}])(?=\S*\d)[\p{L}0-9]{4,}/u;
 
   function normalizeSpaces(value) {
     return value.replace(/\s{2,}/g, ' ');
   }
+
+  function visibleNumericTokensFor(field) {
+    const scope = field.closest('.module-card') || document;
+    const rows = Array.from(scope.querySelectorAll('.data-table tbody tr'));
+
+    return rows.flatMap(row => (row.textContent || '').match(/\b\d{6,9}\b/g) || []);
+  }
+
+  function visibleSearchEntriesFor(field) {
+    const scope = field.closest('.module-card') || document;
+    const rows = Array.from(scope.querySelectorAll('.data-table tbody tr'));
+
+    return rows
+      .map(row => normalizeSearchComparable(row.textContent || ''))
+      .filter(Boolean);
+  }
+
+  function normalizeSearchComparable(value) {
+    return String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+  }
+
+  function numericSearchLooksPossible(value, field) {
+    if (value.length > 8) return false;
+
+    const tokens = visibleNumericTokensFor(field);
+    if (tokens.length === 0) return true;
+
+    return tokens.some(token => token.startsWith(value));
+  }
+
+  function textSearchLooksPossible(value, field) {
+    const entries = visibleSearchEntriesFor(field);
+    if (entries.length === 0) return true;
+
+    const normalized = normalizeSearchComparable(value);
+    const queryTokens = normalized.split(/\s+/).filter(Boolean);
+    if (queryTokens.length === 0) return false;
+
+    return entries.some(entry => {
+      const entryTokens = entry.split(/\s+/);
+
+      return entry.includes(normalized)
+        || queryTokens.every(queryToken => entryTokens.some(entryToken => entryToken.startsWith(queryToken)));
+    });
+  }
+
 
   function keepPersonalName(value) {
     return normalizeSpaces(value.replace(/[^\p{L} ]/gu, ''));
@@ -16,6 +68,83 @@ window.RoleValidation = (() => {
     const clean = value.replace(/[^0-9.]/g, '');
     const parts = clean.split('.');
     return parts.length > 1 ? `${parts[0]}.${parts.slice(1).join('')}` : clean;
+  }
+
+  function hasPossibleNumberPrefix(prefix, min, max, maxDigits) {
+    if (!prefix) return true;
+    if (prefix.length > maxDigits) return false;
+
+    const start = Number(prefix);
+    if (Number.isNaN(start)) return false;
+
+    for (let finalLength = prefix.length; finalLength <= maxDigits; finalLength += 1) {
+      const remaining = finalLength - prefix.length;
+      const lowest = start * (10 ** remaining);
+      const highest = lowest + (10 ** remaining) - 1;
+
+      if (highest >= min && lowest <= max) return true;
+    }
+
+    return false;
+  }
+
+  function constrainIntegerRange(value, min, max, maxDigits) {
+    let digits = value.replace(/\D/g, '').slice(0, maxDigits);
+
+    while (digits && !hasPossibleNumberPrefix(digits, min, max, maxDigits)) {
+      digits = digits.slice(0, -1);
+    }
+
+    return digits;
+  }
+
+  function constrainTemperature(value) {
+    const clean = keepOneDecimal(value).slice(0, 4);
+    if (!clean) return '';
+    if (!/^[34]/.test(clean)) return '';
+
+    const hasDot = clean.includes('.');
+    const [rawInteger = '', rawDecimal = ''] = clean.split('.');
+    let integer = rawInteger.slice(0, 2);
+
+    if (integer.length === 2) {
+      const whole = Number(integer);
+      if (whole < 35 || whole > 43) integer = integer.slice(0, 1);
+    }
+
+    if (!hasDot || integer.length < 2) return integer;
+
+    let decimal = rawDecimal.replace(/\D/g, '').slice(0, 1);
+    if (integer === '43' && decimal && decimal !== '0') decimal = '';
+
+    return `${integer}.${decimal}`;
+  }
+
+  function constrainBloodPressure(value) {
+    const clean = value.replace(/[^0-9/]/g, '').replace(/\/{2,}/g, '/');
+    const [rawSystolic = '', ...rest] = clean.split('/');
+    const hasSlash = clean.includes('/');
+    const rawDiastolic = rest.join('');
+    const systolic = constrainIntegerRange(rawSystolic, 50, 260, 3);
+
+    if (!systolic) return '';
+    if (!hasSlash) return systolic;
+
+    const diastolic = constrainIntegerRange(rawDiastolic, 30, 150, 3);
+    return `${systolic}/${diastolic}`;
+  }
+
+  function isValidSearchValue(value, field) {
+    const text = normalizeSpaces(String(value || '').trim());
+    if (!text) return true;
+    if (!SEARCH_PATTERN.test(text)) return false;
+    if (!/[\p{L}0-9]/u.test(text)) return false;
+    if (/^\d+$/.test(text)) return numericSearchLooksPossible(text, field);
+
+    return text
+      .split(/\s+/)
+      .every(token => !SEARCH_INVALID_MIXED_TOKEN.test(token))
+      && textSearchLooksPossible(text, field);
   }
 
   function keepOneAt(value) {
@@ -41,7 +170,7 @@ window.RoleValidation = (() => {
     const type = field.dataset.validate;
 
     if (type === 'search') {
-      field.value = normalizeSpaces(field.value.replace(/[^\p{L}0-9 .,;:()\/-]/gu, ''));
+      field.value = normalizeSpaces(field.value);
     }
 
     if (type === 'clinical-text') {
@@ -54,8 +183,15 @@ window.RoleValidation = (() => {
 
     if (type === 'digits' || type === 'dni') {
       const maxLength = type === 'dni' ? 8 : Number(field.dataset.maxLength || field.maxLength || 0);
-      const digits = field.value.replace(/\D/g, '');
-      field.value = maxLength > 0 ? digits.slice(0, maxLength) : digits;
+      const min = field.min === '' ? null : Number(field.min);
+      const max = field.max === '' ? null : Number(field.max);
+
+      if (field.dataset.vital && min !== null && max !== null) {
+        field.value = constrainIntegerRange(field.value, min, max, maxLength || 3);
+      } else {
+        const digits = field.value.replace(/\D/g, '');
+        field.value = maxLength > 0 ? digits.slice(0, maxLength) : digits;
+      }
     }
 
     if (type === 'phone-pe') {
@@ -63,13 +199,13 @@ window.RoleValidation = (() => {
     }
 
     if (type === 'decimal') {
-      field.value = keepOneDecimal(field.value);
+      field.value = field.dataset.vital === 'temperature'
+        ? constrainTemperature(field.value)
+        : keepOneDecimal(field.value);
     }
 
     if (type === 'blood-pressure') {
-      field.value = field.value.replace(/[^0-9/]/g, '').replace(/\/{2,}/g, '/');
-      const parts = field.value.split('/');
-      if (parts.length > 2) field.value = `${parts[0]}/${parts.slice(1).join('')}`;
+      field.value = constrainBloodPressure(field.value);
     }
 
     if (type === 'email') {
@@ -95,11 +231,26 @@ window.RoleValidation = (() => {
     const value = field.value.trim();
 
     if (field.disabled) return '';
+    if (field.required && !value && type === 'decimal' && field.dataset.vital === 'temperature') {
+      return 'Ingresa una temperatura entre 35 y 43 °C.';
+    }
+    if (field.required && !value && type === 'blood-pressure') {
+      return 'Ingresa la presión arterial con formato 120/80.';
+    }
+    if (field.required && !value && type === 'digits' && field.dataset.vital) {
+      const min = field.min === '' ? '' : field.min;
+      const max = field.max === '' ? '' : field.max;
+      if (field.dataset.vital === 'heart-rate') return `Ingresa una frecuencia cardíaca entre ${min} y ${max}.`;
+      if (field.dataset.vital === 'oxygen-saturation') return `Ingresa una saturación O2 entre ${min} y ${max}.`;
+    }
+    if (field.required && !value && type === 'birth-date') {
+      return 'Completa la fecha de nacimiento.';
+    }
     if (field.required && !value) return 'Este campo es obligatorio.';
     if (!field.required && !value) return '';
 
-    if (type === 'search' && !SEARCH_PATTERN.test(value)) {
-      return 'Usa solo letras, números, espacios y puntuación básica.';
+    if (type === 'search' && !isValidSearchValue(value, field)) {
+      return 'Ingresa datos válidos para buscar.';
     }
 
     if (type === 'clinical-text') {
@@ -119,8 +270,8 @@ window.RoleValidation = (() => {
     }
 
     if (type === 'digits') {
-      const min = field.minLength || field.dataset.minLength;
-      const max = field.maxLength > 0 ? field.maxLength : field.dataset.maxLength;
+      const min = field.dataset.minLength || (field.minLength > 0 ? field.minLength : '');
+      const max = field.dataset.maxLength || (field.maxLength > 0 ? field.maxLength : '');
       const exact = field.dataset.exactLength;
       if (!/^\d+$/.test(value)) return 'Solo se permiten números.';
       if (exact && value.length !== Number(exact)) return `Debe tener exactamente ${exact} dígitos.`;
@@ -137,7 +288,10 @@ window.RoleValidation = (() => {
     }
 
     if (type === 'decimal') {
-      if (!/^\d+(\.\d{1,2})?$/.test(value)) return 'Ingresa un número válido.';
+      const decimalPattern = field.dataset.vital === 'temperature'
+        ? /^\d{2}(\.\d)?$/
+        : /^\d+(\.\d{1,2})?$/;
+      if (!decimalPattern.test(value)) return 'Ingresa un número válido.';
       const numericMessage = rangeMessage(field, Number(value));
       if (numericMessage) return numericMessage;
     }
@@ -147,7 +301,11 @@ window.RoleValidation = (() => {
       if (!match) return 'Usa el formato 120/80.';
       const systolic = Number(match[1]);
       const diastolic = Number(match[2]);
-      if (systolic < 70 || systolic > 250 || diastolic < 40 || diastolic > 150) {
+      const systolicMin = Number(field.dataset.systolicMin || 50);
+      const systolicMax = Number(field.dataset.systolicMax || 260);
+      const diastolicMin = Number(field.dataset.diastolicMin || 30);
+      const diastolicMax = Number(field.dataset.diastolicMax || 150);
+      if (systolic < systolicMin || systolic > systolicMax || diastolic < diastolicMin || diastolic > diastolicMax) {
         return 'La presión arterial ingresada no parece válida.';
       }
     }
@@ -252,6 +410,7 @@ window.RoleValidation = (() => {
       sanitize(field);
       field.addEventListener('input', () => validateField(field));
       field.addEventListener('change', () => validateField(field));
+      field.addEventListener('blur', () => validateField(field));
     });
 
     form.addEventListener('submit', event => {

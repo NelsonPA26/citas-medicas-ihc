@@ -262,9 +262,19 @@
     if (field.validity.typeMismatch) return 'Revisa el formato ingresado.';
     if (field.validity.patternMismatch) return 'El formato ingresado no es válido.';
     if (field.validity.tooShort) return `Ingresa al menos ${field.minLength} caracteres.`;
-    if (field.validity.rangeUnderflow) return `El valor mínimo permitido es ${field.min}.`;
-    if (field.validity.rangeOverflow) return `El valor máximo permitido es ${field.max}.`;
+    if (field.validity.rangeUnderflow) return field.type === 'date'
+      ? `Selecciona una fecha desde el ${formatDateForUser(field.min)}.`
+      : `El valor mínimo permitido es ${field.min}.`;
+    if (field.validity.rangeOverflow) return field.type === 'date'
+      ? `Selecciona una fecha hasta el ${formatDateForUser(field.max)}.`
+      : `El valor máximo permitido es ${field.max}.`;
     return '';
+  }
+
+  function formatDateForUser(value) {
+    const date = new Date(`${value}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 
   function ensureFieldMessage(form, field) {
