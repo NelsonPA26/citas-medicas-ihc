@@ -133,6 +133,30 @@ body.dashboard-body {
   padding: 0 10px;
 }
 
+.register-card .password-field input {
+  width: 100%;
+  padding-left: 42px;
+  padding-right: 48px;
+}
+
+.register-card .password-toggle {
+  top: 50%;
+  right: 8px;
+  width: 30px;
+  height: 28px;
+  border-radius: 999px;
+  transform: translateY(-50%);
+}
+
+.register-card .password-toggle:hover {
+  background: transparent;
+  color: #1d4ed8;
+}
+
+.register-card .password-toggle:focus {
+  outline-offset: -2px;
+}
+
 .register-card .btn {
   min-height: 44px;
   font-size: 16px;
@@ -11488,16 +11512,4 @@ html[data-visual-scale="xlarge"] .module-card :is(.system-info-grid, .consistent
   .consistent-info-grid {
     grid-template-columns: minmax(0, 1fr) !important;
   }
-}
-
-.privacy-consent-label {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  line-height: 1.45;
-}
-
-.privacy-consent-label input {
-  flex: 0 0 auto;
-  margin-top: 4px;
 }

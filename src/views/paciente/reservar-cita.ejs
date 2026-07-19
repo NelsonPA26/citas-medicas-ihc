@@ -182,16 +182,16 @@
       <i class="bi bi-x-lg"></i>
     </div>
     <h3 id="cancelAppointmentTitle">Cancelar cambios</h3>
-    <p id="cancelAppointmentText">¿Seguro que deseas cancelar?</p>
+    <p id="cancelAppointmentText">¿Deseas salir sin guardar esta reserva?</p>
     <small class="confirm-modal-note">Puedes volver y revisar los datos antes de salir.</small>
     <div class="modal-actions">
       <button type="button" class="btn-light icon-action" id="closeCancelAppointmentModal" title="Seguir editando" aria-label="Seguir editando">
         <i class="bi bi-arrow-left" aria-hidden="true"></i>
         <span>Seguir editando</span>
       </button>
-      <a href="#" class="btn-danger" id="confirmCancelAppointment" title="Sí, cancelar" aria-label="Sí, cancelar">
+      <a href="#" class="btn-danger" id="confirmCancelAppointment" title="Salir sin guardar" aria-label="Salir sin guardar">
         <i class="bi bi-x-circle" aria-hidden="true"></i>
-        <span>Sí, cancelar</span>
+        <span>Salir sin guardar</span>
       </a>
     </div>
   </div>
@@ -493,7 +493,7 @@
 
   cancelAppointmentLink.addEventListener('click', (event) => {
     event.preventDefault();
-    if (isAppointmentEditMode && !appointmentHasChanges()) {
+    if (!appointmentHasChanges()) {
       window.location.href = cancelAppointmentLink.href;
       return;
     }

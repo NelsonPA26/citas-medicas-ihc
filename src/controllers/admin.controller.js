@@ -244,11 +244,11 @@ async function ensureRoleRecord(connection, idPersona, rol, body = {}) {
     const contextoUniversitario = limpiarTexto(body.contexto_universitario || 'Estudiante UNT');
 
     if (!/^[0-9]{10}$/.test(codigoEstudiante)) {
-      throw new Error('Para asignar el rol Paciente, el codigo de estudiante debe tener exactamente 10 digitos.');
+      throw new Error('Para asignar el rol Paciente, el código de estudiante debe tener exactamente 10 dígitos.');
     }
 
     if (!Object.prototype.hasOwnProperty.call(CATALOGO_ACADEMICO_UNT, facultad)) {
-      throw new Error('Para asignar el rol Paciente, selecciona una facultad valida de la UNT.');
+      throw new Error('Para asignar el rol Paciente, selecciona una facultad válida de la UNT.');
     }
 
     if (!CATALOGO_ACADEMICO_UNT[facultad].includes(escuela)) {
@@ -256,7 +256,7 @@ async function ensureRoleRecord(connection, idPersona, rol, body = {}) {
     }
 
     if (!CONTEXTOS_UNIVERSITARIOS.includes(contextoUniversitario)) {
-      throw new Error('Para asignar el rol Paciente, selecciona un contexto universitario valido.');
+      throw new Error('Para asignar el rol Paciente, selecciona un contexto universitario válido.');
     }
 
     const [pacienteRows] = await connection.query(
@@ -920,7 +920,7 @@ exports.storeUsuario = async (req, res) => {
     }
 
     if (!ROLES_PERMITIDOS.includes(rol)) {
-      req.session.error = 'Selecciona un rol valido.';
+      req.session.error = 'Selecciona un rol válido.';
       return res.redirect('/admin/usuarios/nuevo');
     }
 
@@ -1381,7 +1381,7 @@ exports.eliminarUsuario = async (req, res) => {
       await connection.rollback();
 
       req.session.error =
-        'No se puede eliminar este usuario porque tiene registros históricos asociados. Puedes desactivarlo para conservar la trazabilidad.';
+        'No se puede eliminar este usuario porque tiene citas, triajes, consultas o historial registrado. Puedes desactivarlo para conservar la información.';
 
       return res.redirect(getUsuariosRedirect(req));
     }
@@ -1404,7 +1404,7 @@ exports.eliminarUsuario = async (req, res) => {
     await connection.rollback();
     console.error(error);
 
-    req.session.error = 'No se pudo eliminar el usuario. Verifica si tiene registros asociados o intenta nuevamente.';
+    req.session.error = 'No se pudo eliminar el usuario. Verifica si tiene citas, triajes, consultas o historial registrado e intenta nuevamente.';
     return res.redirect(getUsuariosRedirect(req));
   } finally {
     connection.release();
@@ -1911,7 +1911,7 @@ await connection.beginTransaction();
     );
     await connection.commit();
 
-    req.session.success = 'Medico actualizado correctamente.';
+    req.session.success = 'Médico actualizado correctamente.';
     return res.redirect('/admin/medicos');
   } catch (error) {
     await connection.rollback();
@@ -2415,7 +2415,7 @@ exports.cambiarEstadoMedico = async (req, res) => {
       [activo, id_medico]
     );
 
-    req.session.success = activo ? 'Medico activado correctamente.' : 'Medico desactivado correctamente.';
+    req.session.success = activo ? 'Médico activado correctamente.' : 'Médico desactivado correctamente.';
     return res.redirect('/admin/medicos');
   } catch (error) {
     console.error(error);
@@ -2485,7 +2485,7 @@ exports.eliminarMedico = async (req, res) => {
 
     if (Number(citas.total) > 0) {
       await connection.rollback();
-      req.session.error = 'No se puede eliminar este médico porque tiene citas asociadas. Puedes desactivarlo para conservar la trazabilidad.';
+      req.session.error = 'No se puede eliminar este médico porque tiene citas registradas. Puedes desactivarlo para conservar la información.';
       return res.redirect('/admin/medicos');
     }
 
@@ -2513,7 +2513,7 @@ exports.eliminarMedico = async (req, res) => {
 
       await connection.commit();
 
-      req.session.success = 'Ficha médica eliminada correctamente. La persona conserva su cuenta porque tiene otro rol asociado.';
+      req.session.success = 'Ficha médica eliminada correctamente. La persona conserva su cuenta porque tiene otro rol registrado.';
       return res.redirect('/admin/medicos');
     }
 
@@ -2540,7 +2540,7 @@ exports.eliminarMedico = async (req, res) => {
   } catch (error) {
     await connection.rollback();
     console.error(error);
-    req.session.error = 'No se pudo eliminar el médico. Verifica si tiene citas asociadas o intenta nuevamente.';
+    req.session.error = 'No se pudo eliminar el médico. Verifica si tiene citas registradas e intenta nuevamente.';
     return res.redirect('/admin/medicos');
   } finally {
     connection.release();
@@ -2620,7 +2620,7 @@ exports.eliminarEnfermera = async (req, res) => {
 
     if (Number(triajes.total) > 0) {
       await connection.rollback();
-      req.session.error = 'No se puede eliminar esta enfermera porque tiene triajes asociados. Puedes desactivarla para conservar la trazabilidad.';
+      req.session.error = 'No se puede eliminar esta enfermera porque tiene triajes registrados. Puedes desactivarla para conservar la información.';
       return res.redirect('/admin/enfermeras');
     }
 
@@ -2648,7 +2648,7 @@ exports.eliminarEnfermera = async (req, res) => {
 
       await connection.commit();
 
-      req.session.success = 'Ficha de enfermería eliminada correctamente. La persona conserva su cuenta porque tiene otro rol asociado.';
+      req.session.success = 'Ficha de enfermería eliminada correctamente. La persona conserva su cuenta porque tiene otro rol registrado.';
       return res.redirect('/admin/enfermeras');
     }
 
@@ -2675,7 +2675,7 @@ exports.eliminarEnfermera = async (req, res) => {
   } catch (error) {
     await connection.rollback();
     console.error(error);
-    req.session.error = 'No se pudo eliminar la enfermera. Verifica si tiene triajes asociados o intenta nuevamente.';
+    req.session.error = 'No se pudo eliminar la enfermera. Verifica si tiene triajes registrados e intenta nuevamente.';
     return res.redirect('/admin/enfermeras');
   } finally {
     connection.release();

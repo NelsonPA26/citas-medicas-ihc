@@ -5,6 +5,7 @@ const { sendPasswordResetEmail } = require('../services/smtp-mail.service');
 
 const MAX_FAILED_LOGIN_ATTEMPTS = 5;
 const LOGIN_LOCK_MINUTES = 10;
+const LOGIN_AUTH_ERROR = 'Correo o contraseña incorrectos. Verifica tus datos e inténtalo nuevamente.';
 
 function redirectByRole(rol) {
   const routes = {
@@ -50,6 +51,10 @@ function correoValido(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value || '');
 }
 
+function conservarCorreoLogin(req, value) {
+  req.session.oldLoginIdentifier = (value || '').trim().toLowerCase();
+}
+
 exports.showLogin = (req, res) => {
   res.render('auth/login', {
     title: 'Iniciar Sesión'
@@ -78,11 +83,13 @@ exports.login = async (req, res) => {
     const correoInstitucional = (identificador || '').trim().toLowerCase();
 
     if (!correoInstitucional || !password) {
+      conservarCorreoLogin(req, correoInstitucional);
       req.session.error = 'Ingresa tu correo institucional y contraseña.';
       return res.redirect('/login');
     }
 
     if (!correoValido(correoInstitucional)) {
+      conservarCorreoLogin(req, correoInstitucional);
       req.session.error = 'Ingresa un correo institucional válido.';
       req.session.errorField = 'identificador';
       return res.redirect('/login');
@@ -116,20 +123,25 @@ exports.login = async (req, res) => {
     );
 
     if (rows.length === 0) {
-      req.session.error = 'No encontramos una cuenta con ese correo institucional.';
-      req.session.errorField = 'identificador';
+      conservarCorreoLogin(req, correoInstitucional);
+      req.session.error = LOGIN_AUTH_ERROR;
+      req.session.errorField = 'credentials';
       return res.redirect('/login');
     }
 
     const user = rows[0];
 
     if (!user.activo) {
-      req.session.error = 'Tu cuenta se encuentra desactivada. Comunícate con administración.';
+      conservarCorreoLogin(req, correoInstitucional);
+      req.session.error = LOGIN_AUTH_ERROR;
+      req.session.errorField = 'credentials';
       return res.redirect('/login');
     }
 
     if (user.locked_until && new Date(user.locked_until) > new Date()) {
-      req.session.error = 'Tu cuenta está bloqueada temporalmente por varios intentos fallidos. Inténtalo nuevamente en unos minutos.';
+      conservarCorreoLogin(req, correoInstitucional);
+      req.session.error = LOGIN_AUTH_ERROR;
+      req.session.errorField = 'credentials';
       return res.redirect('/login');
     }
 
@@ -149,8 +161,9 @@ exports.login = async (req, res) => {
           [failedAttempts, user.id_usuario]
         );
 
-        req.session.error = `La contraseña no coincide. La cuenta quedó bloqueada por ${LOGIN_LOCK_MINUTES} minutos.`;
-        req.session.errorField = 'password';
+        conservarCorreoLogin(req, correoInstitucional);
+        req.session.error = LOGIN_AUTH_ERROR;
+        req.session.errorField = 'credentials';
         return res.redirect('/login');
       }
 
@@ -163,8 +176,9 @@ exports.login = async (req, res) => {
         [failedAttempts, user.id_usuario]
       );
 
-      req.session.error = 'La contraseña no coincide con esa cuenta.';
-      req.session.errorField = 'password';
+      conservarCorreoLogin(req, correoInstitucional);
+      req.session.error = LOGIN_AUTH_ERROR;
+      req.session.errorField = 'credentials';
       return res.redirect('/login');
     }
 
@@ -228,7 +242,6 @@ exports.register = async (req, res) => {
       telefono,
       password,
       confirm_password,
-      acepta_privacidad,
     } = req.body;
 
     const nombresLimpio = limpiarTexto(nombres);
@@ -244,11 +257,10 @@ exports.register = async (req, res) => {
       apellido_materno: apellidoMaternoLimpio,
       dni: dniLimpio,
       correo: correoLimpio,
-      telefono: telefonoLimpio,
-      acepta_privacidad: acepta_privacidad === 'si'
+      telefono: telefonoLimpio
     };
 
-    if (!nombresLimpio || !apellidoPaternoLimpio || !dniLimpio || !correoLimpio || !telefonoLimpio || !password || !confirm_password || acepta_privacidad !== 'si') {
+    if (!nombresLimpio || !apellidoPaternoLimpio || !dniLimpio || !correoLimpio || !telefonoLimpio || !password || !confirm_password) {
       return res.render('auth/register', {
         title: 'Crear Cuenta',
         error: 'Completa todos los campos obligatorios.',
@@ -390,14 +402,6 @@ exports.register = async (req, res) => {
       [idPersona, 'Estudiante UNT']
     );
 
-    await connection.query(
-      `
-      INSERT INTO consentimiento_privacidad (id_persona, version_politica, finalidad)
-      VALUES (?, '2026-07', 'Creacion y gestion de cuenta de Bienestar UNT')
-      `,
-      [idPersona]
-    );
-
     await connection.commit();
 
     req.session.success = 'Cuenta creada correctamente. Ahora puedes iniciar sesión.';
@@ -507,8 +511,8 @@ exports.forgotPassword = async (req, res) => {
         [tokenResult.insertId]
       );
 
-      console.error('No se pudo enviar el correo de recuperacion.', mailError.message);
-      req.session.error = 'El servicio de recuperacion no esta disponible en este momento. Intentalo mas tarde.';
+      console.error('No se pudo enviar el correo de recuperación.', mailError.message);
+      req.session.error = 'El servicio de recuperación no está disponible en este momento. Inténtalo más tarde.';
       return res.redirect('/forgot-password');
     }
 

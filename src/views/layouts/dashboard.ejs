@@ -412,7 +412,7 @@
         <i class="bi bi-check2-circle" id="globalConfirmIcon"></i>
       </div>
       <h3 id="globalConfirmTitle">Confirmar acción</h3>
-      <p id="globalConfirmText">¿Estás seguro de continuar?</p>
+      <p id="globalConfirmText">¿Deseas continuar con esta acción?</p>
       <small class="confirm-modal-note" id="globalConfirmNote">Revisa la información antes de continuar.</small>
 
       <div class="modal-actions">
@@ -866,10 +866,10 @@ function moveRowsByStatusPriority(tbody) {
       },
       'medico-dashboard': {
         title: 'Panel del médico',
-        intro: 'Consulta el estado de tu carga de atención antes de abrir una cita.',
+        intro: 'Consulta tus citas pendientes antes de iniciar una atención.',
         items: [
           'Prioriza citas listas para atención.',
-          'Continúa borradores clínicos antes de finalizar una consulta.',
+          'Continúa consultas guardadas en progreso antes de finalizarlas.',
           'Accede a pacientes para revisar antecedentes e historial.'
         ],
         note: 'Los indicadores ayudan a decidir la siguiente tarea.'
@@ -890,20 +890,20 @@ function moveRowsByStatusPriority(tbody) {
         items: [
           'Revisa resumen del paciente, antecedentes y signos vitales.',
           'Puedes usar plantillas frecuentes, pero edita el texto según tu criterio.',
-          'Guardar en progreso conserva un borrador.',
+          'Guardar en progreso conserva la consulta para completarla después.',
           'Confirmar consulta finaliza la atención y exige diagnóstico y tratamiento/receta.'
         ],
         note: 'Confirma solo cuando el registro clínico esté completo.'
       },
       'medico-pacientes': {
         title: 'Pacientes',
-        intro: 'Busca pacientes relacionados con tus citas y revisa sus atenciones.',
+        intro: 'Busca pacientes atendidos o programados contigo y revisa sus atenciones.',
         items: [
           'Filtra por nombre, apellido o DNI.',
           'Abre Ver historial para revisar la información clínica relevante del paciente.',
-          'La lista se basa en pacientes vinculados a tus citas.'
+          'La lista muestra pacientes que tienen o tuvieron citas contigo.'
         ],
-        note: 'Esta sección es de consulta; no edita datos del paciente.'
+        note: 'Esta sección solo permite consultar información; no modifica datos del paciente.'
       },
       'medico-historial-paciente': {
         title: 'Historial del paciente',
@@ -911,7 +911,7 @@ function moveRowsByStatusPriority(tbody) {
         items: [
           'Revisa antecedentes antes de interpretar una consulta anterior.',
           'Selecciona una fecha y hora para revisar esa atención, su triaje y el registro médico.',
-          'Las observaciones privadas no se muestran al paciente.'
+          'Las notas internas no se muestran al paciente.'
         ],
         note: 'Usa el historial como apoyo, no como reemplazo de la evaluación actual.'
       },
@@ -962,7 +962,7 @@ function moveRowsByStatusPriority(tbody) {
         items: [
           'Usa filtros para ubicar registros antiguos.',
           'Abre Ver detalle para revisar el triaje en modo lectura.',
-          'Los registros históricos no se editan desde aquí.'
+          'Los triajes cerrados solo se consultan desde aquí.'
         ],
         note: 'El historial sirve para consulta y seguimiento.'
       },
@@ -981,10 +981,10 @@ function moveRowsByStatusPriority(tbody) {
         intro: 'Revisa pendientes y triajes activos para organizar la atención inicial.',
         items: [
           'Atiende primero los triajes pendientes.',
-          'Revisa triajes activos y enviados a espera médica.',
+          'Revisa triajes registrados que esperan atención médica.',
           'Usa el historial para consultar registros cerrados.'
         ],
-        note: 'El panel sirve para decidir dónde continuar el flujo.'
+        note: 'El panel sirve para decidir qué tarea atender primero.'
       },
       'admin-usuarios': {
         title: 'Gestión de usuarios',
@@ -993,9 +993,9 @@ function moveRowsByStatusPriority(tbody) {
           'Usa filtros para buscar por nombre, DNI, correo, rol o estado.',
           'Registra usuarios nuevos desde este módulo y elige el rol que corresponde.',
           'Edita datos personales, acceso, contraseña o rol cuando sea necesario.',
-          'Completa los datos profesionales solo cuando el rol sea medico, enfermera o administrativo.',
+          'Completa los datos profesionales solo cuando el rol sea médico, enfermera o administrativo.',
           'Desactiva cuentas cuando no deban ingresar.',
-          'Elimina solo usuarios sin registros históricos asociados.'
+          'Elimina solo usuarios que no tengan citas, triajes, consultas o historial registrado.'
         ],
         note: 'La contraseña temporal inicial es UNT12345* cuando no se escribe una contraseña propia.'
       },
@@ -1005,21 +1005,21 @@ function moveRowsByStatusPriority(tbody) {
         items: [
           'Filtra por paciente, DNI, médico, motivo, estado o fecha.',
           'Abre el detalle para revisar información completa.',
-          'Cancela solo cuando corresponda y deja trazabilidad del estado.',
+          'Cancela solo cuando corresponda y deja registrado el cambio de estado.',
           'Usa los estados para ubicar dónde está cada cita.'
         ],
-        note: 'Esta vista es de supervisión; el flujo clínico lo hacen enfermería y medicina.'
+        note: 'Esta vista es de supervisión; la atención de salud la registran enfermería y medicina.'
       },
       'admin-detalle-cita': {
         title: 'Detalle de cita',
         intro: 'Revisa información completa de una cita específica.',
         items: [
           'Verifica paciente, médico, fecha, hora y estado.',
-          'Revisa si tiene triaje o consulta asociada.',
+          'Revisa si tiene triaje o consulta registrada.',
           'Cancela solo si la regla del estado lo permite.',
           'Vuelve a Citas generales para continuar supervisando.'
         ],
-        note: 'Las acciones administrativas deben cuidar registros históricos.'
+        note: 'Las acciones administrativas deben conservar el historial del sistema.'
       },
       'admin-perfil': {
         title: 'Mi perfil',
@@ -1159,9 +1159,9 @@ function moveRowsByStatusPriority(tbody) {
 
     const getConfirmActionNote = tone => ({
       activar: 'La persona podrá volver a usar el sistema con normalidad.',
-      cancelar: 'La acción se puede detener ahora si necesitas revisar información.',
+      cancelar: 'Puedes detener la acción ahora si necesitas revisar la información.',
       desactivar: 'La cuenta no podrá ingresar hasta que sea activada nuevamente.',
-      eliminar: 'Acción irreversible. Verifica que realmente corresponde.',
+      eliminar: 'Esta acción no se puede deshacer. Verifica que realmente corresponde.',
       guardar: 'Se guardarán cambios en información sensible del sistema.',
       confirmar: 'La acción quedará registrada al confirmar.'
     }[tone] || 'Revisa la información antes de continuar.');

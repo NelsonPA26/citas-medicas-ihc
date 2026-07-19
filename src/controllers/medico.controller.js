@@ -71,7 +71,7 @@ exports.presentacionesMedicamento = async (req, res) => {
   try {
     const idMedicamento = Number(req.params.id_medicamento);
     if (!Number.isInteger(idMedicamento) || idMedicamento < 1) {
-      return res.status(400).json({ message: 'Medicamento no valido.' });
+      return res.status(400).json({ message: 'Medicamento no válido.' });
     }
 
     const [presentaciones] = await db.query(

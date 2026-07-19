@@ -58,8 +58,8 @@
 
   <% if (citas.length === 0) { %>
     <div class="empty-state">
-      <h3><%= hasActiveFilters ? 'No se encontraron citas por atender' : 'No tienes citas listas para atencion' %></h3>
-      <p><%= hasActiveFilters ? 'No hay resultados con los filtros seleccionados.' : 'Cuando enfermeria registre el triaje de una cita asignada, aparecera aqui.' %></p>
+      <h3><%= hasActiveFilters ? 'No se encontraron citas por atender' : 'No tienes citas listas para atención' %></h3>
+      <p><%= hasActiveFilters ? 'No hay resultados con los filtros seleccionados.' : 'Cuando enfermería registre el triaje de una cita asignada, aparecerá aquí.' %></p>
       <% if (hasActiveFilters) { %>
         <a href="/medico/citas" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
           <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/limpiar.png" alt="" aria-hidden="true">

@@ -16,7 +16,7 @@
           id="q"
           name="q"
           value="<%= triajeFilters.q || '' %>"
-          placeholder="Paciente, DNI, medico o motivo"
+          placeholder="Paciente, DNI, médico o motivo"
           maxlength="100"
           data-validate="search"
         >
@@ -47,7 +47,7 @@
   <% if (citas.length === 0) { %>
     <div class="empty-state">
       <h3><%= hasActiveFilters ? 'No se encontraron citas pendientes' : 'No hay citas pendientes de triaje' %></h3>
-      <p><%= hasActiveFilters ? 'No hay resultados con los filtros seleccionados.' : 'Cuando existan citas pendientes, apareceran en esta seccion.' %></p>
+      <p><%= hasActiveFilters ? 'No hay resultados con los filtros seleccionados.' : 'Cuando existan citas pendientes, aparecerán en esta sección.' %></p>
       <% if (hasActiveFilters) { %>
         <a href="/enfermera/triaje-pendiente" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
           <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/limpiar.png" alt="" aria-hidden="true">

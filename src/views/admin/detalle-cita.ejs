@@ -71,7 +71,7 @@
         <div><span>Tratamiento, receta e indicaciones</span><strong><%= cita.tratamiento || 'No registrado' %></strong></div>
         <div><span>Recomendaciones al paciente</span><strong><%= cita.recomendaciones || 'Sin recomendaciones registradas' %></strong></div>
         <div><span>Observaciones</span><strong><%= cita.consulta_observaciones || 'Sin observaciones registradas' %></strong></div>
-        <div><span>Estado de registro</span><strong><%= cita.borrador === 1 ? 'Borrador' : 'Finalizada' %></strong></div>
+        <div><span>Estado de registro</span><strong><%= cita.borrador === 1 ? 'En progreso' : 'Finalizada' %></strong></div>
         <div><span>Fecha de registro</span><strong><%= cita.consulta_fecha_registro ? new Date(cita.consulta_fecha_registro).toLocaleString('es-PE') : 'No registrada' %></strong></div>
       </div>
     <% } else { %>

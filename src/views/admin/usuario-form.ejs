@@ -190,7 +190,7 @@
 
       <div class="role-change-note" id="roleChangeNote">
         <i class="bi bi-info-circle" aria-hidden="true"></i>
-        <span><strong>Importante:</strong> Cambiar el rol modifica el acceso al sistema, pero no elimina registros históricos asociados.</span>
+        <span><strong>Importante:</strong> Cambiar el rol modifica el acceso al sistema, pero no elimina citas, triajes, consultas ni historial registrado.</span>
       </div>
     </div>
 
@@ -472,7 +472,7 @@
       roleChangeNote.classList.toggle('is-warning', selectedRole === 'administrativo');
       roleChangeNote.innerHTML = selectedRole === 'administrativo'
         ? '<i class="bi bi-exclamation-triangle" aria-hidden="true"></i><span><strong>Atención:</strong> La cuenta será administrativa operativa. No podrá crear, editar ni cambiar el estado de cuentas administrativas.</span>'
-        : '<i class="bi bi-info-circle" aria-hidden="true"></i><span><strong>Importante:</strong> Cambiar el rol modifica el acceso al sistema, pero no elimina registros históricos asociados.</span>';
+        : '<i class="bi bi-info-circle" aria-hidden="true"></i><span><strong>Importante:</strong> Cambiar el rol modifica el acceso al sistema, pero no elimina citas, triajes, consultas ni historial registrado.</span>';
     }
 
     if (selectedRole === 'paciente') updateSchoolOptions();

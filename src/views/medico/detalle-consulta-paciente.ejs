@@ -16,10 +16,10 @@
     <section class="triaje-summary clinical-panel detail-info-panel detail-info-panel-two consistent-info-panel">
       <h3>Triaje registrado</h3>
       <div class="triaje-summary-grid compact-clinical-grid consistent-info-grid">
-        <div><span>Temperatura</span><strong><%= consulta.temperatura || 'N/R' %> °C</strong></div>
-        <div><span>Presión arterial</span><strong><%= consulta.presion_arterial || 'N/R' %></strong></div>
-        <div><span>Frecuencia cardíaca</span><strong><%= consulta.frecuencia_cardiaca || 'N/R' %> lpm</strong></div>
-        <div><span>Saturación O2</span><strong><%= consulta.saturacion || 'N/R' %>%</strong></div>
+        <div><span>Temperatura</span><strong><%= consulta.temperatura || 'No registrada' %> °C</strong></div>
+        <div><span>Presión arterial</span><strong><%= consulta.presion_arterial || 'No registrada' %></strong></div>
+        <div><span>Frecuencia cardíaca</span><strong><%= consulta.frecuencia_cardiaca || 'No registrada' %> lpm</strong></div>
+        <div><span>Saturación O2</span><strong><%= consulta.saturacion || 'No registrada' %>%</strong></div>
         <div><span>Síntomas verificados</span><strong><%= consulta.sintomas || 'No registrados' %></strong></div>
         <% if (consulta.triaje_observaciones) { %>
           <div><span>Observaciones de enfermería</span><strong><%= consulta.triaje_observaciones %></strong></div>

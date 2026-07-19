@@ -27,6 +27,8 @@ SET @HASH := '$2b$10$vdNqHjCk8LPdHTLV3B6iweJAWJ81jdlX4SzgZuqb8S0kekaeyGE8u';
 SET @SEMANA_ANT := DATE_SUB(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 7 DAY);
 SET @SEMANA_ACT := DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY);
 SET @SEMANA_SIG := DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 7 DAY);
+SET @SEMANA_HIST1 := DATE_SUB(@SEMANA_ANT, INTERVAL 7 DAY);
+SET @SEMANA_HIST2 := DATE_SUB(@SEMANA_ANT, INTERVAL 14 DAY);
 
 
 -- Usuario admin01 (administrativo)
@@ -594,6 +596,121 @@ SET @cita52 := LAST_INSERT_ID();
 -- cita53: paciente @pac15, médico @medico03, estado cancelada
 INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac15, @medico03, DATE_ADD(@SEMANA_SIG, INTERVAL 2 DAY), '13:00:00', 'Dolor abdominal', 'Cita cancelada para validar filtros y estados', 'cancelada');
 SET @cita53 := LAST_INSERT_ID();
+
+-- =========================================================
+-- ESCENARIOS CLINICOS AMPLIADOS PARA PRUEBAS DE HISTORIAL, FILTROS Y ROLES
+-- Incluye citas en todos los estados, pacientes con varias consultas y tratamientos variados.
+-- =========================================================
+
+-- cita54: paciente @pac02, médico @medico01, estado pendiente
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac02, @medico01, DATE_ADD(@SEMANA_SIG, INTERVAL 0 DAY), '08:00:00', 'Dolor de cabeza, cansancio visual', 'Reserva pendiente por cefalea asociada a estudio prolongado', 'pendiente');
+SET @cita54 := LAST_INSERT_ID();
+
+-- cita55: paciente @pac12, médico @medico04, estado pendiente
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac12, @medico04, DATE_ADD(@SEMANA_SIG, INTERVAL 3 DAY), '08:00:00', 'Tos seca, congestión nasal', 'Reserva pendiente para evaluación respiratoria leve', 'pendiente');
+SET @cita55 := LAST_INSERT_ID();
+
+-- cita56: paciente @pac18, médico @medico06, estado triaje_registrado
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac18, @medico06, DATE_ADD(@SEMANA_ACT, INTERVAL 2 DAY), '08:00:00', 'Ansiedad, palpitaciones, dificultad para dormir', 'Evaluación psicológica después de triaje por ansiedad académica', 'triaje_registrado');
+SET @cita56 := LAST_INSERT_ID();
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones) VALUES (@cita56, @enf03, 36.6, '122/78', 92, 99, 'Ansiedad, palpitaciones, dificultad para dormir', 'Paciente orientado, sin signos físicos de alarma. Refiere carga académica alta.');
+
+-- cita57: paciente @pac04, médico @medico01, estado triaje_registrado
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac04, @medico01, DATE_ADD(@SEMANA_ACT, INTERVAL 0 DAY), '08:00:00', 'Tos, sibilancias leves, cansancio', 'Paciente asmática con síntomas respiratorios leves', 'triaje_registrado');
+SET @cita57 := LAST_INSERT_ID();
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones) VALUES (@cita57, @enf01, 37.1, '116/72', 88, 96, 'Tos, sibilancias leves, cansancio', 'Se indica evaluación médica por antecedente de asma. Saturación dentro de rango aceptable.');
+
+-- cita58: paciente @pac10, médico @medico04, estado en_consulta
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac10, @medico04, DATE_ADD(@SEMANA_ACT, INTERVAL 3 DAY), '08:30:00', 'Dolor lumbar, contractura muscular', 'Consulta en progreso por dolor lumbar después de actividad física', 'en_consulta');
+SET @cita58 := LAST_INSERT_ID();
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones) VALUES (@cita58, @enf02, 36.7, '118/76', 74, 98, 'Dolor lumbar, contractura muscular', 'Dolor localizado, sin fiebre ni pérdida de fuerza.');
+INSERT INTO consulta (id_cita, diagnostico, tratamiento, recomendaciones, observaciones, privada, borrador) VALUES (@cita58, 'Lumbalgia mecánica en evaluación', 'Naproxeno - Tableta; 250 mg; Cada 12 horas. Indicaciones: tomar después de alimentos.\nDiclofenaco - Gel; 1 %; Cada 8 horas. Indicaciones: aplicar en zona dolorosa.', 'Evitar cargas pesadas, realizar pausas activas y volver si aparece dolor irradiado.', 'Borrador para completar examen físico antes de confirmar.', 0, 1);
+
+-- cita59: paciente @pac06, médico @medico03, estado en_consulta
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac06, @medico03, DATE_ADD(@SEMANA_ACT, INTERVAL 2 DAY), '08:30:00', 'Insomnio, preocupación constante, cansancio', 'Consulta psicológica en progreso por ansiedad e insomnio', 'en_consulta');
+SET @cita59 := LAST_INSERT_ID();
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones) VALUES (@cita59, @enf03, 36.5, '110/70', 80, 99, 'Insomnio, preocupación constante, cansancio', 'Paciente refiere exámenes próximos y dificultad para dormir.');
+INSERT INTO consulta (id_cita, diagnostico, tratamiento, recomendaciones, observaciones, privada, borrador) VALUES (@cita59, 'Ansiedad académica en evaluación', 'Intervención inicial de orientación psicológica. Tratamiento farmacológico no indicado en esta etapa.', 'Registrar horario de sueño, reducir cafeína por la tarde y asistir a seguimiento psicológico.', 'Se continuará entrevista clínica y evaluación de factores de estrés.', 1, 1);
+
+-- cita60: paciente @pac01, médico @medico01, estado completada
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac01, @medico01, DATE_ADD(@SEMANA_HIST1, INTERVAL 0 DAY), '08:00:00', 'Fiebre, dolor de garganta, malestar general', 'Consulta previa por infección respiratoria alta', 'completada');
+SET @cita60 := LAST_INSERT_ID();
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones) VALUES (@cita60, @enf01, 38.0, '118/75', 92, 97, 'Fiebre, dolor de garganta, malestar general', 'Fiebre de inicio reciente, tolera vía oral.');
+INSERT INTO consulta (id_cita, diagnostico, tratamiento, recomendaciones, observaciones, privada, borrador) VALUES (@cita60, 'Infección respiratoria alta', 'Paracetamol - Tableta; 500 mg; Cada 8 horas. Indicaciones: usar si hay fiebre o dolor.\nSolución salina - Solución nasal; 0.9 %; Cada 8 horas. Indicaciones: aplicar lavados nasales.', 'Hidratación, reposo relativo y retorno si fiebre persiste más de 48 horas.', 'Primera consulta respiratoria del paciente con el mismo médico.', 0, 0);
+
+-- cita61: paciente @pac01, médico @medico01, estado completada
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac01, @medico01, DATE_ADD(@SEMANA_HIST2, INTERVAL 0 DAY), '08:30:00', 'Acidez, dolor epigástrico, náuseas leves', 'Segunda consulta histórica con el mismo médico por dispepsia', 'completada');
+SET @cita61 := LAST_INSERT_ID();
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones) VALUES (@cita61, @enf02, 36.6, '116/74', 76, 99, 'Acidez, dolor epigástrico, náuseas leves', 'Dolor no irradiado. Niega vómitos persistentes.');
+INSERT INTO consulta (id_cita, diagnostico, tratamiento, recomendaciones, observaciones, privada, borrador) VALUES (@cita61, 'Gastritis / dispepsia', 'Omeprazol - Cápsula; 20 mg; Una vez al día. Indicaciones: tomar antes del desayuno.\nHidróxido de aluminio y magnesio - Suspensión oral; 10 mL; Según necesidad. Indicaciones: usar si hay acidez.', 'Evitar café, alcohol, irritantes y comer en horarios regulares.', 'Caso útil para ver varias consultas del mismo paciente con el mismo médico.', 0, 0);
+
+-- cita62: paciente @pac01, médico @medico04, estado completada
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac01, @medico04, DATE_ADD(@SEMANA_HIST1, INTERVAL 3 DAY), '08:00:00', 'Dolor lumbar después de entrenamiento', 'Consulta histórica con médico diferente por dolor lumbar', 'completada');
+SET @cita62 := LAST_INSERT_ID();
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones) VALUES (@cita62, @enf03, 36.7, '120/78', 72, 98, 'Dolor lumbar después de entrenamiento', 'Sin fiebre, sin alteración neurológica referida.');
+INSERT INTO consulta (id_cita, diagnostico, tratamiento, recomendaciones, observaciones, privada, borrador) VALUES (@cita62, 'Lumbalgia mecánica', 'Ibuprofeno - Tableta; 400 mg; Cada 8 horas. Indicaciones: tomar después de alimentos por 2 días si hay dolor.\nDiclofenaco - Gel; 1 %; Cada 8 horas. Indicaciones: aplicar en zona lumbar.', 'Pausas activas, estiramientos suaves y evitar carga intensa durante una semana.', 'Permite validar historial con médicos distintos para un mismo paciente.', 0, 0);
+
+-- cita63: paciente @pac02, médico @medico02, estado completada
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac02, @medico02, DATE_ADD(@SEMANA_HIST1, INTERVAL 1 DAY), '08:00:00', 'Dolor dental, sensibilidad al frío', 'Consulta odontológica por caries probable', 'completada');
+SET @cita63 := LAST_INSERT_ID();
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones) VALUES (@cita63, @enf01, 36.8, '112/70', 74, 99, 'Dolor dental, sensibilidad al frío', 'Sin fiebre. Dolor localizado en molar inferior.');
+INSERT INTO consulta (id_cita, diagnostico, tratamiento, recomendaciones, observaciones, privada, borrador) VALUES (@cita63, 'Caries dental probable con sensibilidad dentinaria', 'Paracetamol - Tableta; 500 mg; Cada 8 horas. Indicaciones: usar solo si hay dolor.\nClorhexidina oral indicada como higiene complementaria según evaluación odontológica.', 'Agendar control odontológico, evitar alimentos muy fríos y reforzar higiene oral.', 'Caso odontológico con indicaciones no farmacológicas.', 0, 0);
+
+-- cita64: paciente @pac02, médico @medico01, estado completada
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac02, @medico01, DATE_ADD(@SEMANA_HIST2, INTERVAL 0 DAY), '09:00:00', 'Cefalea, fatiga, visión borrosa ocasional', 'Consulta de medicina general con médico distinto por cefalea', 'completada');
+SET @cita64 := LAST_INSERT_ID();
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones) VALUES (@cita64, @enf02, 36.5, '114/72', 78, 99, 'Cefalea, fatiga, visión borrosa ocasional', 'Paciente refiere uso prolongado de pantallas.');
+INSERT INTO consulta (id_cita, diagnostico, tratamiento, recomendaciones, observaciones, privada, borrador) VALUES (@cita64, 'Cefalea tensional asociada a fatiga visual', 'Paracetamol - Tableta; 500 mg; Según necesidad. Indicaciones: usar si el dolor limita actividades.', 'Descanso visual cada 40 minutos, hidratación y control si aumenta la frecuencia.', 'Mismo paciente con atención odontológica y medicina general.', 0, 0);
+
+-- cita65: paciente @pac03, médico @medico03, estado completada
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac03, @medico03, DATE_ADD(@SEMANA_HIST1, INTERVAL 2 DAY), '08:00:00', 'Ansiedad, irritabilidad, dificultad para concentrarse', 'Seguimiento psicológico por estrés académico', 'completada');
+SET @cita65 := LAST_INSERT_ID();
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones) VALUES (@cita65, @enf03, 36.4, '110/68', 82, 99, 'Ansiedad, irritabilidad, dificultad para concentrarse', 'Signos vitales sin alteración. Paciente colaborador.');
+INSERT INTO consulta (id_cita, diagnostico, tratamiento, recomendaciones, observaciones, privada, borrador) VALUES (@cita65, 'Estrés académico con ansiedad leve', 'Psicoeducación y técnicas de respiración diafragmática. Tratamiento farmacológico no indicado.', 'Organizar horarios de estudio, higiene del sueño y seguimiento psicológico en dos semanas.', 'Notas internas de orientación psicológica registradas como privadas.', 1, 0);
+
+-- cita66: paciente @pac03, médico @medico01, estado completada
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac03, @medico01, DATE_ADD(@SEMANA_HIST2, INTERVAL 0 DAY), '09:30:00', 'Dolor abdominal, náuseas, diarrea', 'Consulta de medicina general por cuadro digestivo agudo', 'completada');
+SET @cita66 := LAST_INSERT_ID();
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones) VALUES (@cita66, @enf01, 37.2, '116/74', 88, 98, 'Dolor abdominal, náuseas, diarrea', 'Sin signos de deshidratación. Refiere ingesta de alimentos fuera de casa.');
+INSERT INTO consulta (id_cita, diagnostico, tratamiento, recomendaciones, observaciones, privada, borrador) VALUES (@cita66, 'Gastroenteritis aguda leve', 'Sales de rehidratación oral - Sobre; 1 sobre; Según necesidad. Indicaciones: preparar en agua segura.\nOndansetrón - Tableta; 4 mg; Cada 12 horas. Indicaciones: usar si hay náuseas intensas.', 'Dieta blanda, hidratación y retorno si hay fiebre alta o sangre en heces.', 'Caso digestivo para comparar consultas del mismo paciente en distinta especialidad.', 0, 0);
+
+-- cita67: paciente @pac04, médico @medico01, estado completada
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac04, @medico01, DATE_ADD(@SEMANA_HIST1, INTERVAL 0 DAY), '10:00:00', 'Tos nocturna, sensación de pecho cerrado', 'Control por antecedente de asma leve', 'completada');
+SET @cita67 := LAST_INSERT_ID();
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones) VALUES (@cita67, @enf02, 36.9, '112/72', 86, 96, 'Tos nocturna, sensación de pecho cerrado', 'Paciente con antecedente de asma leve. Saturación estable.');
+INSERT INTO consulta (id_cita, diagnostico, tratamiento, recomendaciones, observaciones, privada, borrador) VALUES (@cita67, 'Asma leve con síntomas intermitentes', 'Salbutamol - Inhalador; 100 mcg/dosis; Según necesidad. Indicaciones: usar ante dificultad respiratoria leve según indicación médica.', 'Evitar polvo, humo y acudir a emergencia si presenta dificultad respiratoria intensa.', 'Se refuerza educación sobre signos de alarma respiratoria.', 0, 0);
+
+-- cita68: paciente @pac05, médico @medico06, estado completada
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac05, @medico06, DATE_ADD(@SEMANA_HIST1, INTERVAL 4 DAY), '08:00:00', 'Insomnio, preocupación por rendimiento, cansancio', 'Consulta psicológica por insomnio relacionado a exámenes', 'completada');
+SET @cita68 := LAST_INSERT_ID();
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones) VALUES (@cita68, @enf03, 36.6, '108/68', 76, 99, 'Insomnio, preocupación por rendimiento, cansancio', 'Paciente tranquilo durante entrevista de triaje.');
+INSERT INTO consulta (id_cita, diagnostico, tratamiento, recomendaciones, observaciones, privada, borrador) VALUES (@cita68, 'Insomnio relacionado a estrés académico', 'Orientación psicológica breve y plan de higiene del sueño. No se indica medicación.', 'Evitar pantallas antes de dormir, horario regular y seguimiento si persiste insomnio.', 'Registro privado por contenido de salud mental.', 1, 0);
+
+-- cita69: paciente @pac05, médico @medico01, estado completada
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac05, @medico01, DATE_ADD(@SEMANA_HIST2, INTERVAL 0 DAY), '10:30:00', 'Estornudos, picazón nasal, lagrimeo', 'Consulta de medicina general por alergia estacional', 'completada');
+SET @cita69 := LAST_INSERT_ID();
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones) VALUES (@cita69, @enf01, 36.4, '116/70', 72, 99, 'Estornudos, picazón nasal, lagrimeo', 'Cuadro compatible con alergia estacional. Sin dificultad respiratoria.');
+INSERT INTO consulta (id_cita, diagnostico, tratamiento, recomendaciones, observaciones, privada, borrador) VALUES (@cita69, 'Rinitis alérgica', 'Loratadina - Tableta; 10 mg; Una vez al día. Indicaciones: tomar por la noche si causa somnolencia.\nSolución salina - Solución nasal; 0.9 %; Cada 8 horas.', 'Evitar polvo, limpiar habitación y acudir si aparece dificultad respiratoria.', 'Mismo paciente con psicología y medicina general.', 0, 0);
+
+-- cita70: paciente @pac08, médico @medico01, estado completada
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac08, @medico01, DATE_ADD(@SEMANA_HIST1, INTERVAL 0 DAY), '11:00:00', 'Ardor al orinar, dolor bajo vientre', 'Consulta por síntomas urinarios', 'completada');
+SET @cita70 := LAST_INSERT_ID();
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones) VALUES (@cita70, @enf02, 37.0, '114/72', 84, 98, 'Ardor al orinar, dolor bajo vientre', 'Niega fiebre alta. Se deriva para evaluación médica.');
+INSERT INTO consulta (id_cita, diagnostico, tratamiento, recomendaciones, observaciones, privada, borrador) VALUES (@cita70, 'Infección urinaria probable', 'Nitrofurantoína - Cápsula; 100 mg; Cada 12 horas. Indicaciones: tomar con alimentos según evaluación médica.', 'Aumentar consumo de agua, no automedicarse y volver si presenta fiebre o dolor lumbar.', 'Caso de tratamiento antibiótico registrado para pruebas de historial.', 0, 0);
+
+-- cita71: paciente @pac09, médico @medico04, estado completada
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac09, @medico04, DATE_ADD(@SEMANA_HIST1, INTERVAL 3 DAY), '08:30:00', 'Lesión rojiza en antebrazo, picazón', 'Consulta por dermatitis leve', 'completada');
+SET @cita71 := LAST_INSERT_ID();
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones) VALUES (@cita71, @enf01, 36.5, '112/70', 76, 99, 'Lesión rojiza en antebrazo, picazón', 'Lesión localizada. Niega fiebre.');
+INSERT INTO consulta (id_cita, diagnostico, tratamiento, recomendaciones, observaciones, privada, borrador) VALUES (@cita71, 'Dermatitis de contacto probable', 'Hidrocortisona - Crema; 1 %; Cada 12 horas. Indicaciones: aplicar capa delgada por pocos días.\nCetirizina - Tableta; 10 mg; Por la noche. Indicaciones: usar si la picazón interfiere con descanso.', 'Evitar rascado, suspender producto irritante y volver si se extiende.', 'Sin complicaciones al examen.', 0, 0);
+
+-- cita72: paciente @pac12, médico @medico02, estado cancelada
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac12, @medico02, DATE_ADD(@SEMANA_SIG, INTERVAL 1 DAY), '08:00:00', 'Control dental preventivo', 'Cita odontológica cancelada por cruce de horario académico', 'cancelada');
+SET @cita72 := LAST_INSERT_ID();
+
+-- cita73: paciente @pac18, médico @medico01, estado cancelada
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac18, @medico01, DATE_ADD(@SEMANA_SIG, INTERVAL 0 DAY), '08:30:00', 'Dolor de garganta leve', 'Cita cancelada porque el paciente reprogramó atención', 'cancelada');
+SET @cita73 := LAST_INSERT_ID();
 
 -- =========================================================
 -- CONSENTIMIENTO DE PRIVACIDAD PARA CUENTAS DE PACIENTE DE PRUEBA

@@ -658,7 +658,7 @@ exports.showDetalleTriaje = async (req, res) => {
     );
 
     if (rows.length === 0) {
-      req.session.error = 'No se encontro el triaje seleccionado.';
+      req.session.error = 'No se encontró el triaje seleccionado.';
       return res.redirect('/enfermera/triajes');
     }
 

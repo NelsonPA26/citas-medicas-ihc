@@ -11,8 +11,9 @@
   <% } %>
 
   <form action="/login" method="POST" class="auth-form js-auth-validated-form" novalidate>
-    <% const identifierHasError = error && (!errorField || errorField === 'identificador'); %>
-    <% const passwordHasError = error && (!errorField || errorField === 'password'); %>
+    <% const credentialHasError = errorField === 'credentials'; %>
+    <% const identifierHasError = errorField === 'identificador' || credentialHasError; %>
+    <% const passwordHasError = errorField === 'password' || credentialHasError; %>
     <div class="form-group">
       <label for="identificador">Correo institucional</label>
       <div class="auth-input-wrap">
@@ -22,6 +23,7 @@
           id="identificador"
           name="identificador"
           placeholder="ejemplo@unt.edu.pe"
+          value="<%= oldLoginIdentifier || '' %>"
           autocomplete="username"
           data-validate="email"
           class="<%= identifierHasError ? 'field-error' : '' %>"
@@ -29,7 +31,7 @@
           required
         >
       </div>
-      <small class="field-message <%= identifierHasError ? 'is-visible' : '' %>" data-for="identificador"><%= identifierHasError ? 'No hay una cuenta registrada con ese correo institucional.' : '' %></small>
+      <small class="field-message <%= errorField === 'identificador' ? 'is-visible' : '' %>" data-for="identificador"><%= errorField === 'identificador' ? 'Ingresa un correo institucional válido.' : '' %></small>
     </div>
 
     <div class="form-group">
@@ -72,7 +74,7 @@
           </span>
         </button>
       </div>
-      <small class="field-message <%= passwordHasError ? 'is-visible' : '' %>" data-for="password"><%= passwordHasError ? 'La contraseña no coincide con la cuenta ingresada.' : '' %></small>
+      <small class="field-message <%= errorField === 'password' ? 'is-visible' : '' %>" data-for="password"><%= errorField === 'password' ? 'Revisa la contraseña ingresada.' : '' %></small>
     </div>
 
     <a href="/forgot-password" class="auth-link">¿Olvidaste tu contraseña?</a>

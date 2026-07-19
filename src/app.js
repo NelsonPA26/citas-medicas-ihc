@@ -84,6 +84,7 @@ app.use((req, res, next) => {
 
   res.locals.error = req.session.error || null;
   res.locals.errorField = req.session.errorField || null;
+  res.locals.oldLoginIdentifier = req.session.oldLoginIdentifier || '';
   res.locals.success = req.session.success || null;
 
   res.locals.currentPath = req.path;
@@ -92,6 +93,7 @@ app.use((req, res, next) => {
 
   delete req.session.error;
   delete req.session.errorField;
+  delete req.session.oldLoginIdentifier;
   delete req.session.success;
 
   next();

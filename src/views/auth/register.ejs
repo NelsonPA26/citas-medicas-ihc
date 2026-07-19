@@ -44,7 +44,20 @@
 
     <div class="form-group">
       <label for="password">Contraseña</label>
-      <input type="password" id="password" name="password" minlength="8" data-validate="strong-password" autocomplete="new-password" required>
+      <div class="password-field register-password-field">
+        <i class="bi bi-lock auth-field-leading-icon" aria-hidden="true"></i>
+        <input type="password" id="password" name="password" minlength="8" data-validate="strong-password" autocomplete="new-password" required>
+        <button
+          type="button"
+          class="password-toggle"
+          data-password-toggle="password"
+          aria-label="Mostrar contraseña"
+          aria-pressed="false"
+        >
+          <i class="bi bi-eye eye-icon eye-open" aria-hidden="true"></i>
+          <i class="bi bi-eye-slash eye-icon eye-closed hidden" aria-hidden="true"></i>
+        </button>
+      </div>
       <small class="form-help">Mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.</small>
       <div class="password-strength auth-password-strength" data-password-strength-for="password" aria-live="polite">
         <span></span>
@@ -55,24 +68,21 @@
 
     <div class="form-group">
       <label for="confirm_password">Repetir Contraseña</label>
-      <input type="password" id="confirm_password" name="confirm_password" minlength="8" data-validate="password-confirm" data-match="password" autocomplete="new-password" required>
-      <small class="field-message" data-for="confirm_password"></small>
-    </div>
-
-    <div class="form-group privacy-consent-group">
-      <label class="privacy-consent-label" for="acepta_privacidad">
-        <input
-          type="checkbox"
-          id="acepta_privacidad"
-          name="acepta_privacidad"
-          value="si"
-          <%= old.acepta_privacidad ? 'checked' : '' %>
-          required
+      <div class="password-field register-password-field">
+        <i class="bi bi-lock auth-field-leading-icon" aria-hidden="true"></i>
+        <input type="password" id="confirm_password" name="confirm_password" minlength="8" data-validate="password-confirm" data-match="password" autocomplete="new-password" required>
+        <button
+          type="button"
+          class="password-toggle"
+          data-password-toggle="confirm_password"
+          aria-label="Mostrar contraseña"
+          aria-pressed="false"
         >
-        <span>Acepto el tratamiento de mis datos personales para la atencion de salud.</span>
-      </label>
-      <small class="form-help">Consulta la <a href="/privacidad" target="_blank" rel="noopener">politica de privacidad</a>.</small>
-      <small class="field-message" data-for="acepta_privacidad"></small>
+          <i class="bi bi-eye eye-icon eye-open" aria-hidden="true"></i>
+          <i class="bi bi-eye-slash eye-icon eye-closed hidden" aria-hidden="true"></i>
+        </button>
+      </div>
+      <small class="field-message" data-for="confirm_password"></small>
     </div>
 
     <button type="submit" class="btn btn-primary">Crear Cuenta</button>
@@ -80,3 +90,26 @@
 
   <a href="/login" class="auth-link center-link">Ya tengo una cuenta</a>
 </div>
+
+<script>
+  document.querySelectorAll('[data-password-toggle]').forEach(toggleButton => {
+    const passwordInput = document.getElementById(toggleButton.dataset.passwordToggle);
+    if (!passwordInput) return;
+
+    const eyeOpenIcon = toggleButton.querySelector('.eye-open');
+    const eyeClosedIcon = toggleButton.querySelector('.eye-closed');
+
+    toggleButton.addEventListener('click', () => {
+      const isHidden = passwordInput.type === 'password';
+
+      passwordInput.type = isHidden ? 'text' : 'password';
+      toggleButton.setAttribute('aria-label', isHidden ? 'Ocultar contraseña' : 'Mostrar contraseña');
+      toggleButton.setAttribute('aria-pressed', isHidden ? 'true' : 'false');
+
+      eyeOpenIcon.classList.toggle('hidden', isHidden);
+      eyeClosedIcon.classList.toggle('hidden', !isHidden);
+
+      passwordInput.focus();
+    });
+  });
+</script>

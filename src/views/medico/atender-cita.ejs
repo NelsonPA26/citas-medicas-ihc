@@ -260,13 +260,13 @@
     </div>
 
     <div class="form-actions">
-      <button type="button" class="btn-light btn-cancel-attention" id="cancelConsultaButton" data-cancel-url="<%= typeof backUrl !== 'undefined' ? backUrl : '/medico/citas' %>" title="Cancelar atencion" aria-label="Cancelar atencion">
+      <button type="button" class="btn-light btn-cancel-attention" id="cancelConsultaButton" data-cancel-url="<%= typeof backUrl !== 'undefined' ? backUrl : '/medico/citas' %>" title="Cancelar atención" aria-label="Cancelar atención">
         <img class="action-metaphor" src="/img/action-metaphors/medico/consultas/cancelar.png" alt="" aria-hidden="true">
         <span>Cancelar atenci&oacute;n</span>
       </button>
-      <button type="button" class="btn-secondary-action icon-action" id="saveDraftButton" title="Guardar borrador clínico" aria-label="Guardar borrador clínico">
+      <button type="button" class="btn-secondary-action icon-action" id="saveDraftButton" title="Guardar consulta en progreso" aria-label="Guardar consulta en progreso">
         <img class="action-metaphor" src="/img/action-metaphors/medico/consultas/guardar.png" alt="" aria-hidden="true">
-        <span>Guardar borrador</span>
+        <span>Guardar en progreso</span>
       </button>
       <button type="button" class="btn-light icon-action hidden" id="prevStepButton" title="Volver al paso anterior" aria-label="Volver al paso anterior">
         <i class="bi bi-arrow-left" aria-hidden="true"></i>
@@ -317,7 +317,7 @@
 
   <div class="modal-overlay hidden" id="cancelConsultaModal" role="dialog" aria-modal="true" aria-labelledby="cancelConsultaTitle" aria-describedby="cancelConsultaText">
     <div class="confirm-modal confirm-modal-polished" data-confirm-action="cancelar">
-      <button type="button" class="modal-close confirm-modal-close" id="closeCancelModalTop" aria-label="Cerrar cancelacion">&times;</button>
+      <button type="button" class="modal-close confirm-modal-close" id="closeCancelModalTop" aria-label="Cerrar cancelación">&times;</button>
       <div class="confirm-modal-icon confirm-modal-icon-warning" aria-hidden="true">
         <i class="bi bi-exclamation-circle"></i>
       </div>
@@ -327,7 +327,7 @@
         <button type="button" class="btn-light" id="closeCancelModal" title="Seguir registrando" aria-label="Seguir registrando">
           <span>Seguir registrando</span>
         </button>
-        <button type="button" class="btn-cancel-attention" id="confirmCancelConsultaButton" title="Si, cancelar atencion" aria-label="Si, cancelar atencion">
+        <button type="button" class="btn-cancel-attention" id="confirmCancelConsultaButton" title="Sí, cancelar atención" aria-label="Sí, cancelar atención">
           <span>S&iacute;, cancelar atenci&oacute;n</span>
         </button>
       </div>
@@ -348,6 +348,7 @@
   const tratamientoInput = document.getElementById('tratamiento');
   const recomendacionesInput = document.getElementById('recomendaciones');
   const observacionesInput = document.getElementById('observaciones');
+  const privadaInput = consultaForm.querySelector('input[name="privada"]');
 
   const recetaMedicamento = document.getElementById('recetaMedicamento');
   const recetaMedicamentoId = document.getElementById('recetaMedicamentoId');
@@ -372,6 +373,7 @@
   let medicationPresentations = [];
   let medicationSearchTimer = null;
   const legacyPrescriptionText = tratamientoInput.value.trim();
+  let initialConsultaState = null;
 
   const helperSelects = document.querySelectorAll('.clinical-helper-select');
 
@@ -457,6 +459,43 @@
     });
   }
 
+  function serializePrescriptionItemsState() {
+    return JSON.stringify(prescriptionItems.map(item => ({
+      idMedicamento: String(item.idMedicamento || ''),
+      idPresentacion: String(item.idPresentacion || ''),
+      medicamento: item.medicamento || '',
+      presentacion: item.presentacion || '',
+      dosis: item.dosis || '',
+      unidad: item.unidad || '',
+      frecuencia: item.frecuencia || '',
+      indicaciones: item.indicaciones || ''
+    })));
+  }
+
+  function getConsultaState() {
+    return {
+      diagnostico: diagnosticoInput.value,
+      tratamiento: tratamientoInput.value,
+      recomendaciones: recomendacionesInput.value,
+      observaciones: observacionesInput.value,
+      privada: privadaInput && privadaInput.checked ? '1' : '0',
+      recetaMedicamento: recetaMedicamento.value,
+      recetaMedicamentoId: recetaMedicamentoId.value,
+      recetaPresentacion: recetaPresentacion.value,
+      recetaDosis: recetaDosis.value,
+      recetaUnidad: recetaUnidad.value,
+      recetaFrecuencia: recetaFrecuencia.value,
+      recetaIndicaciones: recetaIndicaciones.value,
+      medicamentos: serializePrescriptionItemsState()
+    };
+  }
+
+  function consultaHasChanges() {
+    if (!initialConsultaState) return false;
+    const currentConsultaState = getConsultaState();
+    return Object.keys(initialConsultaState).some(key => currentConsultaState[key] !== initialConsultaState[key]);
+  }
+
   function getPrescriptionMedicine() {
     return selectedMedication ? selectedMedication.nombre : '';
   }
@@ -517,8 +556,8 @@
   function validatePrescriptionItem(item) {
     const requiredFields = [
       [item.idMedicamento, 'Selecciona un medicamento de las sugerencias.', recetaMedicamento],
-      [item.presentacion, 'Selecciona la presentacion del medicamento.', recetaPresentacion],
-      [item.dosis, 'No se encontro una dosis recomendada para esta presentacion.', recetaPresentacion],
+      [item.presentacion, 'Selecciona la presentación del medicamento.', recetaPresentacion],
+      [item.dosis, 'No se encontró una dosis recomendada para esta presentación.', recetaPresentacion],
       [item.frecuencia, 'Selecciona la frecuencia de uso.', recetaFrecuencia]
     ];
 
@@ -578,7 +617,7 @@
     renderPrescriptionList();
     serializePrescription();
     if (showSuccess) {
-      showPrescriptionMessage('Medicamento agregado. Puedes registrar otro con el boton +.', null, 'success');
+      showPrescriptionMessage('Medicamento agregado. Puedes registrar otro con el botón +.', null, 'success');
     }
     return true;
   }
@@ -873,7 +912,7 @@
     if (!medicamentos.length) {
       const empty = document.createElement('p');
       empty.className = 'prescription-suggestions-empty';
-      empty.textContent = 'No se encontraron medicamentos en el catalogo.';
+      empty.textContent = 'No se encontraron medicamentos en el catálogo.';
       prescriptionSuggestions.appendChild(empty);
     } else {
       medicamentos.forEach(medicamento => {
@@ -895,11 +934,11 @@
   async function loadMedicationSuggestions(query) {
     try {
       const response = await fetch(`/medico/api/medicamentos?q=${encodeURIComponent(query)}`);
-      if (!response.ok) throw new Error('No se pudo consultar el catalogo.');
+      if (!response.ok) throw new Error('No se pudo consultar el catálogo.');
       renderMedicationSuggestions(await response.json());
     } catch (error) {
       hideMedicationSuggestions();
-      showPrescriptionMessage('No se pudo consultar el catalogo de medicamentos. Intentalo nuevamente.');
+      showPrescriptionMessage('No se pudo consultar el catálogo de medicamentos. Inténtalo nuevamente.');
     }
   }
 
@@ -915,7 +954,7 @@
       const response = await fetch(`/medico/api/medicamentos/${medicamento.id_medicamento}/presentaciones`);
       if (!response.ok) throw new Error('No se pudieron cargar las presentaciones.');
       medicationPresentations = await response.json();
-      recetaPresentacion.innerHTML = '<option value="">Seleccionar presentacion</option>';
+      recetaPresentacion.innerHTML = '<option value="">Seleccionar presentación</option>';
 
       medicationPresentations.forEach(presentation => {
         const option = document.createElement('option');
@@ -926,7 +965,7 @@
       recetaPresentacion.disabled = medicationPresentations.length === 0;
 
       if (!medicationPresentations.length) {
-        showPrescriptionMessage('Este medicamento no tiene presentaciones disponibles en el catalogo.', recetaMedicamento);
+        showPrescriptionMessage('Este medicamento no tiene presentaciones disponibles en el catálogo.', recetaMedicamento);
       } else {
         recetaPresentacion.focus();
         clearPrescriptionMessage();
@@ -934,7 +973,7 @@
       updateStepActionState();
     } catch (error) {
       resetPresentationOptions();
-      showPrescriptionMessage('No se pudieron cargar las presentaciones. Intentalo nuevamente.', recetaMedicamento);
+      showPrescriptionMessage('No se pudieron cargar las presentaciones. Inténtalo nuevamente.', recetaMedicamento);
     }
   }
 
@@ -1075,9 +1114,9 @@
 
     if (typeof window.openCriticalFormConfirmation === 'function') {
       window.openCriticalFormConfirmation(consultaForm, {
-        title: 'Guardar borrador clínico',
+        title: 'Guardar consulta en progreso',
         message: 'La consulta quedará en progreso y no aparecerá como atención completada. Podrás continuarla luego antes de confirmar diagnóstico y receta médica.',
-        button: 'Guardar borrador'
+        button: 'Guardar en progreso'
       });
       return;
     }
@@ -1118,6 +1157,11 @@
   });
 
   cancelConsultaButton.addEventListener('click', () => {
+    if (!consultaHasChanges()) {
+      window.location.href = cancelConsultaButton.dataset.cancelUrl;
+      return;
+    }
+
     cancelConsultaModal.classList.remove('hidden');
     closeCancelModal.focus();
   });
@@ -1173,4 +1217,5 @@
   renderPrescriptionList();
   serializePrescription();
   showConsultaStep(0);
+  initialConsultaState = getConsultaState();
 </script>
