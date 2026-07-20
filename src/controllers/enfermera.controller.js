@@ -128,8 +128,8 @@ exports.dashboard = async (req, res) => {
           FROM triaje t
           INNER JOIN cita c ON t.id_cita = c.id_cita
           WHERE t.id_enfermera = ?
-            AND c.estado IN ('triaje_registrado', 'en_consulta')
-        ) AS triajes_realizados,
+            AND c.estado = 'en_consulta'
+        ) AS citas_en_consulta,
         (
           SELECT COUNT(*)
           FROM triaje t

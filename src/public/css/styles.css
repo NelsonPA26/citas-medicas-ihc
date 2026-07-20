@@ -11543,3 +11543,331 @@ html[data-visual-scale="xlarge"] .module-card :is(.system-info-grid, .consistent
     grid-template-columns: minmax(0, 1fr) !important;
   }
 }
+
+/* Alto contraste global: cubre paneles clinicos y administrativos con estilos finales. */
+html[data-visual-contrast="high"] :is(
+  .module-card,
+  .dashboard-info-card,
+  .stat-card,
+  .dashboard-stat-card,
+  .dashboard-action-card,
+  .dashboard-record-row,
+  .quick-action-card,
+  .history-card,
+  .triaje-record-card,
+  .filter-card,
+  .clinical-panel,
+  .patient-summary,
+  .triaje-summary,
+  .detail-section-block,
+  .consulta-detail-section,
+  .summary-box,
+  .notice-box,
+  .empty-state,
+  .step-message,
+  .appointment-step,
+  .appointment-status-summary,
+  .appointment-consulta-pending,
+  .profile-section,
+  .form-section-card,
+  .admin-user-form-card,
+  .medical-step-panel,
+  .medical-confirmation-panel,
+  .nurse-context-panel,
+  .symptom-category,
+  .checkbox-option,
+  .accessibility-panel,
+  .system-info-panel,
+  .consistent-info-panel,
+  .system-info-direct-panel,
+  .admin-detail-panel,
+  .clinical-workspace-side,
+  .clinical-workspace-triaje,
+  .data-table,
+  .account-menu-panel,
+  .confirm-modal,
+  .detail-modal,
+  .help-modal,
+  .user-edit-modal
+) {
+  background: var(--hc-surface) !important;
+  border-color: var(--hc-border-strong) !important;
+  color: var(--hc-text) !important;
+  box-shadow: none !important;
+}
+
+html[data-visual-contrast="high"] :is(
+  .module-header,
+  .module-header p,
+  .page-module-description,
+  .form-help,
+  .field-message,
+  .text-muted,
+  .clinical-empty-text,
+  .confirm-modal-note,
+  .user-access-level,
+  .history-card-header p,
+  .dashboard-stat-detail,
+  .dashboard-record-row small,
+  .empty-state p
+) {
+  color: var(--hc-muted) !important;
+}
+
+html[data-visual-contrast="high"] :is(
+  .module-card,
+  .clinical-panel,
+  .patient-summary,
+  .triaje-summary,
+  .detail-section-block,
+  .consulta-detail-section,
+  .summary-box,
+  .appointment-consulta-pending,
+  .admin-detail-panel,
+  .system-info-panel,
+  .consistent-info-panel
+) :is(h1, h2, h3, h4, p, span, small, label, strong, li, td, th) {
+  color: inherit !important;
+}
+
+html[data-visual-contrast="high"] :is(
+  .admin-detail-info-grid,
+  .triaje-summary-grid,
+  .compact-clinical-grid,
+  .clinical-note-grid,
+  .consulta-detail-grid,
+  .consulta-medica-grid,
+  .appointment-summary-grid,
+  .history-medical-care-grid,
+  .medical-confirmation-grid,
+  .system-info-grid,
+  .consistent-info-grid,
+  .profile-info,
+  .history-card-body
+) > div {
+  background: var(--hc-surface) !important;
+  border-color: var(--hc-border) !important;
+  color: var(--hc-text) !important;
+}
+
+html[data-visual-contrast="high"] :is(
+  .admin-detail-info-grid,
+  .triaje-summary-grid,
+  .compact-clinical-grid,
+  .clinical-note-grid,
+  .consulta-detail-grid,
+  .consulta-medica-grid,
+  .appointment-summary-grid,
+  .history-medical-care-grid,
+  .medical-confirmation-grid,
+  .system-info-grid,
+  .consistent-info-grid,
+  .profile-info,
+  .history-card-body
+) :is(span, small) {
+  color: var(--hc-muted) !important;
+}
+
+html[data-visual-contrast="high"] :is(
+  .admin-detail-info-grid,
+  .triaje-summary-grid,
+  .compact-clinical-grid,
+  .clinical-note-grid,
+  .consulta-detail-grid,
+  .consulta-medica-grid,
+  .appointment-summary-grid,
+  .history-medical-care-grid,
+  .medical-confirmation-grid,
+  .system-info-grid,
+  .consistent-info-grid,
+  .profile-info,
+  .history-card-body
+) strong {
+  color: var(--hc-text) !important;
+}
+
+html[data-visual-contrast="high"] .admin-detail-info-grid > div::before,
+html[data-visual-contrast="high"] .admin-detail-info-grid > div::after,
+html[data-visual-contrast="high"] .triaje-summary-grid > div::before,
+html[data-visual-contrast="high"] .compact-clinical-grid > div::before,
+html[data-visual-contrast="high"] .clinical-note-grid > div::before,
+html[data-visual-contrast="high"] .consulta-detail-grid > div::before,
+html[data-visual-contrast="high"] .consulta-medica-grid > div::before,
+html[data-visual-contrast="high"] .appointment-summary-grid > div::before,
+html[data-visual-contrast="high"] .history-medical-care-grid > div::before,
+html[data-visual-contrast="high"] .medical-confirmation-grid > div::before,
+html[data-visual-contrast="high"] .system-info-grid > div::before,
+html[data-visual-contrast="high"] .consistent-info-grid > div::before,
+html[data-visual-contrast="high"] .consistent-info-grid > div::after {
+  background: var(--hc-border-strong) !important;
+  border-color: var(--hc-border-strong) !important;
+}
+
+html[data-visual-contrast="high"] :is(
+  .admin-detail-panel > h3,
+  .consulta-detail-section h3,
+  .triaje-summary h3,
+  .patient-summary h3,
+  .summary-box h3,
+  .appointment-consulta-pending > h3
+) {
+  border-color: var(--hc-border-strong) !important;
+  color: var(--hc-text) !important;
+}
+
+html[data-visual-contrast="high"] :is(
+  .admin-detail-panel .bi,
+  .consulta-detail-section .bi,
+  .triaje-summary .bi,
+  .patient-summary .bi,
+  .summary-box .bi,
+  .appointment-consulta-pending .bi,
+  .field-icon
+) {
+  color: var(--ihc-primary-dark) !important;
+}
+
+html[data-visual-contrast="high"] :is(input, select, textarea, .password-field, .auth-input-wrap) {
+  background: var(--hc-surface) !important;
+  border-color: var(--hc-border-strong) !important;
+  color: var(--hc-text) !important;
+}
+
+html[data-visual-contrast="high"] :is(input, select, textarea):focus {
+  border-color: var(--ihc-primary-dark) !important;
+  box-shadow: 0 0 0 3px rgba(0, 94, 168, 0.24) !important;
+}
+
+html[data-visual-contrast="high"] .data-table :is(th, td) {
+  border-color: var(--hc-border) !important;
+  color: var(--hc-text) !important;
+}
+
+html[data-visual-contrast="high"] .data-table thead th {
+  background: var(--hc-surface-soft) !important;
+  color: var(--hc-text) !important;
+}
+
+/* Panel de accesibilidad: conserva contraste propio dentro del sidebar. */
+html[data-visual-contrast="high"] .sidebar .accessibility-panel,
+.sidebar .accessibility-panel {
+  display: grid !important;
+  gap: 10px !important;
+  padding: 12px !important;
+  border: 1px solid rgba(219, 234, 254, 0.72) !important;
+  border-radius: 7px !important;
+  background: rgba(8, 78, 94, 0.82) !important;
+  color: #ffffff !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+html[data-visual-contrast="high"] .sidebar .accessibility-group-label,
+.sidebar .accessibility-group-label,
+html[data-visual-contrast="high"] .sidebar .accessibility-contrast-row > span,
+.sidebar .accessibility-contrast-row > span {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-visual-contrast="high"] .sidebar .accessibility-control-group,
+.sidebar .accessibility-control-group {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 7px !important;
+}
+
+html[data-visual-contrast="high"] .sidebar .accessibility-scale-button,
+.sidebar .accessibility-scale-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+  min-height: 44px !important;
+  padding: 0 6px !important;
+  border: 1px solid rgba(219, 234, 254, 0.78) !important;
+  border-radius: 6px !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+html[data-visual-contrast="high"] .sidebar .accessibility-scale-button[aria-pressed="true"],
+.sidebar .accessibility-scale-button[aria-pressed="true"] {
+  border-color: #f59e0b !important;
+  background: #ffffff !important;
+  color: #083344 !important;
+  box-shadow: inset 0 0 0 1px #f59e0b !important;
+}
+
+html[data-visual-contrast="high"] .sidebar .accessibility-letter,
+.sidebar .accessibility-letter {
+  display: inline-block !important;
+  color: currentColor !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+}
+
+html[data-visual-contrast="high"] .sidebar .accessibility-scale-status,
+.sidebar .accessibility-scale-status {
+  margin: -2px 0 3px !important;
+  color: #e0f2fe !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+  text-align: center !important;
+}
+
+html[data-visual-contrast="high"] .sidebar .accessibility-contrast-row,
+.sidebar .accessibility-contrast-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  min-height: 48px !important;
+  padding: 10px 11px !important;
+  border: 1px solid rgba(219, 234, 254, 0.78) !important;
+  border-radius: 6px !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+html[data-visual-contrast="high"] .sidebar .accessibility-contrast-toggle,
+.sidebar .accessibility-contrast-toggle {
+  position: relative !important;
+  flex: 0 0 auto !important;
+  width: 48px !important;
+  min-width: 48px !important;
+  height: 26px !important;
+  min-height: 26px !important;
+  padding: 0 !important;
+  border: 1px solid rgba(219, 234, 254, 0.84) !important;
+  border-radius: 999px !important;
+  background: rgba(15, 23, 42, 0.42) !important;
+  box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.35) !important;
+}
+
+html[data-visual-contrast="high"] .sidebar .accessibility-contrast-toggle::after,
+.sidebar .accessibility-contrast-toggle::after {
+  content: "" !important;
+  position: absolute !important;
+  top: 3px !important;
+  left: 3px !important;
+  width: 18px !important;
+  height: 18px !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.35) !important;
+}
+
+html[data-visual-contrast="high"] .sidebar .accessibility-contrast-toggle[aria-pressed="true"],
+.sidebar .accessibility-contrast-toggle[aria-pressed="true"] {
+  border-color: #f59e0b !important;
+  background: #ffffff !important;
+  box-shadow: inset 0 0 0 1px #f59e0b !important;
+}
+
+html[data-visual-contrast="high"] .sidebar .accessibility-contrast-toggle[aria-pressed="true"]::after,
+.sidebar .accessibility-contrast-toggle[aria-pressed="true"]::after {
+  background: #083344 !important;
+  transform: translateX(22px) !important;
+}

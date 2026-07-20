@@ -94,8 +94,10 @@ function esFechaValida(fecha) {
   const fechaSeleccionada = new Date(`${fecha}T00:00:00`);
   if (Number.isNaN(fechaSeleccionada.getTime())) return false;
 
+  const anioActual = new Date().getFullYear();
   const dia = fechaSeleccionada.getDay();
 
+  if (fechaSeleccionada.getFullYear() !== anioActual) return false;
   if (fechaSeleccionada < hoy) return false;
 
   // 0 = domingo, 6 = sábado
@@ -281,7 +283,7 @@ exports.getHorasDisponibles = async (req, res) => {
     if (!esFechaValida(fecha)) {
       return res.json({
         ok: false,
-        mensaje: 'Selecciona una fecha válida de lunes a viernes.'
+        mensaje: 'Selecciona una fecha válida de lunes a viernes dentro del año actual.'
       });
     }
 
@@ -343,7 +345,7 @@ exports.storeReservarCita = async (req, res) => {
     }
 
     if (!esFechaValida(fecha)) {
-      req.session.error = 'La fecha seleccionada no es válida. Debe ser de lunes a viernes y no puede ser pasada.';
+      req.session.error = 'La fecha seleccionada no es válida. Debe ser de lunes a viernes, no puede ser pasada y debe pertenecer al año actual.';
       return res.redirect('/paciente/reservar-cita');
     }
 
@@ -502,7 +504,7 @@ exports.updateCita = async (req, res) => {
     }
 
     if (!esFechaValida(fecha)) {
-      req.session.error = 'La fecha seleccionada no es válida. Debe ser de lunes a viernes y no puede ser pasada.';
+      req.session.error = 'La fecha seleccionada no es válida. Debe ser de lunes a viernes, no puede ser pasada y debe pertenecer al año actual.';
       return res.redirect(`/paciente/mis-citas/${id_cita}/editar`);
     }
 

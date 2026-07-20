@@ -107,31 +107,4 @@
     <% } %>
   </section>
 
-  <section class="dashboard-info-card" aria-labelledby="adminQuickTitle">
-    <div class="dashboard-info-heading">
-      <div>
-        <h3 id="adminQuickTitle">Accesos rápidos</h3>
-        <p>Entradas directas a tareas frecuentes, sin duplicar formularios.</p>
-      </div>
-    </div>
-
-    <div class="dashboard-info-list">
-      <% if (puedeGestionarUsuarios) { %>
-        <a href="<%= enlaceRegistros %>" class="dashboard-info-row">
-          <span><%- quickIcons.usuarios %><%= esAdmision ? 'Pacientes' : 'Usuarios' %></span>
-          <i class="bi bi-chevron-right" aria-hidden="true"></i>
-        </a>
-        <a href="<%= enlaceNuevoRegistro %>" class="dashboard-info-row">
-          <span><%- quickIcons.registrar %>Registrar <%= etiquetaRegistro.toLowerCase() %></span>
-          <i class="bi bi-chevron-right" aria-hidden="true"></i>
-        </a>
-      <% } %>
-      <% if (tieneAccesoCitas) { %>
-        <a href="/admin/citas?returnTo=dashboard" class="dashboard-info-row">
-          <span><%- quickIcons.citas %>Citas</span>
-          <i class="bi bi-chevron-right" aria-hidden="true"></i>
-        </a>
-      <% } %>
-    </div>
-  </section>
 </div>

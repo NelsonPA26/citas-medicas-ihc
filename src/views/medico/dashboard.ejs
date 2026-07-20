@@ -78,27 +78,4 @@
     <% } %>
   </section>
 
-  <section class="dashboard-info-card" aria-labelledby="doctorQuickTitle">
-    <div class="dashboard-info-heading">
-      <div>
-        <h3 id="doctorQuickTitle">Accesos rápidos</h3>
-        <p>Entradas breves a los módulos completos de atención.</p>
-      </div>
-    </div>
-
-    <div class="dashboard-info-list">
-      <a href="/medico/citas?returnTo=dashboard" class="dashboard-info-row">
-        <span><%- quickIcons.citas %>Citas por atender</span>
-        <strong><%= cargaActiva %></strong>
-      </a>
-      <a href="/medico/pacientes?returnTo=dashboard" class="dashboard-info-row">
-        <span><%- quickIcons.pacientes %>Pacientes</span>
-        <i class="bi bi-chevron-right" aria-hidden="true"></i>
-      </a>
-      <a href="/perfil?returnTo=dashboard" class="dashboard-info-row">
-        <span><%- quickIcons.perfil %>Mi perfil</span>
-        <i class="bi bi-chevron-right" aria-hidden="true"></i>
-      </a>
-    </div>
-  </section>
 </div>

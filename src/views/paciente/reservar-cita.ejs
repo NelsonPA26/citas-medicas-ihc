@@ -94,7 +94,7 @@
           </label>
           <input type="date" id="fecha" name="fecha" value="<%= esModoEdicion ? citaSegura.fecha : '' %>" required>
           <small class="field-message" data-for="fecha"></small>
-          <small class="form-help">Solo se permiten fechas de lunes a viernes.</small>
+          <small class="form-help">Solo se permiten fechas de lunes a viernes dentro del año actual.</small>
         </div>
 
         <div class="form-group">
@@ -258,7 +258,16 @@
     });
   });
 
-  fechaInput.min = new Date().toISOString().split('T')[0];
+  function formatDateForInput(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  const currentAppointmentYear = new Date().getFullYear();
+  fechaInput.min = formatDateForInput(new Date());
+  fechaInput.max = `${currentAppointmentYear}-12-31`;
 
   function formatDateForUser(value) {
     if (!value) return '';
@@ -322,8 +331,12 @@
   function appointmentDateMessage() {
     if (!fechaInput.value) return '';
     if (fechaInput.validity.rangeUnderflow) return `Selecciona una fecha desde el ${formatDateForUser(fechaInput.min)}.`;
+    if (fechaInput.validity.rangeOverflow) return `Solo puedes reservar citas dentro del año ${currentAppointmentYear}.`;
 
     const fechaSeleccionada = new Date(`${fechaInput.value}T00:00:00`);
+    if (fechaSeleccionada.getFullYear() !== currentAppointmentYear) {
+      return `Solo puedes reservar citas dentro del año ${currentAppointmentYear}.`;
+    }
     const dia = fechaSeleccionada.getDay();
     if (dia === 0 || dia === 6) return 'Solo puedes reservar citas de lunes a viernes.';
 
@@ -452,7 +465,7 @@
     updateStep1State(true);
     cargarHorasDisponibles();
   });
-  fechaInput.addEventListener('change', () => {
+  function handleAppointmentDateChange() {
     const dateMessage = appointmentDateMessage();
     if (dateMessage) {
       setAppointmentFieldMessage(fechaInput, dateMessage);
@@ -462,7 +475,10 @@
       return;
     }
     cargarHorasDisponibles();
-  });
+  }
+
+  fechaInput.addEventListener('input', handleAppointmentDateChange);
+  fechaInput.addEventListener('change', handleAppointmentDateChange);
 
   nextStep1.addEventListener('click', () => {
     updateStep1State(true);

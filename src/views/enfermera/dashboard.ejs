@@ -20,9 +20,18 @@
 
   <article class="stat-card dashboard-stat-card">
     <div class="dashboard-stat-copy">
-      <h3>Triajes activos</h3>
-      <p class="stat-number"><%= stats.triajes_realizados || 0 %></p>
-      <p class="dashboard-stat-detail">En espera o consulta</p>
+      <h3>Listos para atención médica</h3>
+      <p class="stat-number"><%= stats.citas_con_triaje || 0 %></p>
+      <p class="dashboard-stat-detail">Con triaje registrado</p>
+    </div>
+    <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-send-check-fill"></i></span>
+  </article>
+
+  <article class="stat-card dashboard-stat-card">
+    <div class="dashboard-stat-copy">
+      <h3>En consulta médica</h3>
+      <p class="stat-number"><%= stats.citas_en_consulta || 0 %></p>
+      <p class="dashboard-stat-detail">Atención iniciada por médico</p>
     </div>
     <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-clipboard2-pulse-fill"></i></span>
   </article>
@@ -34,15 +43,6 @@
       <p class="dashboard-stat-detail">Registrados hoy</p>
     </div>
     <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-calendar-day-fill"></i></span>
-  </article>
-
-  <article class="stat-card dashboard-stat-card">
-    <div class="dashboard-stat-copy">
-      <h3>En espera médica</h3>
-      <p class="stat-number"><%= stats.citas_con_triaje || 0 %></p>
-      <p class="dashboard-stat-detail">Listos para consulta</p>
-    </div>
-    <span class="dashboard-stat-icon" aria-hidden="true"><i class="bi bi-send-check-fill"></i></span>
   </article>
 </div>
 
@@ -71,29 +71,5 @@
     <% } else { %>
       <p class="clinical-empty-text">No hay citas disponibles para triaje.</p>
     <% } %>
-  </section>
-
-  <section class="dashboard-info-card" aria-labelledby="nurseQuickTitle">
-    <div class="dashboard-info-heading">
-      <div>
-        <h3 id="nurseQuickTitle">Accesos rápidos</h3>
-        <p>Atajos a seguimiento, no una segunda lista de trabajo.</p>
-      </div>
-    </div>
-
-    <div class="dashboard-info-list">
-      <a href="/enfermera/triaje-pendiente?returnTo=dashboard" class="dashboard-info-row">
-        <span><%- quickIcons.triaje %>Triaje pendiente</span>
-        <strong><%= stats.triajes_pendientes || 0 %></strong>
-      </a>
-      <a href="/enfermera/triajes?desde=<%= hoy %>&hasta=<%= hoy %>&returnTo=dashboard" class="dashboard-info-row">
-        <span><%- quickIcons.citas %>Triajes de hoy</span>
-        <strong><%= stats.triajes_hoy || 0 %></strong>
-      </a>
-      <a href="/enfermera/historial-triajes?returnTo=dashboard" class="dashboard-info-row">
-        <span><%- quickIcons.historial %>Historial de triajes</span>
-        <i class="bi bi-chevron-right" aria-hidden="true"></i>
-      </a>
-    </div>
   </section>
 </div>
