@@ -47,7 +47,7 @@
         <span>Limpiar</span>
       </a>
       <button type="submit" class="btn-dark icon-action" title="Buscar" aria-label="Buscar">
-        <img class="action-metaphor" src="/img/action-metaphors/paciente/historial/filtrar.png" alt="" aria-hidden="true">
+        <img class="action-metaphor" src="/img/action-metaphors/paciente/historial/buscar.png" alt="" aria-hidden="true">
         <span>Buscar</span>
       </button>
     </div>
@@ -57,12 +57,6 @@
     <div class="empty-state">
       <h3>No se encontraron consultas</h3>
       <p>No hay resultados con los filtros seleccionados.</p>
-      <div class="empty-actions">
-        <a href="/paciente/historial" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
-          <img class="action-metaphor" src="/img/action-metaphors/paciente/historial/limpiar.png" alt="" aria-hidden="true">
-          <span>Limpiar</span>
-        </a>
-      </div>
     </div>
   <% } else { %>
     <div class="table-responsive">
@@ -90,7 +84,7 @@
               <td>
                 <div class="table-actions">
                   <a href="/paciente/historial/<%= consulta.id_consulta %>" class="btn-table-primary icon-action" title="Ver detalle" aria-label="Ver detalle">
-                    <img class="action-metaphor" src="/img/action-metaphors/paciente/historial/buscar.png" alt="" aria-hidden="true">
+                    <img class="action-metaphor" src="/img/action-metaphors/paciente/historial/ver.png" alt="" aria-hidden="true">
                     <span class="visually-hidden">Ver detalle</span>
                   </a>
                 </div>

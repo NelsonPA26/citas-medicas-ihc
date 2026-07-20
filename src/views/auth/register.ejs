@@ -85,7 +85,22 @@
       <small class="field-message" data-for="confirm_password"></small>
     </div>
 
-    <button type="submit" class="btn btn-primary">Crear Cuenta</button>
+    <div class="form-group terms-group">
+      <label class="checkbox-group register-terms" for="terms_accepted">
+        <input
+          type="checkbox"
+          id="terms_accepted"
+          name="terms_accepted"
+          value="on"
+          <%= old.terms_accepted ? 'checked' : '' %>
+          required
+        >
+        <span>Acepto los términos y condiciones de uso del sistema.</span>
+      </label>
+      <small class="field-message" data-for="terms_accepted"></small>
+    </div>
+
+    <button type="submit" class="btn btn-primary" id="createAccountButton" disabled>Crear Cuenta</button>
   </form>
 
   <a href="/login" class="auth-link center-link">Ya tengo una cuenta</a>
@@ -112,4 +127,17 @@
       passwordInput.focus();
     });
   });
+
+  const termsAcceptedInput = document.getElementById('terms_accepted');
+  const createAccountButton = document.getElementById('createAccountButton');
+
+  function updateCreateAccountState() {
+    if (!termsAcceptedInput || !createAccountButton) return;
+    createAccountButton.disabled = !termsAcceptedInput.checked;
+  }
+
+  if (termsAcceptedInput && createAccountButton) {
+    termsAcceptedInput.addEventListener('change', updateCreateAccountState);
+    updateCreateAccountState();
+  }
 </script>

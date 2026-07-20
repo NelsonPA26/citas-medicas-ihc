@@ -54,7 +54,7 @@
         <span>Limpiar</span>
       </a>
       <button type="submit" class="btn-dark icon-action" title="Buscar" aria-label="Buscar">
-        <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/filtrar.png" alt="" aria-hidden="true">
+        <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/buscar.png" alt="" aria-hidden="true">
         <span>Buscar</span>
       </button>
     </div>
@@ -64,12 +64,6 @@
     <div class="empty-state">
       <h3>No se encontraron triajes</h3>
       <p>No hay resultados con los filtros seleccionados.</p>
-      <div class="empty-actions">
-        <a href="/enfermera/historial-triajes" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
-          <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/limpiar.png" alt="" aria-hidden="true">
-          <span>Limpiar</span>
-        </a>
-      </div>
     </div>
   <% } else { %>
     <div class="table-responsive">
@@ -98,7 +92,7 @@
               <td><span class="status-badge status-<%= triaje.estado %>"><%= estadoHistorial[triaje.estado] || triaje.estado %></span></td>
               <td>
                 <a href="/enfermera/triajes/<%= triaje.id_cita %>/detalle?returnTo=historial" class="btn-table-primary icon-action" title="Ver detalle" aria-label="Ver detalle">
-                  <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/buscar.png" alt="" aria-hidden="true">
+                  <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/ver_triaje.png" alt="" aria-hidden="true">
                   <span class="visually-hidden">Ver detalle</span>
                 </a>
               </td>

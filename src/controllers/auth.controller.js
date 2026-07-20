@@ -39,6 +39,12 @@ function textoPersonaValido(value, min = 2, max = 80) {
   return /^[\p{L} ]+$/u.test(text);
 }
 
+function mensajeTextoPersona(value, fieldLabel) {
+  const text = limpiarTexto(value);
+  if (text.length < 2) return 'Revisa este dato. Parece estar incompleto.';
+  return `Escribe ${fieldLabel} usando solo letras y espacios.`;
+}
+
 function dniValido(value) {
   return /^[0-9]{8}$/.test(value || '');
 }
@@ -242,6 +248,7 @@ exports.register = async (req, res) => {
       telefono,
       password,
       confirm_password,
+      terms_accepted,
     } = req.body;
 
     const nombresLimpio = limpiarTexto(nombres);
@@ -250,6 +257,7 @@ exports.register = async (req, res) => {
     const dniLimpio = limpiarTexto(dni);
     const correoLimpio = limpiarTexto(correo).toLowerCase();
     const telefonoLimpio = limpiarTexto(telefono).replace(/\s/g, '');
+    const termsAccepted = terms_accepted === 'on' || terms_accepted === 'true' || terms_accepted === '1';
 
     const old = {
       nombres: nombresLimpio,
@@ -257,13 +265,23 @@ exports.register = async (req, res) => {
       apellido_materno: apellidoMaternoLimpio,
       dni: dniLimpio,
       correo: correoLimpio,
-      telefono: telefonoLimpio
+      telefono: telefonoLimpio,
+      terms_accepted: termsAccepted
     };
 
     if (!nombresLimpio || !apellidoPaternoLimpio || !dniLimpio || !correoLimpio || !telefonoLimpio || !password || !confirm_password) {
       return res.render('auth/register', {
         title: 'Crear Cuenta',
-        error: 'Completa todos los campos obligatorios.',
+        error: 'Completa los campos obligatorios para continuar.',
+        success: null,
+        old
+      });
+    }
+
+    if (!termsAccepted) {
+      return res.render('auth/register', {
+        title: 'Crear Cuenta',
+        error: 'Acepta los términos y condiciones para crear tu cuenta.',
         success: null,
         old
       });
@@ -272,7 +290,7 @@ exports.register = async (req, res) => {
     if (!textoPersonaValido(nombresLimpio)) {
       return res.render('auth/register', {
         title: 'Crear Cuenta',
-        error: 'Ingresa nombres válidos.',
+        error: mensajeTextoPersona(nombresLimpio, 'tu nombre'),
         success: null,
         old
       });
@@ -281,7 +299,7 @@ exports.register = async (req, res) => {
     if (!textoPersonaValido(apellidoPaternoLimpio)) {
       return res.render('auth/register', {
         title: 'Crear Cuenta',
-        error: 'Ingresa un apellido paterno válido.',
+        error: mensajeTextoPersona(apellidoPaternoLimpio, 'tu apellido paterno'),
         success: null,
         old
       });
@@ -290,7 +308,7 @@ exports.register = async (req, res) => {
     if (apellidoMaternoLimpio && !textoPersonaValido(apellidoMaternoLimpio)) {
       return res.render('auth/register', {
         title: 'Crear Cuenta',
-        error: 'Ingresa un apellido materno válido.',
+        error: mensajeTextoPersona(apellidoMaternoLimpio, 'tu apellido materno'),
         success: null,
         old
       });
@@ -299,7 +317,7 @@ exports.register = async (req, res) => {
     if (!dniValido(dniLimpio)) {
       return res.render('auth/register', {
         title: 'Crear Cuenta',
-        error: 'El DNI debe tener 8 dígitos.',
+        error: 'Ingresa los 8 números de tu DNI.',
         success: null,
         old
       });
@@ -308,7 +326,7 @@ exports.register = async (req, res) => {
     if (!correoValido(correoLimpio)) {
       return res.render('auth/register', {
         title: 'Crear Cuenta',
-        error: 'Ingresa un correo válido.',
+        error: 'Ingresa un correo válido, por ejemplo usuario@correo.com.',
         success: null,
         old
       });
@@ -317,7 +335,7 @@ exports.register = async (req, res) => {
     if (!telefonoValido(telefonoLimpio)) {
       return res.render('auth/register', {
         title: 'Crear Cuenta',
-        error: 'El teléfono debe tener exactamente 9 dígitos.',
+        error: 'Ingresa un número de 9 dígitos.',
         success: null,
         old
       });
@@ -334,8 +352,8 @@ exports.register = async (req, res) => {
 
     if (!passwordFuerte(password)) {
       return res.render('auth/register', {
-        title: 'Registro',
-        error: 'La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.',
+        title: 'Crear Cuenta',
+        error: 'Revisa la contraseña según las indicaciones mostradas.',
         success: null,
         old
       });

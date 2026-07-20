@@ -56,25 +56,34 @@
     const type = field.dataset.validate;
     const value = field.value.trim();
 
+    if (field.type === 'checkbox' && field.required && !field.checked) {
+      return 'Acepta los términos y condiciones para crear tu cuenta.';
+    }
+
     if (field.required && !value && type === 'birth-date') {
       return 'Completa la fecha de nacimiento.';
     }
-    if (field.required && !value) return 'Este campo es obligatorio.';
+    if (field.required && !value) return 'Completa este campo para continuar.';
     if (!field.required && !value) return '';
 
     if (type === 'personal-name') {
-      if (value.length < 2) return 'Ingresa al menos 2 letras.';
-      if (!LETTERS_PATTERN.test(value)) return 'Ingresa solo letras y espacios.';
+      if (value.length < 2) return 'Revisa este dato. Parece estar incompleto.';
+      if (!LETTERS_PATTERN.test(value)) {
+        if (field.id === 'nombres') return 'Escribe tu nombre usando solo letras y espacios.';
+        if (field.id === 'apellido_paterno') return 'Escribe tu apellido paterno usando solo letras y espacios.';
+        if (field.id === 'apellido_materno') return 'Escribe tu apellido materno usando solo letras y espacios.';
+        return 'Usa solo letras y espacios.';
+      }
     }
 
     if (type === 'dni') {
-      if (!/^\d{8}$/.test(value)) return 'El DNI debe tener exactamente 8 números.';
+      if (!/^\d{8}$/.test(value)) return 'Ingresa los 8 números de tu DNI.';
     }
 
     if (type === 'phone-pe') {
       const digits = value.replace(/\D/g, '');
-      if (digits.length !== 9) return 'El teléfono debe tener exactamente 9 números.';
-      if (!/^\d{3} \d{3} \d{3}$/.test(value)) return 'Usa el formato 987 654 321.';
+      if (digits.length !== 9) return 'Ingresa un número de 9 dígitos, por ejemplo 987 654 321.';
+      if (!/^\d{3} \d{3} \d{3}$/.test(value)) return 'Ingresa un número de 9 dígitos, por ejemplo 987 654 321.';
     }
 
     if (type === 'birth-date') {
@@ -89,7 +98,7 @@
     }
 
     if (type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      return 'Ingresa un correo válido con un solo @.';
+      return 'Ingresa un correo válido, por ejemplo usuario@correo.com.';
     }
 
     if (type === 'login-identifier' && /\s/.test(value)) {
@@ -97,11 +106,9 @@
     }
 
     if (type === 'strong-password') {
-      if (value.length < 8) return 'Debe tener al menos 8 caracteres.';
-      if (!/[A-Z]/.test(value)) return 'Debe incluir al menos una mayúscula.';
-      if (!/[a-z]/.test(value)) return 'Debe incluir al menos una minúscula.';
-      if (!/\d/.test(value)) return 'Debe incluir al menos un número.';
-      if (!/[^A-Za-z0-9]/.test(value)) return 'Debe incluir al menos un símbolo.';
+      if (value.length < 8 || !/[A-Z]/.test(value) || !/[a-z]/.test(value) || !/\d/.test(value) || !/[^A-Za-z0-9]/.test(value)) {
+        return 'Revisa la contraseña según las indicaciones mostradas.';
+      }
     }
 
     if (type === 'password-confirm') {
@@ -176,7 +183,17 @@
     form.querySelectorAll('[data-validate]').forEach(field => {
       sanitize(field);
       updatePasswordStrength(field);
-      field.addEventListener('input', () => validateField(field));
+      field.addEventListener('input', () => {
+        sanitize(field);
+        updatePasswordStrength(field);
+
+        const target = messageElement(form, field);
+        const hasVisibleError = field.classList.contains('field-error') || (target && target.classList.contains('is-visible'));
+
+        if (hasVisibleError) {
+          validateField(field);
+        }
+      });
       field.addEventListener('change', () => validateField(field));
       field.addEventListener('blur', () => validateField(field));
     });

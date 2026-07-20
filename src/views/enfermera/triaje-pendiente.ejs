@@ -38,7 +38,7 @@
         <span>Limpiar</span>
       </a>
       <button type="submit" class="btn-dark icon-action" title="Buscar triajes pendientes" aria-label="Buscar triajes pendientes">
-        <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/filtrar.png" alt="" aria-hidden="true">
+        <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/buscar.png" alt="" aria-hidden="true">
         <span>Buscar</span>
       </button>
     </div>
@@ -48,12 +48,6 @@
     <div class="empty-state">
       <h3><%= hasActiveFilters ? 'No se encontraron citas pendientes' : 'No hay citas pendientes de triaje' %></h3>
       <p><%= hasActiveFilters ? 'No hay resultados con los filtros seleccionados.' : 'Cuando existan citas pendientes, aparecerán en esta sección.' %></p>
-      <% if (hasActiveFilters) { %>
-        <a href="/enfermera/triaje-pendiente" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
-          <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/limpiar.png" alt="" aria-hidden="true">
-          <span>Limpiar</span>
-        </a>
-      <% } %>
     </div>
   <% } else { %>
 

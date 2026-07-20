@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1650" height="534" viewBox="0 0 1650 534" role="img" aria-labelledby="title desc">
+  <title id="title">Análisis jerárquico de tareas de Consulta de historial y seguimiento</title>
+  <desc id="desc">Diagrama HTA corregido con tareas jerárquicas, subtareas y plan de ejecución.</desc>
+  <style>
+    .title { font: italic 24px Georgia, "Times New Roman", serif; fill: #111; }
+    .label { font: 500 17px Georgia, "Times New Roman", serif; fill: #111; dominant-baseline: middle; text-anchor: middle; }
+    .plan { font: italic 18px Georgia, "Times New Roman", serif; fill: #222; }
+    .task { fill: #edf4ff; stroke: #4b5563; stroke-width: 1.4; }
+    .link { stroke: #111; stroke-width: 3.2; fill: none; stroke-linecap: square; }
+    .unit { stroke: #111; stroke-width: 3.2; stroke-linecap: square; }
+    .frame { fill: none; stroke: #111; stroke-width: 1.4; }
+  </style>
+  <rect x="8" y="38" width="1634" height="452" class="frame"/>
+  <text x="10" y="26" class="title">Análisis jerárquico de tareas de Consulta de historial y seguimiento</text>
+  <line x1="825.0" y1="135.0" x2="825.0" y2="169.0" class="link"/>
+<line x1="203.9" y1="169.0" x2="1281.5" y2="169.0" class="link"/>
+<line x1="283.9" y1="169.0" x2="283.9" y2="217.0" class="link"/>
+<line x1="283.9" y1="283.0" x2="283.9" y2="317.0" class="link"/>
+<line x1="49.3" y1="317.0" x2="508.5" y2="317.0" class="link"/>
+<line x1="129.3" y1="317.0" x2="129.3" y2="365.0" class="link"/>
+<line x1="283.9" y1="317.0" x2="283.9" y2="365.0" class="link"/>
+<line x1="438.5" y1="317.0" x2="438.5" y2="370.0" class="link"/>
+<line x1="670.4" y1="169.0" x2="670.4" y2="217.0" class="link"/>
+<line x1="670.4" y1="283.0" x2="670.4" y2="317.0" class="link"/>
+<line x1="513.1" y1="317.0" x2="827.7" y2="317.0" class="link"/>
+<line x1="593.1" y1="317.0" x2="593.1" y2="365.0" class="link"/>
+<line x1="747.7" y1="317.0" x2="747.7" y2="365.0" class="link"/>
+<line x1="1211.5" y1="169.0" x2="1211.5" y2="217.0" class="link"/>
+<line x1="1211.5" y1="283.0" x2="1211.5" y2="317.0" class="link"/>
+<line x1="832.3" y1="317.0" x2="1590.7" y2="317.0" class="link"/>
+<line x1="902.3" y1="317.0" x2="902.3" y2="370.0" class="link"/>
+<line x1="1056.9" y1="317.0" x2="1056.9" y2="370.0" class="link"/>
+<line x1="1211.5" y1="317.0" x2="1211.5" y2="365.0" class="link"/>
+<line x1="1366.1" y1="317.0" x2="1366.1" y2="370.0" class="link"/>
+<line x1="1520.7" y1="317.0" x2="1520.7" y2="365.0" class="link"/>
+<rect x="741.0" y="69.0" width="168.0" height="66.0" rx="6" class="task"/>
+<text x="825.0" y="84.0" class="label">Consulta de</text>
+<text x="825.0" y="102.0" class="label">historial y</text>
+<text x="825.0" y="120.0" class="label">seguimiento</text>
+<rect x="199.9" y="217.0" width="168.0" height="66.0" rx="6" class="task"/>
+<text x="283.9" y="241.0" class="label">1 Consultar</text>
+<text x="283.9" y="259.0" class="label">historial médico</text>
+<rect x="45.3" y="365.0" width="168.0" height="66.0" rx="6" class="task"/>
+<text x="129.3" y="389.0" class="label">1.1 Buscar o</text>
+<text x="129.3" y="407.0" class="label">filtrar consultas</text>
+<line x1="55.3" y1="446.0" x2="203.3" y2="446.0" class="unit"/>
+<rect x="209.9" y="365.0" width="148.0" height="66.0" rx="6" class="task"/>
+<text x="283.9" y="389.0" class="label">1.2 Seleccionar</text>
+<text x="283.9" y="407.0" class="label">consulta</text>
+<line x1="219.9" y1="446.0" x2="347.9" y2="446.0" class="unit"/>
+<rect x="364.5" y="370.0" width="148.0" height="56.0" rx="6" class="task"/>
+<text x="438.5" y="398.0" class="label">1.3 Ver detalle</text>
+<line x1="374.5" y1="441.0" x2="502.5" y2="441.0" class="unit"/>
+<rect x="596.4" y="217.0" width="148.0" height="66.0" rx="6" class="task"/>
+<text x="670.4" y="241.0" class="label">2 Consultar</text>
+<text x="670.4" y="259.0" class="label">próximas citas</text>
+<rect x="509.1" y="365.0" width="168.0" height="66.0" rx="6" class="task"/>
+<text x="593.1" y="389.0" class="label">2.1 Visualizar</text>
+<text x="593.1" y="407.0" class="label">citas programadas</text>
+<line x1="519.1" y1="446.0" x2="667.1" y2="446.0" class="unit"/>
+<rect x="663.7" y="365.0" width="168.0" height="66.0" rx="6" class="task"/>
+<text x="747.7" y="389.0" class="label">2.2 Seleccionar</text>
+<text x="747.7" y="407.0" class="label">cita próxima</text>
+<line x1="673.7" y1="446.0" x2="821.7" y2="446.0" class="unit"/>
+<rect x="1137.5" y="217.0" width="148.0" height="66.0" rx="6" class="task"/>
+<text x="1211.5" y="241.0" class="label">3 Revisar estado</text>
+<text x="1211.5" y="259.0" class="label">de cita</text>
+<rect x="828.3" y="370.0" width="148.0" height="56.0" rx="6" class="task"/>
+<text x="902.3" y="389.0" class="label">3.1 Ver cita</text>
+<text x="902.3" y="407.0" class="label">confirmada</text>
+<line x1="838.3" y1="441.0" x2="966.3" y2="441.0" class="unit"/>
+<rect x="982.9" y="370.0" width="148.0" height="56.0" rx="6" class="task"/>
+<text x="1056.9" y="389.0" class="label">3.2 Ver cita</text>
+<text x="1056.9" y="407.0" class="label">pendiente</text>
+<line x1="992.9" y1="441.0" x2="1120.9" y2="441.0" class="unit"/>
+<rect x="1137.5" y="365.0" width="148.0" height="66.0" rx="6" class="task"/>
+<text x="1211.5" y="389.0" class="label">3.3 Ver cita</text>
+<text x="1211.5" y="407.0" class="label">reprogramada</text>
+<line x1="1147.5" y1="446.0" x2="1275.5" y2="446.0" class="unit"/>
+<rect x="1292.1" y="370.0" width="148.0" height="56.0" rx="6" class="task"/>
+<text x="1366.1" y="389.0" class="label">3.4 Ver cita</text>
+<text x="1366.1" y="407.0" class="label">cancelada</text>
+<line x1="1302.1" y1="441.0" x2="1430.1" y2="441.0" class="unit"/>
+<rect x="1446.7" y="365.0" width="148.0" height="66.0" rx="6" class="task"/>
+<text x="1520.7" y="389.0" class="label">3.5 Ver consulta</text>
+<text x="1520.7" y="407.0" class="label">completada</text>
+<line x1="1456.7" y1="446.0" x2="1584.7" y2="446.0" class="unit"/>
+  <text x="20" y="512" class="plan">Plan 0: realizar 1, 2 o 3 según la información que necesite consultar el usuario.</text>
+</svg>

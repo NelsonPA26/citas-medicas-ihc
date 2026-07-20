@@ -47,7 +47,7 @@
         <span>Limpiar</span>
       </a>
       <button type="submit" class="btn-dark icon-action" title="Buscar" aria-label="Buscar">
-        <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/filtrar.png" alt="" aria-hidden="true">
+        <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/buscar.png" alt="" aria-hidden="true">
         <span>Buscar</span>
       </button>
     </div>
@@ -57,12 +57,6 @@
     <div class="empty-state">
       <h3>No se encontraron citas</h3>
       <p>No hay resultados con los filtros seleccionados.</p>
-      <div class="empty-actions">
-        <a href="/paciente/mis-citas" class="btn-light icon-action" title="Limpiar filtros" aria-label="Limpiar filtros">
-          <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/limpiar.png" alt="" aria-hidden="true">
-          <span>Limpiar</span>
-        </a>
-      </div>
     </div>
   <% } else { %>
     <div class="table-responsive">
@@ -93,7 +87,7 @@
                 <% if (cita.estado === 'pendiente') { %>
                   <div class="table-actions">
                     <a href="/paciente/mis-citas/<%= cita.id_cita %>/resumen" class="btn-table-secondary icon-action" title="Ver resumen" aria-label="Ver resumen">
-                      <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/buscar.png" alt="" aria-hidden="true">
+                      <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/ver_cita.png" alt="" aria-hidden="true">
                       <span class="visually-hidden">Ver resumen</span>
                     </a>
                     <a href="/paciente/mis-citas/<%= cita.id_cita %>/editar" class="btn-table-primary icon-action" title="Editar cita" aria-label="Editar cita">
@@ -114,7 +108,7 @@
                   </div>
                 <% } else { %>
                   <a href="/paciente/mis-citas/<%= cita.id_cita %>/resumen" class="btn-table-primary icon-action" title="Ver resumen" aria-label="Ver resumen">
-                    <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/buscar.png" alt="" aria-hidden="true">
+                    <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/ver_cita.png" alt="" aria-hidden="true">
                     <span class="visually-hidden">Ver resumen</span>
                   </a>
                 <% } %>
