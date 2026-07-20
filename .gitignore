@@ -5,3 +5,6 @@ node_modules/
 Thumbs.db
 npm-debug.log*
 pnpm-debug.log*
+tmp/
+tools/__pycache__/
+*.pyc

@@ -30,6 +30,75 @@ SET @SEMANA_SIG := DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)
 SET @SEMANA_HIST1 := DATE_SUB(@SEMANA_ANT, INTERVAL 7 DAY);
 SET @SEMANA_HIST2 := DATE_SUB(@SEMANA_ANT, INTERVAL 14 DAY);
 
+-- =========================================================
+-- CATALOGO BASE DE MEDICAMENTOS PARA RECETAS
+-- =========================================================
+INSERT IGNORE INTO medicamento_catalogo (nombre) VALUES
+  ('Paracetamol'), ('Ibuprofeno'), ('Naproxeno'), ('Diclofenaco'), ('Ketorolaco'),
+  ('Loratadina'), ('Cetirizina'), ('Clorfenamina'), ('Salbutamol'), ('Dextrometorfano'),
+  ('Ambroxol'), ('Solucion salina'), ('Omeprazol'), ('Hidroxido de aluminio y magnesio'),
+  ('Butilhioscina'), ('Ondansetron'), ('Sales de rehidratacion oral'), ('Amoxicilina'),
+  ('Azitromicina'), ('Nitrofurantoina'), ('Clotrimazol'), ('Hidrocortisona'), ('Mupirocina'),
+  ('Metformina'), ('Losartan'), ('Amlodipino');
+
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Tableta', '500', 'mg' FROM medicamento_catalogo WHERE nombre = 'Paracetamol';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Jarabe', '160', 'mg/5 mL' FROM medicamento_catalogo WHERE nombre = 'Paracetamol';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Tableta', '400', 'mg' FROM medicamento_catalogo WHERE nombre = 'Ibuprofeno';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Suspension', '100', 'mg/5 mL' FROM medicamento_catalogo WHERE nombre = 'Ibuprofeno';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Tableta', '250', 'mg' FROM medicamento_catalogo WHERE nombre = 'Naproxeno';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Tableta', '50', 'mg' FROM medicamento_catalogo WHERE nombre = 'Diclofenaco';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Gel', '1', '%' FROM medicamento_catalogo WHERE nombre = 'Diclofenaco';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Tableta', '10', 'mg' FROM medicamento_catalogo WHERE nombre = 'Ketorolaco';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Tableta', '10', 'mg' FROM medicamento_catalogo WHERE nombre = 'Loratadina';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Tableta', '10', 'mg' FROM medicamento_catalogo WHERE nombre = 'Cetirizina';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Jarabe', '2', 'mg/5 mL' FROM medicamento_catalogo WHERE nombre = 'Clorfenamina';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Inhalador', '100', 'mcg/dosis' FROM medicamento_catalogo WHERE nombre = 'Salbutamol';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Jarabe', '15', 'mg/5 mL' FROM medicamento_catalogo WHERE nombre = 'Dextrometorfano';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Jarabe', '15', 'mg/5 mL' FROM medicamento_catalogo WHERE nombre = 'Ambroxol';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Solucion nasal', '0.9', '%' FROM medicamento_catalogo WHERE nombre = 'Solucion salina';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Capsula', '20', 'mg' FROM medicamento_catalogo WHERE nombre = 'Omeprazol';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Suspension oral', '10', 'mL' FROM medicamento_catalogo WHERE nombre = 'Hidroxido de aluminio y magnesio';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Tableta', '10', 'mg' FROM medicamento_catalogo WHERE nombre = 'Butilhioscina';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Tableta', '4', 'mg' FROM medicamento_catalogo WHERE nombre = 'Ondansetron';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Sobre', '1', 'sobre' FROM medicamento_catalogo WHERE nombre = 'Sales de rehidratacion oral';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Capsula', '500', 'mg' FROM medicamento_catalogo WHERE nombre = 'Amoxicilina';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Tableta', '500', 'mg' FROM medicamento_catalogo WHERE nombre = 'Azitromicina';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Capsula', '100', 'mg' FROM medicamento_catalogo WHERE nombre = 'Nitrofurantoina';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Crema', '1', '%' FROM medicamento_catalogo WHERE nombre = 'Clotrimazol';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Crema', '1', '%' FROM medicamento_catalogo WHERE nombre = 'Hidrocortisona';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Unguento', '2', '%' FROM medicamento_catalogo WHERE nombre = 'Mupirocina';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Tableta', '850', 'mg' FROM medicamento_catalogo WHERE nombre = 'Metformina';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Tableta', '50', 'mg' FROM medicamento_catalogo WHERE nombre = 'Losartan';
+INSERT IGNORE INTO medicamento_presentacion (id_medicamento, presentacion, dosis_habitual, unidad_dosis)
+SELECT id_medicamento, 'Tableta', '5', 'mg' FROM medicamento_catalogo WHERE nombre = 'Amlodipino';
 
 -- Usuario admin01 (administrativo)
 INSERT INTO persona (nombres, apellido_paterno, apellido_materno, dni, fecha_nacimiento, sexo, correo, telefono, direccion) VALUES ('Ana Lucía', 'Rojas', 'Castillo', '45678901', '1990-11-05', 'Femenino', 'admin01@unitru.edu.pe', '954321098', 'Oficina de Bienestar Universitario');
@@ -711,6 +780,177 @@ SET @cita72 := LAST_INSERT_ID();
 -- cita73: paciente @pac18, médico @medico01, estado cancelada
 INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado) VALUES (@pac18, @medico01, DATE_ADD(@SEMANA_SIG, INTERVAL 0 DAY), '08:30:00', 'Dolor de garganta leve', 'Cita cancelada porque el paciente reprogramó atención', 'cancelada');
 SET @cita73 := LAST_INSERT_ID();
+
+-- =========================================================
+-- ESCENARIOS BALANCEADOS POR PACIENTE, ENFERMERA Y MEDICO
+-- Cada paciente queda con al menos una cita en cada estado del flujo.
+-- =========================================================
+CREATE TEMPORARY TABLE tmp_seed_escenarios (
+  seq INT PRIMARY KEY,
+  id_paciente INT NOT NULL,
+  id_medico INT NOT NULL,
+  id_enfermera INT NOT NULL,
+  paciente_label VARCHAR(20) NOT NULL
+);
+
+INSERT INTO tmp_seed_escenarios (seq, id_paciente, id_medico, id_enfermera, paciente_label) VALUES
+(1, @pac01, @medico01, @enf01, 'paciente01'),
+(2, @pac02, @medico02, @enf02, 'paciente02'),
+(3, @pac03, @medico03, @enf03, 'paciente03'),
+(4, @pac04, @medico04, @enf01, 'paciente04'),
+(5, @pac05, @medico06, @enf02, 'paciente05'),
+(6, @pac06, @medico01, @enf03, 'paciente06'),
+(7, @pac07, @medico02, @enf01, 'paciente07'),
+(8, @pac08, @medico03, @enf02, 'paciente08'),
+(9, @pac09, @medico04, @enf03, 'paciente09'),
+(10, @pac10, @medico06, @enf01, 'paciente10'),
+(11, @pac11, @medico01, @enf02, 'paciente11'),
+(12, @pac12, @medico02, @enf03, 'paciente12'),
+(13, @pac13, @medico03, @enf01, 'paciente13'),
+(14, @pac14, @medico04, @enf02, 'paciente14'),
+(15, @pac15, @medico06, @enf03, 'paciente15'),
+(16, @pac16, @medico01, @enf01, 'paciente16'),
+(17, @pac17, @medico02, @enf02, 'paciente17'),
+(18, @pac18, @medico03, @enf03, 'paciente18'),
+(19, @pac19, @medico04, @enf01, 'paciente19'),
+(20, @pac20, @medico06, @enf02, 'paciente20');
+
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado)
+SELECT id_paciente, id_medico,
+  DATE_ADD(@SEMANA_SIG, INTERVAL 14 + MOD(seq - 1, 5) DAY),
+  ADDTIME('08:00:00', SEC_TO_TIME(FLOOR((seq - 1) / 5) * 1800)),
+  'Cefalea leve y cansancio',
+  CONCAT('Escenario balanceado pendiente - ', paciente_label),
+  'pendiente'
+FROM tmp_seed_escenarios;
+
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado)
+SELECT id_paciente, id_medico,
+  DATE_ADD(@SEMANA_SIG, INTERVAL 21 + MOD(seq - 1, 5) DAY),
+  ADDTIME('10:00:00', SEC_TO_TIME(FLOOR((seq - 1) / 5) * 1800)),
+  'Dolor de garganta y malestar general',
+  CONCAT('Escenario balanceado con triaje registrado - ', paciente_label),
+  'triaje_registrado'
+FROM tmp_seed_escenarios;
+
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones)
+SELECT c.id_cita, e.id_enfermera,
+  36.5 + (MOD(e.seq, 5) / 10),
+  CONCAT(110 + MOD(e.seq, 10), '/', 70 + MOD(e.seq, 8)),
+  72 + MOD(e.seq, 18),
+  96 + MOD(e.seq, 4),
+  'Dolor de garganta y malestar general',
+  CONCAT('Triaje registrado para prueba de enfermeria - ', e.paciente_label)
+FROM tmp_seed_escenarios e
+INNER JOIN cita c
+  ON c.id_paciente = e.id_paciente
+ AND c.motivo = CONCAT('Escenario balanceado con triaje registrado - ', e.paciente_label);
+
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado)
+SELECT id_paciente, id_medico,
+  DATE_ADD(@SEMANA_SIG, INTERVAL 28 + MOD(seq - 1, 5) DAY),
+  ADDTIME('12:00:00', SEC_TO_TIME(FLOOR((seq - 1) / 5) * 1800)),
+  'Dolor lumbar y contractura muscular',
+  CONCAT('Escenario balanceado en consulta - ', paciente_label),
+  'en_consulta'
+FROM tmp_seed_escenarios;
+
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones)
+SELECT c.id_cita, e.id_enfermera,
+  36.4 + (MOD(e.seq, 4) / 10),
+  CONCAT(112 + MOD(e.seq, 9), '/', 72 + MOD(e.seq, 7)),
+  70 + MOD(e.seq, 16),
+  96 + MOD(e.seq, 4),
+  'Dolor lumbar y contractura muscular',
+  CONCAT('Triaje usado por el medico en consulta - ', e.paciente_label)
+FROM tmp_seed_escenarios e
+INNER JOIN cita c
+  ON c.id_paciente = e.id_paciente
+ AND c.motivo = CONCAT('Escenario balanceado en consulta - ', e.paciente_label);
+
+INSERT INTO consulta (id_cita, diagnostico, tratamiento, recomendaciones, observaciones, privada, borrador)
+SELECT c.id_cita,
+  'Lumbalgia mecanica en evaluacion',
+  'Naproxeno - Tableta; 250 mg; Cada 12 horas. Indicaciones: tomar despues de alimentos.',
+  'Evitar cargar peso, aplicar calor local y continuar evaluacion medica.',
+  CONCAT('Borrador medico para prueba de consulta activa - ', e.paciente_label),
+  0,
+  1
+FROM tmp_seed_escenarios e
+INNER JOIN cita c
+  ON c.id_paciente = e.id_paciente
+ AND c.motivo = CONCAT('Escenario balanceado en consulta - ', e.paciente_label);
+
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado)
+SELECT id_paciente, id_medico,
+  DATE_ADD(@SEMANA_HIST1, INTERVAL MOD(seq - 1, 5) DAY),
+  ADDTIME('13:00:00', SEC_TO_TIME(FLOOR((seq - 1) / 5) * 1800)),
+  'Fiebre, dolor de garganta y congestion nasal',
+  CONCAT('Escenario balanceado completado - ', paciente_label),
+  'completada'
+FROM tmp_seed_escenarios;
+
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones)
+SELECT c.id_cita, e.id_enfermera,
+  36.7 + (MOD(e.seq, 6) / 10),
+  CONCAT(111 + MOD(e.seq, 10), '/', 70 + MOD(e.seq, 8)),
+  74 + MOD(e.seq, 20),
+  96 + MOD(e.seq, 4),
+  'Fiebre, dolor de garganta y congestion nasal',
+  CONCAT('Triaje historico completado - ', e.paciente_label)
+FROM tmp_seed_escenarios e
+INNER JOIN cita c
+  ON c.id_paciente = e.id_paciente
+ AND c.motivo = CONCAT('Escenario balanceado completado - ', e.paciente_label);
+
+INSERT INTO consulta (id_cita, diagnostico, tratamiento, recomendaciones, observaciones, privada, borrador)
+SELECT c.id_cita,
+  CASE MOD(e.seq, 5)
+    WHEN 0 THEN 'Rinitis alergica'
+    WHEN 1 THEN 'Cefalea tensional'
+    WHEN 2 THEN 'Faringitis aguda'
+    WHEN 3 THEN 'Gastritis leve'
+    ELSE 'Ansiedad academica leve'
+  END,
+  CASE MOD(e.seq, 5)
+    WHEN 0 THEN 'Loratadina - Tableta; 10 mg; Una vez al dia. Indicaciones: tomar por la noche si causa sueno.'
+    WHEN 1 THEN 'Paracetamol - Tableta; 500 mg; Segun necesidad. Indicaciones: usar si el dolor limita actividades.'
+    WHEN 2 THEN 'Paracetamol - Tableta; 500 mg; Cada 8 horas. Indicaciones: usar si hay fiebre o dolor.'
+    WHEN 3 THEN 'Omeprazol - Capsula; 20 mg; Una vez al dia. Indicaciones: tomar antes del desayuno.'
+    ELSE 'Orientacion psicologica breve y tecnicas de respiracion. Tratamiento farmacologico no indicado.'
+  END,
+  'Controlar evolucion, seguir indicaciones y retornar si aparecen signos de alarma.',
+  CONCAT('Consulta confirmada para historial del paciente - ', e.paciente_label),
+  CASE WHEN MOD(e.seq, 6) = 0 THEN 1 ELSE 0 END,
+  0
+FROM tmp_seed_escenarios e
+INNER JOIN cita c
+  ON c.id_paciente = e.id_paciente
+ AND c.motivo = CONCAT('Escenario balanceado completado - ', e.paciente_label);
+
+INSERT INTO cita (id_paciente, id_medico, fecha, hora, sintomas, motivo, estado)
+SELECT id_paciente, id_medico,
+  DATE_ADD(@SEMANA_SIG, INTERVAL 35 + MOD(seq - 1, 5) DAY),
+  ADDTIME('14:00:00', SEC_TO_TIME(FLOOR((seq - 1) / 5) * 1800)),
+  'Control preventivo',
+  CONCAT('Escenario balanceado cancelado - ', paciente_label),
+  'cancelada'
+FROM tmp_seed_escenarios;
+
+INSERT INTO triaje (id_cita, id_enfermera, temperatura, presion_arterial, frecuencia_cardiaca, saturacion, sintomas, observaciones)
+SELECT c.id_cita, e.id_enfermera,
+  36.6 + (MOD(e.seq, 4) / 10),
+  CONCAT(110 + MOD(e.seq, 9), '/', 70 + MOD(e.seq, 7)),
+  72 + MOD(e.seq, 14),
+  96 + MOD(e.seq, 4),
+  'Control preventivo',
+  CONCAT('Triaje registrado antes de cancelacion administrativa - ', e.paciente_label)
+FROM tmp_seed_escenarios e
+INNER JOIN cita c
+  ON c.id_paciente = e.id_paciente
+ AND c.motivo = CONCAT('Escenario balanceado cancelado - ', e.paciente_label);
+
+DROP TEMPORARY TABLE tmp_seed_escenarios;
 
 -- =========================================================
 -- CONSENTIMIENTO DE PRIVACIDAD PARA CUENTAS DE PACIENTE DE PRUEBA
