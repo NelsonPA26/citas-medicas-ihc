@@ -5805,26 +5805,26 @@ textarea.field-error {
 }
 
 .confirm-modal-polished[data-confirm-action="cancelar"] .confirm-modal-icon {
-  border-color: #f59e0b;
-  background: #fffbeb;
+  border-color: #ef233c;
+  background: #fff1f2;
 }
 
 .confirm-modal-polished[data-confirm-action="cancelar"] .confirm-modal-note {
-  color: #b45309;
+  color: #ef233c;
 }
 
 .confirm-modal-polished[data-confirm-action="cancelar"] .modal-actions .btn-danger,
 .confirm-modal-polished .modal-actions [data-confirm-action="cancelar"] {
-  background: #f59e0b !important;
-  border-color: #f59e0b !important;
-  color: #111827 !important;
+  background: #ef233c !important;
+  border-color: #ef233c !important;
+  color: #ffffff !important;
 }
 
 .confirm-modal-polished[data-confirm-action="cancelar"] .modal-actions .btn-danger:hover,
 .confirm-modal-polished .modal-actions [data-confirm-action="cancelar"]:hover {
-  background: #d97706 !important;
-  border-color: #d97706 !important;
-  color: #111827 !important;
+  background: #c1121f !important;
+  border-color: #c1121f !important;
+  color: #ffffff !important;
 }
 
 .confirm-modal-polished[data-confirm-action="guardar"] .confirm-modal-icon,
@@ -7625,6 +7625,32 @@ button[aria-disabled="true"]:hover,
 .citas-card .data-table .table-actions {
   justify-content: flex-start !important;
   gap: 8px !important;
+}
+
+.nurse-triage-history-table .triage-history-doctor-col {
+  width: 22%;
+  text-align: center;
+}
+
+.nurse-triage-history-table td.triage-history-doctor-col {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.doctor-appointments-table .doctor-appointment-patient-col {
+  width: 24%;
+  text-align: center;
+}
+
+.doctor-appointments-table .doctor-appointment-reason-col {
+  width: 34%;
+  text-align: center;
+}
+
+.doctor-appointments-table td.doctor-appointment-patient-col,
+.doctor-appointments-table td.doctor-appointment-reason-col {
+  padding-left: 22px;
+  padding-right: 22px;
 }
 
 .clinical-workspace-triaje .nurse-appointment-summary {
@@ -9894,6 +9920,15 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   border-bottom: 0;
 }
 
+.prescription-item-readonly {
+  background: #f8fafc;
+}
+
+.prescription-item-readonly span {
+  color: #64748b;
+  font-style: italic;
+}
+
 .prescription-item strong,
 .prescription-item span,
 .prescription-item small {
@@ -10364,6 +10399,30 @@ textarea:focus:not(.field-error) {
 .history-side-actions {
   justify-content: flex-end !important;
   margin: 0 !important;
+}
+
+.history-patient-card .consistent-info-grid,
+.history-patient-card .compact-clinical-grid,
+.history-patient-card .history-medical-care-grid {
+  column-gap: 34px !important;
+}
+
+.history-patient-card .consistent-info-grid > div,
+.history-patient-card .compact-clinical-grid > div,
+.history-patient-card .history-medical-care-grid > .clinical-note-item {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.history-patient-card .consistent-info-grid > div::before,
+.history-patient-card .consistent-info-grid > div::after,
+.history-patient-card .compact-clinical-grid > div::before,
+.history-patient-card .compact-clinical-grid > div::after,
+.history-patient-card .history-medical-care-grid > .clinical-note-item::before,
+.history-patient-card .history-medical-care-grid > .clinical-note-item::after,
+.history-patient-card .history-medical-care-grid > .clinical-note-item:nth-child(odd)::before {
+  display: none !important;
+  content: none !important;
 }
 
 html[data-visual-contrast="high"] .history-medical-care-grid > .clinical-note-item:nth-child(odd)::before {

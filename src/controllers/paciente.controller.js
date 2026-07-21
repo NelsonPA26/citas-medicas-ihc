@@ -782,7 +782,8 @@ exports.resumenCita = async (req, res) => {
       title: 'Resumen de cita',
       layout: 'layouts/dashboard',
       cita: rows[0],
-      backUrl
+      backUrl,
+      returnUrl: backUrl
     });
   } catch (error) {
     console.error(error);

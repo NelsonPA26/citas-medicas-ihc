@@ -739,7 +739,8 @@ exports.historialPaciente = async (req, res) => {
       layout: 'layouts/dashboard',
       paciente: pacienteRows[0],
       consultas,
-      consultaSeleccionada: consultaSeleccionada || consultas[0] || null
+      consultaSeleccionada: consultaSeleccionada || consultas[0] || null,
+      returnUrl: '/medico/pacientes'
     });
   } catch (error) {
     console.error(error);

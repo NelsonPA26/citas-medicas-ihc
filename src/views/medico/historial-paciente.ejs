@@ -22,9 +22,6 @@
     <div class="empty-state empty-state-compact">
       <h3>Sin atenciones completadas</h3>
       <p>Este paciente aún no tiene atenciones completadas contigo.</p>
-      <div class="empty-actions">
-        <a href="/medico/pacientes" class="btn-light">Volver</a>
-      </div>
     </div>
   <% } else { %>
     <% if (hayVariasConsultas) { %>
@@ -106,10 +103,6 @@
             <div><span>Observaciones de enfermería</span><strong><%= consultaSeleccionada.triaje_observaciones || 'Sin observaciones registradas' %></strong></div>
           </div>
         </section>
-
-        <div class="form-actions history-side-actions">
-          <a href="/medico/pacientes" class="btn-light">Volver</a>
-        </div>
 
       </aside>
     </div>

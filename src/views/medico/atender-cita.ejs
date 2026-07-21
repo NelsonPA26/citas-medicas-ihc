@@ -111,7 +111,7 @@
         <p id="diagnosticoTemplateHint" class="clinical-template-hint hidden" aria-live="polite"><i class="bi bi-info-circle" aria-hidden="true"></i><span id="diagnosticoTemplateHintText"></span></p>
 
         <label for="diagnostico"><span class="required-indicator">Diagnóstico / impresión diagnóstica registrada por el médico</span></label>
-        <textarea id="diagnostico" name="diagnostico" placeholder="Registra el diagnóstico o impresión diagnóstica según la evaluación médica." minlength="5" maxlength="255" data-validate="clinical-text" data-min="5"><%= cita.diagnostico || '' %></textarea>
+        <textarea id="diagnostico" name="diagnostico" placeholder="Registra el diagnóstico o impresión diagnóstica según la evaluación médica." minlength="5" maxlength="255" data-validate="clinical-text" data-min="5" required><%= cita.diagnostico || '' %></textarea>
         <span class="field-message" data-for="diagnostico"></span>
       </div>
       </section>
@@ -294,7 +294,7 @@
       <h3 id="confirmConsultaTitle">Confirmar consulta</h3>
       <p id="confirmConsultaText">Antes de completar la atención, verifica que el diagnóstico y la receta médica correspondan a la evaluación realizada.</p>
 
-      <small class="confirm-modal-note">La consulta quedará finalizada y visible en el historial clínico.</small>
+      <small class="confirm-modal-note">La consulta quedará finalizada y el paciente podrá revisarla en su Historial médico.</small>
 
       <label class="checkbox-line">
         <input type="checkbox" id="medicalResponsibilityCheck">
@@ -327,7 +327,7 @@
         <button type="button" class="btn-light" id="closeCancelModal" title="Seguir registrando" aria-label="Seguir registrando">
           <span>Seguir registrando</span>
         </button>
-        <button type="button" class="btn-cancel-attention" id="confirmCancelConsultaButton" title="Sí, cancelar atención" aria-label="Sí, cancelar atención">
+        <button type="button" class="btn-danger" id="confirmCancelConsultaButton" title="Sí, cancelar atención" aria-label="Sí, cancelar atención">
           <span>S&iacute;, cancelar atenci&oacute;n</span>
         </button>
       </div>
@@ -373,6 +373,9 @@
   let medicationPresentations = [];
   let medicationSearchTimer = null;
   const legacyPrescriptionText = tratamientoInput.value.trim();
+  const legacyPrescriptionLines = legacyPrescriptionText
+    ? legacyPrescriptionText.split('\n').map(line => line.trim()).filter(Boolean)
+    : [];
   let initialConsultaState = null;
 
   const helperSelects = document.querySelectorAll('.clinical-helper-select');
@@ -457,6 +460,48 @@
       message.classList.remove('is-visible');
       message.classList.remove('is-success');
     });
+  }
+
+  function dismissDashboardToast(toast) {
+    if (!toast || !toast.isConnected || toast.classList.contains('fade-out')) return;
+    toast.classList.add('fade-out');
+    setTimeout(() => toast.remove(), 400);
+  }
+
+  function showDashboardToast(message, type = 'success') {
+    let region = document.querySelector('.toast-region');
+
+    if (!region) {
+      region = document.createElement('div');
+      region.className = 'toast-region';
+      region.setAttribute('aria-label', 'Notificaciones del sistema');
+      document.body.appendChild(region);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} dashboard-toast auto-dismiss`;
+    toast.setAttribute('role', type === 'success' ? 'status' : 'alert');
+    if (type === 'success') toast.setAttribute('aria-live', 'polite');
+    toast.dataset.toast = '';
+    toast.dataset.duration = type === 'success' ? '4500' : '7000';
+
+    const icon = document.createElement('i');
+    icon.className = type === 'success' ? 'bi bi-check-circle' : 'bi bi-exclamation-circle';
+    icon.setAttribute('aria-hidden', 'true');
+
+    const text = document.createElement('span');
+    text.textContent = message;
+
+    const closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.className = 'toast-close';
+    closeButton.setAttribute('aria-label', 'Cerrar notificacion');
+    closeButton.innerHTML = '<i class="bi bi-x-lg" aria-hidden="true"></i>';
+    closeButton.addEventListener('click', () => dismissDashboardToast(toast));
+
+    toast.append(icon, text, closeButton);
+    region.appendChild(toast);
+    setTimeout(() => dismissDashboardToast(toast), Number(toast.dataset.duration));
   }
 
   function serializePrescriptionItemsState() {
@@ -617,7 +662,8 @@
     renderPrescriptionList();
     serializePrescription();
     if (showSuccess) {
-      showPrescriptionMessage('Medicamento agregado. Puedes registrar otro con el botón +.', null, 'success');
+      showDashboardToast('Medicamento agregado correctamente. Puedes agregar otro si lo necesitas.');
+      recetaMedicamento.focus();
     }
     return true;
   }
@@ -625,9 +671,9 @@
   function serializePrescription() {
     const medicationLines = prescriptionItems.map((item, index) => {
       const instructions = item.indicaciones ? `. Indicaciones: ${item.indicaciones}` : '';
-      return `${index + 1}. ${item.medicamento} - ${item.presentacion}; ${item.dosis} ${item.unidad}; ${item.frecuencia}${instructions}`;
+      return `${legacyPrescriptionLines.length + index + 1}. ${item.medicamento} - ${item.presentacion}; ${item.dosis} ${item.unidad}; ${item.frecuencia}${instructions}`;
     });
-    if (legacyPrescriptionText) medicationLines.unshift(legacyPrescriptionText);
+    if (legacyPrescriptionLines.length > 0) medicationLines.unshift(...legacyPrescriptionLines);
 
     tratamientoInput.value = medicationLines.join('\n');
     tratamientoInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -635,16 +681,33 @@
 
   function renderPrescriptionList() {
     prescriptionList.innerHTML = '';
-    prescriptionCount.textContent = `${prescriptionItems.length} ${prescriptionItems.length === 1 ? 'agregado' : 'agregados'}`;
-    prescriptionListPanel.classList.toggle('hidden', prescriptionItems.length === 0);
+    const totalItems = legacyPrescriptionLines.length + prescriptionItems.length;
+    prescriptionCount.textContent = `${totalItems} ${totalItems === 1 ? 'agregado' : 'agregados'}`;
+    prescriptionListPanel.classList.toggle('hidden', totalItems === 0);
 
-    if (prescriptionItems.length === 0) {
+    if (totalItems === 0) {
       const emptyState = document.createElement('p');
       emptyState.className = 'prescription-empty-state';
       emptyState.textContent = 'Aun no agregaste medicamentos a la receta.';
       prescriptionList.appendChild(emptyState);
       return;
     }
+
+    legacyPrescriptionLines.forEach((line, index) => {
+      const article = document.createElement('article');
+      article.className = 'prescription-item prescription-item-readonly';
+      article.setAttribute('role', 'listitem');
+
+      const info = document.createElement('div');
+      const title = document.createElement('strong');
+      title.textContent = line;
+      const detail = document.createElement('span');
+      detail.textContent = 'Guardado en progreso';
+      info.append(title, detail);
+
+      article.appendChild(info);
+      prescriptionList.appendChild(article);
+    });
 
     prescriptionItems.forEach((item, index) => {
       const article = document.createElement('article');
@@ -653,7 +716,7 @@
 
       const info = document.createElement('div');
       const title = document.createElement('strong');
-      title.textContent = `${index + 1}. ${item.medicamento}`;
+      title.textContent = `${legacyPrescriptionLines.length + index + 1}. ${item.medicamento}`;
       const detail = document.createElement('span');
       detail.textContent = `${item.presentacion} | ${item.dosis} ${item.unidad} | ${item.frecuencia}`;
       info.append(title, detail);

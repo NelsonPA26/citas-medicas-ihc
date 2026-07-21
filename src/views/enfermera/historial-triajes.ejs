@@ -1,10 +1,3 @@
-<%
-  const estadoHistorial = {
-    completada: 'Completada',
-    cancelada: 'Cancelada'
-  };
-%>
-
 <div class="module-card citas-card">
   <div class="module-header">
     <p>Consulta los triajes cerrados por atenciones completadas o citas canceladas.</p>
@@ -67,16 +60,15 @@
     </div>
   <% } else { %>
     <div class="table-responsive">
-      <table class="data-table">
+      <table class="data-table nurse-triage-history-table">
         <thead>
           <tr>
             <th>Fecha</th>
             <th>Hora</th>
             <th>Paciente</th>
             <th>DNI</th>
-            <th>Médico</th>
+            <th class="triage-history-doctor-col">Médico</th>
             <th>Especialidad</th>
-            <th>Estado</th>
             <th>Acción</th>
           </tr>
         </thead>
@@ -87,9 +79,8 @@
               <td><%= triaje.hora %></td>
               <td><strong><%= triaje.paciente_nombres %> <%= triaje.paciente_apellido_paterno %> <%= triaje.paciente_apellido_materno || '' %></strong></td>
               <td><%= triaje.paciente_dni || 'No registrado' %></td>
-              <td>Dr(a). <%= triaje.medico_nombres %> <%= triaje.medico_apellido_paterno %></td>
+              <td class="triage-history-doctor-col">Dr(a). <%= triaje.medico_nombres %> <%= triaje.medico_apellido_paterno %></td>
               <td><%= triaje.especialidad %></td>
-              <td><span class="status-badge status-<%= triaje.estado %>"><%= estadoHistorial[triaje.estado] || triaje.estado %></span></td>
               <td>
                 <a href="/enfermera/triajes/<%= triaje.id_cita %>/detalle?returnTo=historial" class="btn-table-primary icon-action" title="Ver detalle" aria-label="Ver detalle">
                   <img class="action-metaphor" src="/img/action-metaphors/enfermera/triaje/ver_triaje.png" alt="" aria-hidden="true">

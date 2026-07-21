@@ -64,14 +64,14 @@
   <% } else { %>
 
     <div class="table-responsive">
-      <table class="data-table">
+      <table class="data-table doctor-appointments-table">
         <thead>
           <tr>
             <th>Fecha</th>
             <th>Hora</th>
-            <th>Paciente</th>
+            <th class="doctor-appointment-patient-col">Paciente</th>
             <th>DNI</th>
-            <th>Motivo</th>
+            <th class="doctor-appointment-reason-col">Motivo</th>
             <th>Estado</th>
             <th>Acción</th>
           </tr>
@@ -82,13 +82,13 @@
             <tr>
               <td><%= new Date(cita.fecha).toLocaleDateString('es-PE') %></td>
               <td><%= cita.hora %></td>
-              <td>
+              <td class="doctor-appointment-patient-col">
                 <%= cita.paciente_nombres %>
                 <%= cita.paciente_apellido_paterno %>
                 <%= cita.paciente_apellido_materno || '' %>
               </td>
               <td><%= cita.paciente_dni || 'No registrado' %></td>
-              <td><%= cita.motivo %></td>
+              <td class="doctor-appointment-reason-col"><%= cita.motivo %></td>
               <td>
                 <% if (cita.estado === 'en_consulta' || cita.borrador === 1) { %>
                   <span class="status-badge status-en_consulta">En consulta</span>

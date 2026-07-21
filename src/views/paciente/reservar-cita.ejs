@@ -71,11 +71,15 @@
           href="<%= esModoEdicion ? '/paciente/mis-citas' : '/paciente/dashboard' %>"
           class="btn-light js-cancel-appointment"
           data-cancel-message="<%= esModoEdicion ? 'Si cancelas, se perderán los cambios no guardados de la reserva.' : 'Si cancelas, no se registrará la cita.' %>"
-          title="Cancelar cambios"
-          aria-label="Cancelar cambios"
+          data-pristine-label="<%= esModoEdicion ? 'Volver' : 'Cancelar' %>"
+          data-pristine-title="<%= esModoEdicion ? 'Volver a Mis citas' : 'Cancelar reserva' %>"
+          data-dirty-label="Cancelar cambios"
+          data-dirty-title="Cancelar cambios"
+          title="<%= esModoEdicion ? 'Volver a Mis citas' : 'Cancelar reserva' %>"
+          aria-label="<%= esModoEdicion ? 'Volver a Mis citas' : 'Cancelar reserva' %>"
         >
           <img class="action-metaphor" src="/img/action-metaphors/paciente/citas/cancelar.png" alt="" aria-hidden="true">
-          <span>Cancelar</span>
+          <span id="cancelAppointmentLabel"><%= esModoEdicion ? 'Volver' : 'Cancelar' %></span>
         </a>
         <span class="button-tooltip" title="Selecciona una especialidad y un médico para continuar.">
           <button type="button" class="btn-dark" id="nextStep1" disabled title="Selecciona una especialidad y un médico para continuar.">
@@ -227,22 +231,38 @@
   const closeCancelAppointmentModal = document.getElementById('closeCancelAppointmentModal');
   const closeCancelAppointmentModalTop = document.getElementById('closeCancelAppointmentModalTop');
   const confirmCancelAppointment = document.getElementById('confirmCancelAppointment');
-  const initialAppointmentState = {
-    especialidad: especialidadSelect.value,
-    medico: medicoSelect.value,
-    fecha: fechaInput.value,
-    hora: horaSelect.value,
-    motivo: motivoInput.value
-  };
+  const cancelAppointmentLabel = document.getElementById('cancelAppointmentLabel');
+  let initialAppointmentState = getCurrentAppointmentState();
+
+  function normalizeAppointmentValue(name, value) {
+    const normalizedValue = String(value || '').trim();
+    if (name === 'hora' && /^\d{2}:\d{2}/.test(normalizedValue)) return normalizedValue.substring(0, 5);
+    return normalizedValue;
+  }
+
+  function getCurrentAppointmentState() {
+    return {
+      especialidad: normalizeAppointmentValue('especialidad', especialidadSelect.value),
+      medico: normalizeAppointmentValue('medico', medicoSelect.value),
+      fecha: normalizeAppointmentValue('fecha', fechaInput.value),
+      hora: normalizeAppointmentValue('hora', horaSelect.value),
+      motivo: normalizeAppointmentValue('motivo', motivoInput.value)
+    };
+  }
 
   function appointmentHasChanges() {
-    return (
-      especialidadSelect.value !== initialAppointmentState.especialidad ||
-      medicoSelect.value !== initialAppointmentState.medico ||
-      fechaInput.value !== initialAppointmentState.fecha ||
-      horaSelect.value !== initialAppointmentState.hora ||
-      motivoInput.value !== initialAppointmentState.motivo
-    );
+    const currentState = getCurrentAppointmentState();
+    return Object.keys(initialAppointmentState).some(key => currentState[key] !== initialAppointmentState[key]);
+  }
+
+  function updateCancelAppointmentAction() {
+    const hasChanges = appointmentHasChanges();
+    const label = hasChanges ? cancelAppointmentLink.dataset.dirtyLabel : cancelAppointmentLink.dataset.pristineLabel;
+    const title = hasChanges ? cancelAppointmentLink.dataset.dirtyTitle : cancelAppointmentLink.dataset.pristineTitle;
+
+    if (cancelAppointmentLabel) cancelAppointmentLabel.textContent = label;
+    cancelAppointmentLink.title = title;
+    cancelAppointmentLink.setAttribute('aria-label', title);
   }
 
   [especialidadSelect, medicoSelect, fechaInput, horaSelect, motivoInput].forEach(input => {
@@ -250,11 +270,13 @@
       clearInlineMessage();
       updateStep1State();
       updateStep2State();
+      updateCancelAppointmentAction();
     });
     input.addEventListener('change', () => {
       clearInlineMessage();
       updateStep1State();
       updateStep2State();
+      updateCancelAppointmentAction();
     });
   });
 
@@ -403,7 +425,7 @@
     updateStep2State();
   });
 
-  async function cargarHorasDisponibles() {
+  async function cargarHorasDisponibles(syncInitialState = false) {
     const idMedico = medicoSelect.value;
     const fecha = fechaInput.value;
     if (!idMedico || !fecha) {
@@ -449,11 +471,13 @@
         const option = document.createElement('option');
         option.value = hora;
         option.textContent = hora.substring(0, 5);
-        if (isAppointmentEditMode && hora === selectedHora) option.selected = true;
+        if (isAppointmentEditMode && normalizeAppointmentValue('hora', hora) === normalizeAppointmentValue('hora', selectedHora)) option.selected = true;
         horaSelect.appendChild(option);
       });
       horaSelect.disabled = false;
+      if (syncInitialState) initialAppointmentState = getCurrentAppointmentState();
       updateStep2State();
+      updateCancelAppointmentAction();
     } catch (error) {
       horaSelect.innerHTML = '<option value="">Error al cargar horas</option>';
       setAppointmentFieldMessage(horaSelect, 'No se pudieron cargar los horarios. Intenta nuevamente en unos segundos.');
@@ -509,6 +533,7 @@
 
   cancelAppointmentLink.addEventListener('click', (event) => {
     event.preventDefault();
+    updateCancelAppointmentAction();
     if (!appointmentHasChanges()) {
       window.location.href = cancelAppointmentLink.href;
       return;
@@ -529,7 +554,8 @@
   });
 
   filtrarMedicos();
-  if (isAppointmentEditMode) cargarHorasDisponibles();
+  if (isAppointmentEditMode) cargarHorasDisponibles(true);
   updateStep1State(false);
   updateStep2State();
+  updateCancelAppointmentAction();
 </script>
